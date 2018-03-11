@@ -1,0 +1,114 @@
+<template>
+    <v-app standalone>
+        <div v-if="$auth.ready()">
+            <v-navigation-drawer fixed
+                                 app
+                                 :mini-variant.sync="mini"
+                                 v-model="drawer">
+                <v-toolbar flat class="transparent">
+                    <v-card flat width="100%">
+                        <v-card-media src="/images/office.jpg">
+                            <v-layout column class="media">
+                                <v-spacer></v-spacer>
+                                <v-list subheader>
+                                    <v-list-tile avatar>
+                                        <v-list-tile-avatar>
+                                            <img src="/images/user.png">
+                                        </v-list-tile-avatar>
+                                        <v-list-tile-content>
+                                            <v-list-tile-title class="white--text">{{ $auth.user().name }}</v-list-tile-title>
+                                            <v-list-tile-sub-title class="white--text">{{ $auth.user().email }}</v-list-tile-sub-title>
+                                        </v-list-tile-content>
+                                    </v-list-tile>
+                                </v-list>
+                                <v-spacer></v-spacer>
+                            </v-layout>
+                        </v-card-media>
+                    </v-card>
+                </v-toolbar>
+                <v-list class="pt-0" dense>
+                    <v-divider></v-divider>
+                    <li v-for="item in routes" v-if="($auth.check() && item.meta.auth) || (!$auth.check() && !item.meta.auth)">
+                        <router-link :to="item.path" class="list__tile" exact v-if="!item.divider">
+                            <v-list-tile-action>
+                                <v-icon>{{ item.icon }}</v-icon>
+                            </v-list-tile-action>
+                            <v-list-tile-content>
+                                <v-list-tile-title>{{ $t(item.title) }}</v-list-tile-title>
+                            </v-list-tile-content>
+                        </router-link>
+                        <v-divider v-if="item.divider"></v-divider>
+                    </li>
+                    <v-divider></v-divider>
+                    <li v-if="$auth.check()">
+                        <a href="#" class="list__tile" @click.prevent="$auth.logout()">
+                            <div class="list__tile__action"><i aria-hidden="true" class="icon material-icons">exit_to_app</i></div>
+                            <div class="list__tile__content">
+                                <div class="list__tile__title">{{ $t('logout') }}</div>
+                            </div>
+                        </a>
+                    </li>
+                </v-list>
+            </v-navigation-drawer>
+            <v-toolbar color="blue"
+                       dark
+                       fixed
+                       app>
+                <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
+                <v-btn icon @click.stop="mini = !mini">
+                    <v-icon v-html="mini ? 'chevron_right' : 'chevron_left'"></v-icon>
+                </v-btn>
+                <v-toolbar-title>{{ $t(this.$route.name) }}</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-menu :nudge-width="100">
+                    <v-toolbar-title slot="activator" :title="$t('lang')">
+                        <i class="material-icons">language</i>
+                        <v-icon dark>arrow_drop_down</v-icon>
+                    </v-toolbar-title>
+                    <v-list>
+                        <v-list-tile v-for="item in languages" :key="item.code" @click="set_local(item.code)">
+                            <v-list-tile-title v-text="item.title"></v-list-tile-title>
+                        </v-list-tile>
+                    </v-list>
+                </v-menu>
+            </v-toolbar>
+            <v-content fill-height fill-width>
+                <v-container fluid fill-height fill-width>
+                    <slot></slot>
+                    <router-view></router-view>
+                </v-container>
+            </v-content>
+        </div>
+        <v-container fill-height v-if="!$auth.ready()">
+            <v-layout row wrap align-center>
+                <v-flex class="text-xs-center">
+                    <v-progress-circular indeterminate :size="100" color="primary"></v-progress-circular>
+                </v-flex>
+            </v-layout>
+        </v-container>
+    </v-app>
+</template>
+<script>
+    const languages = [{title: 'English', code: 'en'}, {title: 'Русский', code: 'ru'}];
+    export default {
+        data() {
+            return {
+                drawer: true,
+                mini: false,
+                languages: languages,
+                routes: this.$router.options.routes,
+                title: this.title,
+                loading: true
+            }
+        },
+        methods: {
+            set_local(code) {
+                Vue.i18n.set(code);
+                Vue.ls.set('lang', code);
+            }
+        },
+        mounted() {
+            this.loading = false
+        }
+    }
+</script>
