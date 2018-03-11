@@ -2406,7 +2406,6 @@ var languages = [{ title: 'English', code: 'en' }, { title: 'Русский', co
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["a"] = ({
     data: function data() {
@@ -2417,7 +2416,7 @@ var languages = [{ title: 'English', code: 'en' }, { title: 'Русский', co
             loading: true,
             carousel: true,
             search: '',
-            headers: [{ text: 'id', align: 'right', value: 'id' }, { text: 'Name', align: 'left', value: 'name' }, { text: 'Requirement', align: 'left', value: 'requirement' }, { text: 'Comment', align: 'left', value: 'comment' }, { text: 'Date', align: 'left', value: 'date' }, { text: 'Result', align: 'left', value: 'result' }, { text: 'Photos', align: 'left', value: 'photos' }],
+            headers: [{ text: 'id', align: 'right', value: 'id' }, { text: 'Requirement', align: 'left', value: 'requirement' }, { text: 'Comment', align: 'left', value: 'comment' }, { text: 'Date', align: 'left', value: 'date' }, { text: 'Result', align: 'left', value: 'result' }, { text: 'Photos', align: 'left', value: 'photos' }],
             title: '',
             items: [],
             attaches_array: [],
@@ -59094,7 +59093,7 @@ module.exports = {"lang":"Локализация","lg_russian":"Русский",
 /* 71 */
 /***/ (function(module, exports) {
 
-module.exports = {"lang":"Language","lg_russian":"Русский","lg_english":"English","login_form":"Login form","login":"Login","logout":"Logout","register":"Register","remember_me":"Remember Me","forgot_your_password":"Forgot your password?","no_data":"No data available","new_item":"Добавить","edit_item":"Редактировать","search":"Поиск","cancel":"Отмена","save":"Сохранить","warning":"Предупреждение","sure_delete_item":"Are you sure you want to delete this item?","name_required":"Name is required","email_required":"Email is required","email_not_valid":"E-mail must be valid","users":"Users","roles":"Roles","checklists":"CheckLists","checklist_categories":"CheckList categories","requirements":"Requirements","requirement_groups":"Requirement groups","objects":"Objects","object_groups":"Object groups","audits":"Audits","audit_results":"Audit results"}
+module.exports = {"lang":"Language","lg_russian":"Русский","lg_english":"English","login_form":"Login form","login":"Login","logout":"Logout","register":"Register","remember_me":"Remember Me","forgot_your_password":"Forgot your password?","no_data":"No data available","new_item":"New item","edit_item":"Edit","search":"Search","cancel":"Cancel","save":"Save","warning":"Warning","sure_delete_item":"Are you sure you want to delete this item?","name_required":"Name is required","email_required":"Email is required","email_not_valid":"E-mail must be valid","users":"Users","roles":"Roles","checklists":"CheckLists","checklist_categories":"CheckList categories","requirements":"Requirements","requirement_groups":"Requirement groups","objects":"Objects","object_groups":"Object groups","audits":"Audits","audit_results":"Audit results"}
 
 /***/ }),
 /* 72 */
@@ -60869,8 +60868,6 @@ var render = function() {
                       _c("td", { staticClass: "text-xs-right" }, [
                         _vm._v(_vm._s(props.item.id))
                       ]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(props.item.audit.title))]),
                       _vm._v(" "),
                       _c("td", [_vm._v(_vm._s(props.item.requirement.title))]),
                       _vm._v(" "),

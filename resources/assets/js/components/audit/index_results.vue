@@ -97,7 +97,6 @@
             >
                 <template slot="items" slot-scope="props">
                     <td class="text-xs-right">{{ props.item.id }}</td>
-                    <td>{{ props.item.audit.title }}</td>
                     <td>{{ props.item.requirement.title }}</td>
                     <td>{{ props.item.comment }}</td>
                     <td>{{ props.item.created_at }}</td>
@@ -141,7 +140,6 @@
                 search: '',
                 headers: [
                     { text: 'id', align: 'right', value: 'id' },
-                    { text: 'Name', align: 'left', value: 'name' },
                     { text: 'Requirement', align: 'left', value: 'requirement' },
                     { text: 'Comment', align: 'left', value: 'comment' },
                     { text: 'Date', align: 'left', value: 'date' },
