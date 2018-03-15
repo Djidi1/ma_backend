@@ -8,6 +8,7 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
+window.moment = require('moment');
 
 window.axios = require('axios');
 window.axios.defaults.headers.common = {
@@ -22,9 +23,11 @@ import Vuetify from 'vuetify';
 import VueRouter from 'vue-router';
 import VueAxios from 'vue-axios';
 import VueLocalStorage from 'vue-ls';
+import fullCalendar from 'vue-fullcalendar'
 import VuetifyConfirm from 'vuetify-confirm'
 import 'vuetify/dist/vuetify.min.css'
 
+Vue.component('full-calendar', fullCalendar);
 
 Vue.use(Vuetify);
 Vue.use(VueRouter);
@@ -75,6 +78,7 @@ import Requirement from './components/requirement/index.vue';
 import RequirementGroups from './components/requirement/groups.vue';
 import CheckLists from './components/checklist/index.vue';
 import CheckListCategories from './components/checklist/groups.vue';
+import TaskCalendar from './components/tasks/calendar.vue';
 
 const routes = [
     {title: 'home', name:'home',  icon: 'home', path: '/home', component: Dashboard, meta: { auth: false } },
@@ -93,6 +97,7 @@ const routes = [
     {divider: true, path: '/', meta: { auth: true }},
     {title: 'audits', name:'audits', icon: 'folder', path: '/audits', component: Audit, meta: { auth: true }},
     {title: 'audit_results', name:'audit_results', icon: 'folder_special', path: '/audit_results', component: AuditResults, meta: { auth: true }},
+    {title: 'tasks_calendar', name:'tasks_calendar', icon: 'event', path: '/tasks_calendar', component: TaskCalendar, meta: { auth: true }},
 ];
 
 const router = new VueRouter({

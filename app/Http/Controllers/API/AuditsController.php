@@ -33,6 +33,7 @@ class AuditsController extends Controller
             $object_id = $data['audit']['object_id'];
             $audit_title = $data['audit']['title'];
             $audit_add_date = $data['audit']['date_add'];
+            $audit_comment = $data['audit']['comment'];
             $audit_id = 0;
             foreach ($data['audit']['check_list'] as $check_list){
                 $check_list_id = $check_list['id'];
@@ -43,9 +44,11 @@ class AuditsController extends Controller
                         [
                             'title' => $audit_title,
                             'date_add' => Carbon::parse($audit_add_date),
+                            'date' => Carbon::parse($audit_add_date),
                             'user_id' => $user->id,
                             'checklist_id' => $check_list_id,
                             'object_id' => $object_id,
+                            'comment' => $audit_comment,
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ]
@@ -97,7 +100,8 @@ class AuditsController extends Controller
                         }
                     }
                 }
-            }            return $audit_id;
+            }
+            return $audit_id;
         }else{
             return 0;
         }

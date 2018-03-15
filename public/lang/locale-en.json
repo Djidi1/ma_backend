@@ -21,12 +21,16 @@
   "email_not_valid": "E-mail must be valid",
   "users": "Users",
   "roles": "Roles",
+  "title": "Title",
+  "date": "Date",
   "checklists": "CheckLists",
   "checklist_categories": "CheckList categories",
   "requirements": "Requirements",
   "requirement_groups": "Requirement groups",
+  "object": "Object",
   "objects": "Objects",
   "object_groups": "Object groups",
   "audits": "Audits",
-  "audit_results": "Audit results"
+  "audit_results": "Audit results",
+  "tasks_calendar": "Calendar of tasks"
 }

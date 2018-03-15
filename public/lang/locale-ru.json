@@ -21,12 +21,16 @@
   "email_not_valid": "Введите корректный адрес email",
   "users": "Пользователи",
   "roles": "Группы пользователей",
+  "title": "Название",
+  "date": "Дата",
   "checklists": "Чек-листы",
   "checklist_categories": "Категории чек-листов",
   "requirements": "Требования",
   "requirement_groups": "Группы требований",
+  "object": "Объект",
   "objects": "Объекты",
   "object_groups": "Группы объектов",
   "audits": "Аудиты",
-  "audit_results": "Результаты аудитов"
+  "audit_results": "Результаты аудитов",
+  "tasks_calendar": "Календарь задач"
 }

@@ -27,4 +27,49 @@ class AuditListsController extends Controller
         return compact('audits', 'checklists', 'objects', 'results', 'users');
     }
 
+    public function auditTasksAll()
+    {
+        $audits = Audit::all();
+        return $audits;
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return Audit|\Illuminate\Database\Eloquent\Builder
+     */
+    public function store(Request $request)
+    {
+        $requestData = $request->all();
+        $result = Audit::create($requestData);
+        return $result;
+    }
+
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return bool
+     */
+    public function update(Request $request)
+    {
+        $requestData = $request->all();
+        $result = Audit::where('id', $request->id)->update($requestData);
+        return $result;
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param Request $request
+     * @return bool
+     */
+    public function destroy(Request $request)
+    {
+        $result = Audit::where('id', $request->id)->delete();
+        return $result;
+    }
+
 }

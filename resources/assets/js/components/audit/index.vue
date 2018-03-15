@@ -9,7 +9,7 @@
                     <v-container grid-list-md>
                         <v-layout wrap>
                             <v-flex xs12>
-                                <v-text-field label="Title" v-model="editedItem.title" required></v-text-field>
+                                <v-text-field :label="$t('title')" v-model="editedItem.title" required></v-text-field>
                             </v-flex>
                             <v-flex xs12>
                                 <v-select
@@ -17,7 +17,7 @@
                                         item-text = "title"
                                         item-value = "id"
                                         v-model="editedItem.object_id"
-                                        label="Select"
+                                        :label="$t('object')"
                                         required
                                 ></v-select>
                             </v-flex>
@@ -27,19 +27,47 @@
                                         item-text = "title"
                                         item-value = "id"
                                         v-model="editedItem.checklist_id"
-                                        label="Select"
+                                        :label="$t('checklists')"
                                         required
                                 ></v-select>
                             </v-flex>
                             <v-flex xs12>
                                 <v-select
                                         :items="users"
-                                        item-text = "title"
+                                        item-text = "name"
                                         item-value = "id"
                                         v-model="editedItem.user_id"
-                                        label="Select"
+                                        :label="$t('users')"
                                         required
                                 ></v-select>
+                            </v-flex>
+                            <v-flex xs12>
+                                <v-dialog
+                                        ref="picker"
+                                        persistent
+                                        v-model="picker"
+                                        lazy
+                                        full-width
+                                        width="290px"
+                                        :return-value.sync="editedItem.date"
+                                >
+                                    <v-text-field
+                                            slot="activator"
+                                            :label="$t('date')"
+                                            v-model="editedItem.date"
+                                            prepend-icon="event"
+                                            readonly
+                                    ></v-text-field>
+                                    <v-date-picker
+                                            v-model="editedItem.date"
+                                            first-day-of-week="1"
+                                            scrollable
+                                    >
+                                        <v-spacer></v-spacer>
+                                        <v-btn flat color="primary" @click="picker = false">{{$t('cancel')}}</v-btn>
+                                        <v-btn flat color="primary" @click="$refs.picker.save(editedItem.date)">OK</v-btn>
+                                    </v-date-picker>
+                                </v-dialog>
                             </v-flex>
                         </v-layout>
                     </v-container>
@@ -53,7 +81,7 @@
         </v-dialog>
         <v-card fluid fill-height fill-width>
             <v-card-title>
-                <!--<v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>-->
+                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
                 <v-spacer></v-spacer>
                 <v-text-field
                         append-icon="search"
@@ -76,16 +104,18 @@
                     <td>{{ props.item.title }}</td>
                     <td>{{ checklists.find(x => x.id === props.item.checklist_id).title }}</td>
                     <td>{{ objects.find(x => x.id === props.item.object_id).title }}</td>
-                    <td>{{ props.item.user.name }}</td>
+                    <td>{{ users.find(x => x.id === props.item.user_id).name }}</td>
                     <td>{{ typeof props.item.audit_result !== 'undefined' ? props.item.audit_result.length : '0' }}</td>
-                    <!--<td class="justify-center layout px-0">-->
-                        <!--<v-btn icon class="mx-0" @click="editItem(props.item)">-->
-                            <!--<v-icon color="teal">edit</v-icon>-->
-                        <!--</v-btn>-->
-                        <!--<v-btn icon class="mx-0" @click="deleteItem(props.item)">-->
-                            <!--<v-icon color="pink">delete</v-icon>-->
-                        <!--</v-btn>-->
-                    <!--</td>-->
+                    <td>{{ frontEndDateFormat(props.item.date) }}</td>
+                    <td>{{ props.item.comment }}</td>
+                    <td class="justify-center layout px-0">
+                        <v-btn icon class="mx-0" @click="editItem(props.item)">
+                            <v-icon color="teal">edit</v-icon>
+                        </v-btn>
+                        <v-btn icon class="mx-0" @click="deleteItem(props.item)">
+                            <v-icon color="pink">delete</v-icon>
+                        </v-btn>
+                    </td>
                 </template>
                 <v-alert slot="no-results" :value="true" color="error" icon="warning">
                     Your search for "{{ search }}" found no results.
@@ -100,6 +130,8 @@
         data() {
             return {
                 dialog: false,
+                picker: false,
+                date: '',
                 loading: true,
                 search: '',
                 headers: [
@@ -109,7 +141,9 @@
                     { text: 'Object', align: 'left', value: 'object' },
                     { text: 'User', align: 'left', value: 'user' },
                     { text: 'Results', align: 'left', value: 'results' },
-                    // { text: 'Actions', align: 'center', sortable: false, value: '' }
+                    { text: 'Date', align: 'left', value: 'date' },
+                    { text: 'Comment', align: 'left', value: 'comment' },
+                    { text: 'Actions', align: 'center', sortable: false, value: '' }
                 ],
                 title: '',
                 items: [],
@@ -124,7 +158,6 @@
                     title: ''
                 },
                 valid: false,
-
             }
         },
         computed: {
@@ -138,6 +171,12 @@
             }
         },
         methods: {
+            frontEndDateFormat: function(date) {
+                return moment(date, 'YYYY-MM-DD').format('DD.MM.YYYY');
+            },
+            backEndDateFormat: function(date) {
+                return moment(date, 'DD.MM.YYYY').format('YYYY-MM-DD');
+            },
             getItems() {
                 axios.get('/audits_all')
                     .then(response => {
@@ -158,7 +197,7 @@
                 const index = this.items.indexOf(item);
                 this.$confirm(this.$t('sure_delete_item')).then(res => {
                     if (res) {
-                        axios.delete('/checklists_delete/' + item.id);
+                        axios.delete('/audits_delete/' + item.id);
                         this.items.splice(index, 1)
                     }
                 });
@@ -176,9 +215,11 @@
                     let item_index = this.editedIndex;
                     let editedItem = this.editedItem;
                     let item = this.editedItem;
-                    delete item['cl_category'];
-                    delete item['requirement'];
-                    axios.put('/checklists_update/' + item.id, item)
+                    delete item['audit_object'];
+                    delete item['audit_result'];
+                    delete item['checklist'];
+                    delete item['user'];
+                    axios.put('/audits_update/' + item.id, item)
                         .then(response => {
                             if (response.data === 1) {
                                 Object.assign(this.items[item_index], editedItem);
@@ -188,7 +229,9 @@
                             this.errors.push(e)
                         });
                 } else {
-                    axios.post(`/checklists_save`, this.editedItem)
+                    let new_item = this.editedItem;
+                    new_item.date_add = new_item.date;
+                    axios.post(`/audits_save`, new_item)
                         .then(response => {
                             this.items.push(response.data)
                         })

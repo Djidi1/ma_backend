@@ -79,11 +79,14 @@ Route::group(['middleware' => 'jwt.auth'], function(){
 
 // Аудиты
     Route::get('audits_all', 'AuditListsController@index');
-//    Route::post('audits_save', 'AuditListsController@store');
-//    Route::put('audits_update/{id}', 'AuditListsController@update');
-//    Route::delete('audits_delete/{id}', 'AuditListsController@destroy');
+    Route::post('audits_save', 'AuditListsController@store');
+    Route::put('audits_update/{id}', 'AuditListsController@update');
+    Route::delete('audits_delete/{id}', 'AuditListsController@destroy');
 
     Route::get('audit_results_all/{id}', 'AuditResultsController@index');
+
+
+    Route::get('audit_tasks_all', 'AuditListsController@auditTasksAll');
 });
 
 Route::group(['middleware' => 'jwt.refresh'], function(){

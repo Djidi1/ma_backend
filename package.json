@@ -25,6 +25,8 @@
     },
     "dependencies": {
         "@websanova/vue-auth": "^2.21.3-beta",
+        "moment": "^2.21.0",
+        "vue-fullcalendar": "^1.0.9",
         "vue-ls": "^2.4.1",
         "vuetify": "^1.0.6",
         "vuetify-confirm": "0.0.3",
