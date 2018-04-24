@@ -2,34 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
+
+use App\Responsible;
+use App\Requirement;
 use App\AuditObject;
-use App\AuditObjectGroup;
+use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
-
-class ObjectsController extends Controller
+class ResponsibleController extends Controller
 {
-    // For API
     /**
      * Display a listing of the resource.
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\Response
      */
-    public function getObjects(Request $request)
-    {
-//        $user = Auth::user();
-        $objects = AuditObject::with('audit_object_group', 'user')->get();
-        return response()->json($objects);
-    }
-
     public function index(Request $request)
     {
-        $object_groups = AuditObjectGroup::all();
-        $objects = AuditObject::with('audit_object_group')->get();
-        return compact('objects', 'object_groups');
+        $users = User::all();
+        $objects = AuditObject::all();
+        $requirements = Requirement::all();
+        $responsible = Responsible::all();
+        return compact('responsible', 'users', 'objects', 'requirements');
 
 //        return response()->json($checklists);
     }
@@ -42,7 +35,7 @@ class ObjectsController extends Controller
     public function store(Request $request)
     {
         $requestData = $request->all();
-        $result = AuditObject::create($requestData);
+        $result = Responsible::create($requestData);
         return $result;
     }
 
@@ -55,8 +48,14 @@ class ObjectsController extends Controller
      */
     public function update(Request $request)
     {
-        $requestData = $request->all();
-        $result = AuditObject::where('id', $request->id)->update($requestData);
+        $requestData = $request->input();
+        $responsible = Responsible::find($request->id);
+        $responsible->user_id = $requestData['user_id'];
+        $responsible->object_id = $requestData['object_id'];
+        $responsible->requirement_id = $requestData['requirement_id'];
+        $responsible->save();
+        $result = Responsible::find($request->id);
+//        $result = Responsible::where('id', $request->id)->update($requestData);
         return $result;
     }
 
@@ -68,7 +67,7 @@ class ObjectsController extends Controller
      */
     public function destroy(Request $request)
     {
-        $result = AuditObject::where('id', $request->id)->delete();
+        $result = Responsible::where('id', $request->id)->delete();
         return $result;
     }
 }

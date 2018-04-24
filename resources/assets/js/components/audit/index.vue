@@ -100,22 +100,27 @@
                     class="elevation-1"
             >
                 <template slot="items" slot-scope="props">
-                    <td class="text-xs-right">{{ props.item.id }}</td>
-                    <td>{{ props.item.title }}</td>
-                    <td>{{ checklists.find(x => x.id === props.item.checklist_id).title }}</td>
-                    <td>{{ objects.find(x => x.id === props.item.object_id).title }}</td>
-                    <td>{{ users.find(x => x.id === props.item.user_id).name }}</td>
-                    <td>{{ typeof props.item.audit_result !== 'undefined' ? props.item.audit_result.length : '0' }}</td>
-                    <td>{{ frontEndDateFormat(props.item.date) }}</td>
-                    <td>{{ props.item.comment }}</td>
-                    <td class="justify-center layout px-0">
-                        <v-btn icon class="mx-0" @click="editItem(props.item)">
-                            <v-icon color="teal">edit</v-icon>
-                        </v-btn>
-                        <v-btn icon class="mx-0" @click="deleteItem(props.item)">
-                            <v-icon color="pink">delete</v-icon>
-                        </v-btn>
-                    </td>
+                    <tr>
+                        <td class="text-xs-right">{{ props.item.id }}</td>
+                        <td>{{ props.item.title }}</td>
+                        <td>{{ checklists.find(x => x.id === props.item.checklist_id).title }}</td>
+                        <td>{{ objects.find(x => x.id === props.item.object_id).title }}</td>
+                        <td>{{ users.find(x => x.id === props.item.user_id).name }}</td>
+                        <td>{{ typeof props.item.audit_result !== 'undefined' ? props.item.audit_result.length : '0' }}</td>
+                        <td>{{ frontEndDateFormat(props.item.date) }}</td>
+                        <td>{{ props.item.comment }}</td>
+                        <td class="justify-center layout px-0">
+                            <v-btn icon class="mx-0" @click="openResult(props.item.id)">
+                                <v-icon color="blue">open_in_browser</v-icon>
+                            </v-btn>
+                            <v-btn icon class="mx-0" @click="editItem(props.item)">
+                                <v-icon color="teal">edit</v-icon>
+                            </v-btn>
+                            <v-btn icon class="mx-0" @click="deleteItem(props.item)">
+                                <v-icon color="pink">delete</v-icon>
+                            </v-btn>
+                        </td>
+                    </tr>
                 </template>
                 <v-alert slot="no-results" :value="true" color="error" icon="warning">
                     Your search for "{{ search }}" found no results.
@@ -171,6 +176,10 @@
             }
         },
         methods: {
+
+            openResult(id) {
+                this.$router.push({path: '/audit_results/' + id });
+            },
             frontEndDateFormat: function(date) {
                 return moment(date, 'YYYY-MM-DD').format('DD.MM.YYYY');
             },

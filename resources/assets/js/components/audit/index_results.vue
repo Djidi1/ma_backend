@@ -53,13 +53,13 @@
         </v-dialog>
 
         <v-dialog v-model="dialog_photo" max-width="800px">
-            <v-btn color="primary"
-                   absolute
-                   small
-                   fab
-                   top
-                   right
-                   @click.stop="dialog_photo=false"><v-icon color="grey">clear</v-icon></v-btn>
+            <!--<v-btn color="primary"-->
+                   <!--absolute-->
+                   <!--small-->
+                   <!--fab-->
+                   <!--top-->
+                   <!--right-->
+                   <!--@click.stop="dialog_photo=false"><v-icon color="grey">clear</v-icon></v-btn>-->
             <v-card>
                 <v-carousel :cycle="false" :lazy="true" v-if="carousel">
                     <v-carousel-item v-for="(item,i) in attaches_array" :src="item.file_path" :key="i"></v-carousel-item>
@@ -76,6 +76,7 @@
                         :label = "$t('audits')"
                         item-text = "title"
                         item-value = "id"
+                        @change="getItems(1)"
                         autocomplete
                 ></v-select>
                 <v-spacer></v-spacer>
@@ -132,7 +133,6 @@
     export default {
         data() {
             return {
-                audit_select: false,
                 dialog: false,
                 dialog_photo: false,
                 loading: true,
@@ -148,6 +148,7 @@
                     // { text: 'Actions', align: 'center', sortable: false, value: '' }
                 ],
                 title: '',
+                audit_select: null,
                 items: [],
                 attaches_array: [],
                 checklists: [],
@@ -173,18 +174,20 @@
         watch: {
             dialog(val) {
                 val || this.close()
-            },
+            }/*,
             audit_select(val){
                 this.getItems(val)
-            }
+            }*/
         },
         methods: {
             getItems(audit_id) {
                 this.loading = true;
+                let audit_id_value = audit_id;
                 axios.get('/audit_results_all/'+audit_id)
                     .then(response => {
                         this.items = response.data.audit_results;
                         this.audits = response.data.audits;
+                        this.audit_select = parseInt(audit_id_value);
                         this.loading = false;
                     });
             },
@@ -255,7 +258,8 @@
             }
         },
         mounted() {
-            this.getItems(0);
+            let audit_id = this.$route.params.id;
+            this.getItems(audit_id);
         }
     }
 </script>

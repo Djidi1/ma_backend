@@ -33,6 +33,8 @@ Route::post('auth/register', 'AuthController@register');
 // Вход из Админки
 Route::post('auth/login', 'AuthController@login');
 
+Route::get('auth/refresh', 'AuthController@refresh');
+
 Route::group(['middleware' => 'jwt.auth'], function(){
 // Авторизация
     Route::get('auth/user', 'AuthController@user');
@@ -43,6 +45,12 @@ Route::group(['middleware' => 'jwt.auth'], function(){
     Route::post('users_save', 'Admin\UsersController@store');
     Route::put('users_update/{id}', 'Admin\UsersController@update');
     Route::delete('users_delete/{id}', 'Admin\UsersController@destroy');
+
+// Ответственные
+    Route::get('responsible_all', 'ResponsibleController@index');
+    Route::post('responsible_save', 'ResponsibleController@store');
+    Route::put('responsible_update/{id}', 'ResponsibleController@update');
+    Route::delete('responsible_delete/{id}', 'ResponsibleController@destroy');
 
 // Чек-листы
     Route::get('cl_categories_all', 'ClCategoryController@index');
@@ -88,7 +96,8 @@ Route::group(['middleware' => 'jwt.auth'], function(){
 
     Route::get('audit_tasks_all', 'AuditListsController@auditTasksAll');
 });
-
+/*
 Route::group(['middleware' => 'jwt.refresh'], function(){
     Route::get('auth/refresh', 'AuthController@refresh');
 });
+*/
