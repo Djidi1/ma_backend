@@ -29,7 +29,7 @@ class AuditListsController extends Controller
 
     public function auditTasksAll()
     {
-        $audits = Audit::all();
+        $audits = Audit::with('audit_result', 'user')->get();
         return $audits;
     }
 

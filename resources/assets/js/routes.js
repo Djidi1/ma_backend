@@ -36,6 +36,6 @@ export default [
     {title: 'object_groups', name:'object_groups', icon: 'location_city', path: '/objects_groups', component: ObjectGroups, meta: { auth: true }},
     {divider: true, path: '/', meta: { auth: true }},
     {title: 'audits', name:'audits', icon: 'folder', path: '/audits', component: Audit, meta: { auth: true }},
-    {title: 'audit_results', name:'audit_results', icon: 'folder_special', path: '/audit_results/:id', component: AuditResults, meta: { auth: true }},
+    {title: 'audit_results', name:'audit_results', icon: 'folder_special', path: '/audit_results/:id', component: AuditResults, meta: { auth: true, no_show: true }},
     {title: 'tasks_calendar', name:'tasks_calendar', icon: 'event', path: '/tasks_calendar', component: TaskCalendar, meta: { auth: true }},
 ];

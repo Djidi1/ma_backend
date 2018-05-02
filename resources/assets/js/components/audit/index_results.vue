@@ -70,15 +70,15 @@
         <v-card fluid fill-height fill-width>
             <v-card-title>
                 <!--<v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>-->
-                <v-select
+                <!--<v-select
                         :items="audits"
                         v-model="audit_select"
                         :label = "$t('audits')"
                         item-text = "title"
                         item-value = "id"
-                        @change="getItems(1)"
+                        @change="getItems(audit_select.id)"
                         autocomplete
-                ></v-select>
+                ></v-select>-->
                 <v-spacer></v-spacer>
                 <v-text-field
                         append-icon="search"

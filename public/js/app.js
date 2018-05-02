@@ -18049,7 +18049,7 @@ var languages = [{ title: 'English', code: 'en' }, { title: 'Русский', co
                     this.error = true;
                 },
                 rememberMe: true,
-                redirect: '/dashboard',
+                redirect: '/tasks_calendar',
                 fetchUser: true
             });
         }
@@ -20127,6 +20127,42 @@ var languages = [{ title: 'English', code: 'en' }, { title: 'Русский', co
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 var demoEvents = [{
     title: 'Демонстрация MobileAudit',
@@ -20137,13 +20173,16 @@ var demoEvents = [{
     data: function data() {
         return {
             dialog: false,
+            picker: false,
             fcEvents: demoEvents,
 
             editedItem: {
-                title: ''
+                title: '',
+                date: ''
             },
             defaultItem: {
-                title: ''
+                title: '',
+                date: ''
             },
             checklists: [],
             objects: [],
@@ -20163,18 +20202,92 @@ var demoEvents = [{
             axios.get('/audit_tasks_all').then(function (response) {
                 var audit_tasks = response.data;
                 var i = void 0;
-                console.log(audit_tasks);
                 for (i = 0; i < audit_tasks.length; i++) {
                     if (audit_tasks.hasOwnProperty(i)) {
                         Object.defineProperty(audit_tasks[i], 'start', Object.getOwnPropertyDescriptor(audit_tasks[i], 'date'));
                     }
+                    var cssClass = 'new-item';
+                    // Если все результаты положительные, то аудит успешный
+                    if (audit_tasks[i]['audit_result'].length > 0) {
+                        cssClass = 'done-item';
+                        var k = void 0;
+                        for (k = 0; k < audit_tasks[i]['audit_result'].length; k++) {
+                            // Если есть неудовлетворительный результат, то считаем аудит в работе
+                            if (audit_tasks[i]['audit_result'][k]['result'] === 0) {
+                                cssClass = 'in-work-item';
+                            }
+                        }
+                    }
+                    Object.defineProperty(audit_tasks[i], 'cssClass', { value: cssClass });
                 }
                 _this.fcEvents = audit_tasks;
             });
+            axios.get('/audits_all').then(function (response) {
+                // this.items = response.data.audits;
+                _this.checklists = response.data.checklists;
+                _this.objects = response.data.objects;
+                _this.users = response.data.users;
+                _this.loading = false;
+            });
         },
-        eventClick: function eventClick(day, jsEvent) {
-            console.log(day);
-            console.log(jsEvent);
+        close: function close() {
+            var _this2 = this;
+
+            this.dialog = false;
+            setTimeout(function () {
+                _this2.editedItem = Object.assign({}, _this2.defaultItem);
+                _this2.editedIndex = -1;
+            }, 300);
+        },
+        save: function save(event) {
+            var _this3 = this;
+
+            if (this.editedIndex > -1) {
+                var item_index = this.editedIndex;
+                var editedItem = this.editedItem;
+                var item = this.editedItem;
+                delete item['audit_object'];
+                delete item['audit_result'];
+                delete item['checklist'];
+                delete item['user'];
+                delete item['start'];
+                delete item['end'];
+                delete item['cellIndex'];
+                delete item['isShow'];
+                axios.put('/audits_update/' + item.id, item).then(function (response) {
+                    if (response.data === 1) {
+                        Object.defineProperty(editedItem, 'start', Object.getOwnPropertyDescriptor(editedItem, 'date'));
+                        Object.assign(_this3.fcEvents[item_index], editedItem);
+                    }
+                }).catch(function (e) {
+                    _this3.errors.push(e);
+                });
+            } else {
+                var new_item = this.editedItem;
+                new_item.date_add = this.editedItem.date;
+                axios.post('/audits_save', new_item).then(function (response) {
+                    var addedItem = response.data;
+                    Object.defineProperty(addedItem, 'start', Object.getOwnPropertyDescriptor(addedItem, 'date'));
+                    _this3.fcEvents.push(addedItem);
+                }).catch(function (e) {
+                    _this3.errors.push(e);
+                });
+            }
+            this.close();
+        },
+        'changeMonth': function changeMonth(start, end, current) {},
+        'eventClick': function eventClick(event) {
+            this.editedIndex = this.fcEvents.indexOf(event);
+            this.editedItem = Object.assign({}, event);
+            this.dialog = true;
+        },
+        'dayClick': function dayClick(day) {
+            this.editedIndex = -1;
+            Object.defineProperty(this.editedItem, 'date', { value: moment(day).format('YYYY-MM-DD') });
+            this.dialog = true;
+        },
+        'moreClick': function moreClick(day, events, jsEvent) {
+            console.log('moreCLick', day, events, jsEvent);
         }
     },
     mounted: function mounted() {
@@ -75372,9 +75485,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  methods: {
 	    emitChangeMonth: function emitChangeMonth(start, end, currentStart, current) {
-	      console.log('currentDate 2', this.currentDate);
 	      this.currentDate = current;
-	      console.log('currentDate 3', this.currentDate);
 	      this.$emit('changeMonth', start, end, currentStart);
 	    },
 	    emitEventClick: function emitEventClick(event, jsEvent, pos) {
@@ -76145,7 +76256,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    currentDate: function currentDate(val) {
 	      if (!val) return;
 	      this.headDate = val;
-	      console.log('currentDate', val);
+	      // console.log('currentDate', val);
 	      // this.headDate = JSON.parse(JSON.stringify(val))
 	    }
 	  },
@@ -77100,8 +77211,9 @@ var render = function() {
                       _c("v-divider"),
                       _vm._v(" "),
                       _vm._l(_vm.routes, function(item) {
-                        return (_vm.$auth.check() && item.meta.auth) ||
-                          (!_vm.$auth.check() && !item.meta.auth)
+                        return ((_vm.$auth.check() && item.meta.auth) ||
+                          (!_vm.$auth.check() && !item.meta.auth)) &&
+                          !item.meta.no_show
                           ? _c(
                               "li",
                               [
@@ -77210,29 +77322,6 @@ var render = function() {
                       }
                     }
                   }),
-                  _vm._v(" "),
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { icon: "" },
-                      on: {
-                        click: function($event) {
-                          $event.stopPropagation()
-                          _vm.mini = !_vm.mini
-                        }
-                      }
-                    },
-                    [
-                      _c("v-icon", {
-                        domProps: {
-                          innerHTML: _vm._s(
-                            _vm.mini ? "chevron_right" : "chevron_left"
-                          )
-                        }
-                      })
-                    ],
-                    1
-                  ),
                   _vm._v(" "),
                   _c("v-toolbar-title", [
                     _vm._v(_vm._s(_vm.$t(this.$route.name)))
@@ -77405,7 +77494,7 @@ module.exports = {"lang":"Language","lg_russian":"Русский","lg_english":"
 
 
 
-/* harmony default export */ __webpack_exports__["a"] = ([{ title: 'home', name: 'home', icon: 'home', path: '/home', component: __WEBPACK_IMPORTED_MODULE_2__components_Dashboard_vue__["a" /* default */], meta: { auth: false } }, { title: 'login', name: 'login', icon: 'input', path: '/login', component: __WEBPACK_IMPORTED_MODULE_1__components_Login_vue__["a" /* default */], meta: { auth: false } }, { title: 'register', name: 'register', icon: 'lock_open', path: '/register', component: __WEBPACK_IMPORTED_MODULE_0__components_Register_vue__["a" /* default */], meta: { auth: false } }, { title: 'users', name: 'users', icon: 'supervisor_account', path: '/users', component: __WEBPACK_IMPORTED_MODULE_3__components_admin_users_vue__["a" /* default */], meta: { auth: true } }, { title: 'responsible', name: 'responsible', icon: 'person', path: '/responsible', component: __WEBPACK_IMPORTED_MODULE_4__components_admin_responsible_vue__["a" /* default */], meta: { auth: true } }, { divider: true, path: '/', meta: { auth: true } }, { title: 'checklists', name: 'checklists', icon: 'check', path: '/checklists', component: __WEBPACK_IMPORTED_MODULE_11__components_checklist_index_vue__["a" /* default */], meta: { auth: true } }, { title: 'checklist_categories', name: 'checklist_categories', icon: 'playlist_add_check', path: '/checklist_categories', component: __WEBPACK_IMPORTED_MODULE_12__components_checklist_groups_vue__["a" /* default */], meta: { auth: true } }, { divider: true, path: '/', meta: { auth: true } }, { title: 'requirements', name: 'requirements', icon: 'assignment_turned_in', path: '/requirements', component: __WEBPACK_IMPORTED_MODULE_9__components_requirement_index_vue__["a" /* default */], meta: { auth: true } }, { title: 'requirement_groups', name: 'requirement_groups', icon: 'assignment', path: '/requirement_groups', component: __WEBPACK_IMPORTED_MODULE_10__components_requirement_groups_vue__["a" /* default */], meta: { auth: true } }, { divider: true, path: '/', meta: { auth: true } }, { title: 'objects', name: 'objects', icon: 'store', path: '/objects', component: __WEBPACK_IMPORTED_MODULE_7__components_object_index_vue__["a" /* default */], meta: { auth: true } }, { title: 'object_groups', name: 'object_groups', icon: 'location_city', path: '/objects_groups', component: __WEBPACK_IMPORTED_MODULE_8__components_object_groups_vue__["a" /* default */], meta: { auth: true } }, { divider: true, path: '/', meta: { auth: true } }, { title: 'audits', name: 'audits', icon: 'folder', path: '/audits', component: __WEBPACK_IMPORTED_MODULE_5__components_audit_index_vue__["a" /* default */], meta: { auth: true } }, { title: 'audit_results', name: 'audit_results', icon: 'folder_special', path: '/audit_results/:id', component: __WEBPACK_IMPORTED_MODULE_6__components_audit_index_results_vue__["a" /* default */], meta: { auth: true } }, { title: 'tasks_calendar', name: 'tasks_calendar', icon: 'event', path: '/tasks_calendar', component: __WEBPACK_IMPORTED_MODULE_13__components_tasks_calendar_vue__["a" /* default */], meta: { auth: true } }]);
+/* harmony default export */ __webpack_exports__["a"] = ([{ title: 'home', name: 'home', icon: 'home', path: '/home', component: __WEBPACK_IMPORTED_MODULE_2__components_Dashboard_vue__["a" /* default */], meta: { auth: false } }, { title: 'login', name: 'login', icon: 'input', path: '/login', component: __WEBPACK_IMPORTED_MODULE_1__components_Login_vue__["a" /* default */], meta: { auth: false } }, { title: 'register', name: 'register', icon: 'lock_open', path: '/register', component: __WEBPACK_IMPORTED_MODULE_0__components_Register_vue__["a" /* default */], meta: { auth: false } }, { title: 'users', name: 'users', icon: 'supervisor_account', path: '/users', component: __WEBPACK_IMPORTED_MODULE_3__components_admin_users_vue__["a" /* default */], meta: { auth: true } }, { title: 'responsible', name: 'responsible', icon: 'person', path: '/responsible', component: __WEBPACK_IMPORTED_MODULE_4__components_admin_responsible_vue__["a" /* default */], meta: { auth: true } }, { divider: true, path: '/', meta: { auth: true } }, { title: 'checklists', name: 'checklists', icon: 'check', path: '/checklists', component: __WEBPACK_IMPORTED_MODULE_11__components_checklist_index_vue__["a" /* default */], meta: { auth: true } }, { title: 'checklist_categories', name: 'checklist_categories', icon: 'playlist_add_check', path: '/checklist_categories', component: __WEBPACK_IMPORTED_MODULE_12__components_checklist_groups_vue__["a" /* default */], meta: { auth: true } }, { divider: true, path: '/', meta: { auth: true } }, { title: 'requirements', name: 'requirements', icon: 'assignment_turned_in', path: '/requirements', component: __WEBPACK_IMPORTED_MODULE_9__components_requirement_index_vue__["a" /* default */], meta: { auth: true } }, { title: 'requirement_groups', name: 'requirement_groups', icon: 'assignment', path: '/requirement_groups', component: __WEBPACK_IMPORTED_MODULE_10__components_requirement_groups_vue__["a" /* default */], meta: { auth: true } }, { divider: true, path: '/', meta: { auth: true } }, { title: 'objects', name: 'objects', icon: 'store', path: '/objects', component: __WEBPACK_IMPORTED_MODULE_7__components_object_index_vue__["a" /* default */], meta: { auth: true } }, { title: 'object_groups', name: 'object_groups', icon: 'location_city', path: '/objects_groups', component: __WEBPACK_IMPORTED_MODULE_8__components_object_groups_vue__["a" /* default */], meta: { auth: true } }, { divider: true, path: '/', meta: { auth: true } }, { title: 'audits', name: 'audits', icon: 'folder', path: '/audits', component: __WEBPACK_IMPORTED_MODULE_5__components_audit_index_vue__["a" /* default */], meta: { auth: true } }, { title: 'audit_results', name: 'audit_results', icon: 'folder_special', path: '/audit_results/:id', component: __WEBPACK_IMPORTED_MODULE_6__components_audit_index_results_vue__["a" /* default */], meta: { auth: true, no_show: true } }, { title: 'tasks_calendar', name: 'tasks_calendar', icon: 'event', path: '/tasks_calendar', component: __WEBPACK_IMPORTED_MODULE_13__components_tasks_calendar_vue__["a" /* default */], meta: { auth: true } }]);
 
 /***/ }),
 /* 200 */
@@ -79733,28 +79822,6 @@ var render = function() {
           _c(
             "v-card-title",
             [
-              _c("v-select", {
-                attrs: {
-                  items: _vm.audits,
-                  label: _vm.$t("audits"),
-                  "item-text": "title",
-                  "item-value": "id",
-                  autocomplete: ""
-                },
-                on: {
-                  change: function($event) {
-                    _vm.getItems(1)
-                  }
-                },
-                model: {
-                  value: _vm.audit_select,
-                  callback: function($$v) {
-                    _vm.audit_select = $$v
-                  },
-                  expression: "audit_select"
-                }
-              }),
-              _vm._v(" "),
               _c("v-spacer"),
               _vm._v(" "),
               _c("v-text-field", {
@@ -82066,12 +82133,12 @@ if (false) {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_node_modules_vue_loader_lib_selector_type_script_index_0_calendar_vue__ = __webpack_require__(153);
 /* unused harmony namespace reexport */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_77b684e3_hasScoped_true_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_calendar_vue__ = __webpack_require__(236);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_77b684e3_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_calendar_vue__ = __webpack_require__(246);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(1);
 var disposed = false
 function injectStyle (context) {
   if (disposed) return
-  __webpack_require__(234)
+  __webpack_require__(247)
 }
 /* script */
 
@@ -82083,14 +82150,14 @@ var __vue_template_functional__ = false
 /* styles */
 var __vue_styles__ = injectStyle
 /* scopeId */
-var __vue_scopeId__ = "data-v-77b684e3"
+var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
 var __vue_module_identifier__ = null
 
 var Component = Object(__WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__["a" /* default */])(
   __WEBPACK_IMPORTED_MODULE_0__babel_loader_cacheDirectory_true_presets_env_modules_false_targets_browsers_2_uglify_true_plugins_transform_object_rest_spread_transform_runtime_polyfill_false_helpers_false_node_modules_vue_loader_lib_selector_type_script_index_0_calendar_vue__["a" /* default */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_77b684e3_hasScoped_true_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_calendar_vue__["a" /* render */],
-  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_77b684e3_hasScoped_true_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_calendar_vue__["b" /* staticRenderFns */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_77b684e3_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_calendar_vue__["a" /* render */],
+  __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_77b684e3_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_calendar_vue__["b" /* staticRenderFns */],
   __vue_template_functional__,
   __vue_styles__,
   __vue_scopeId__,
@@ -82118,253 +82185,9 @@ if (false) {(function () {
 
 
 /***/ }),
-/* 234 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(235);
-if(typeof content === 'string') content = [[module.i, content, '']];
-if(content.locals) module.exports = content.locals;
-// add the styles to the DOM
-var add = __webpack_require__(5).default
-var update = add("70a895ff", content, false, {});
-// Hot Module Replacement
-if(false) {
- // When the styles change, update the <style> tags
- if(!content.locals) {
-   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"optionsId\":\"0\",\"vue\":true,\"id\":\"data-v-77b684e3\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./calendar.vue", function() {
-     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"optionsId\":\"0\",\"vue\":true,\"id\":\"data-v-77b684e3\",\"scoped\":true,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./calendar.vue");
-     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-     update(newContent);
-   });
- }
- // When the module is disposed, remove the <style> tags
- module.hot.dispose(function() { update(); });
-}
-
-/***/ }),
-/* 235 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(4)(false);
-// imports
-
-
-// module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
-
-// exports
-
-
-/***/ }),
-/* 236 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { staticStyle: { width: "100%" } },
-    [
-      _c(
-        "v-dialog",
-        {
-          attrs: { "max-width": "500px" },
-          model: {
-            value: _vm.dialog,
-            callback: function($$v) {
-              _vm.dialog = $$v
-            },
-            expression: "dialog"
-          }
-        },
-        [
-          _c(
-            "v-card",
-            [
-              _c("v-card-title", [
-                _c("span", { staticClass: "headline" }, [
-                  _vm._v(_vm._s(_vm.formTitle))
-                ])
-              ]),
-              _vm._v(" "),
-              _c(
-                "v-card-text",
-                [
-                  _c(
-                    "v-container",
-                    { attrs: { "grid-list-md": "" } },
-                    [
-                      _c(
-                        "v-layout",
-                        { attrs: { wrap: "" } },
-                        [
-                          _c(
-                            "v-flex",
-                            { attrs: { xs12: "" } },
-                            [
-                              _c("v-text-field", {
-                                attrs: { label: "Title", required: "" },
-                                model: {
-                                  value: _vm.editedItem.title,
-                                  callback: function($$v) {
-                                    _vm.$set(_vm.editedItem, "title", $$v)
-                                  },
-                                  expression: "editedItem.title"
-                                }
-                              })
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "v-flex",
-                            { attrs: { xs12: "" } },
-                            [
-                              _c("v-select", {
-                                attrs: {
-                                  items: _vm.objects,
-                                  "item-text": "title",
-                                  "item-value": "id",
-                                  label: "Select",
-                                  required: ""
-                                },
-                                model: {
-                                  value: _vm.editedItem.object_id,
-                                  callback: function($$v) {
-                                    _vm.$set(_vm.editedItem, "object_id", $$v)
-                                  },
-                                  expression: "editedItem.object_id"
-                                }
-                              })
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "v-flex",
-                            { attrs: { xs12: "" } },
-                            [
-                              _c("v-select", {
-                                attrs: {
-                                  items: _vm.checklists,
-                                  "item-text": "title",
-                                  "item-value": "id",
-                                  label: "Select",
-                                  required: ""
-                                },
-                                model: {
-                                  value: _vm.editedItem.checklist_id,
-                                  callback: function($$v) {
-                                    _vm.$set(
-                                      _vm.editedItem,
-                                      "checklist_id",
-                                      $$v
-                                    )
-                                  },
-                                  expression: "editedItem.checklist_id"
-                                }
-                              })
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "v-flex",
-                            { attrs: { xs12: "" } },
-                            [
-                              _c("v-select", {
-                                attrs: {
-                                  items: _vm.users,
-                                  "item-text": "title",
-                                  "item-value": "id",
-                                  label: "Select",
-                                  required: ""
-                                },
-                                model: {
-                                  value: _vm.editedItem.user_id,
-                                  callback: function($$v) {
-                                    _vm.$set(_vm.editedItem, "user_id", $$v)
-                                  },
-                                  expression: "editedItem.user_id"
-                                }
-                              })
-                            ],
-                            1
-                          )
-                        ],
-                        1
-                      )
-                    ],
-                    1
-                  )
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "v-card-actions",
-                [
-                  _c("v-spacer"),
-                  _vm._v(" "),
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { color: "blue darken-1", flat: "" },
-                      nativeOn: {
-                        click: function($event) {
-                          return _vm.close($event)
-                        }
-                      }
-                    },
-                    [_vm._v(_vm._s(_vm.$t("cancel")))]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "v-btn",
-                    {
-                      attrs: { color: "blue darken-1", flat: "" },
-                      nativeOn: {
-                        click: function($event) {
-                          return _vm.save($event)
-                        }
-                      }
-                    },
-                    [_vm._v(_vm._s(_vm.$t("save")))]
-                  )
-                ],
-                1
-              )
-            ],
-            1
-          )
-        ],
-        1
-      ),
-      _vm._v(" "),
-      _c("full-calendar", { attrs: { events: _vm.fcEvents, locale: "en" } })
-    ],
-    1
-  )
-}
-var staticRenderFns = []
-render._withStripped = true
-
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-    require("vue-hot-reload-api")      .rerender("data-v-77b684e3", { render: render, staticRenderFns: staticRenderFns })
-  }
-}
-
-/***/ }),
+/* 234 */,
+/* 235 */,
+/* 236 */,
 /* 237 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -83435,6 +83258,364 @@ module.exports = {
     }
 
 };
+
+/***/ }),
+/* 244 */,
+/* 245 */,
+/* 246 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticStyle: { width: "100%" } },
+    [
+      _c(
+        "v-dialog",
+        {
+          attrs: { "max-width": "500px" },
+          model: {
+            value: _vm.dialog,
+            callback: function($$v) {
+              _vm.dialog = $$v
+            },
+            expression: "dialog"
+          }
+        },
+        [
+          _c(
+            "v-card",
+            [
+              _c("v-card-title", [
+                _c("span", { staticClass: "headline" }, [
+                  _vm._v(_vm._s(_vm.formTitle))
+                ])
+              ]),
+              _vm._v(" "),
+              _c(
+                "v-card-text",
+                [
+                  _c(
+                    "v-container",
+                    { attrs: { "grid-list-md": "" } },
+                    [
+                      _c(
+                        "v-layout",
+                        { attrs: { wrap: "" } },
+                        [
+                          _c(
+                            "v-flex",
+                            { attrs: { xs12: "" } },
+                            [
+                              _c("v-text-field", {
+                                attrs: { label: _vm.$t("title"), required: "" },
+                                model: {
+                                  value: _vm.editedItem.title,
+                                  callback: function($$v) {
+                                    _vm.$set(_vm.editedItem, "title", $$v)
+                                  },
+                                  expression: "editedItem.title"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-flex",
+                            { attrs: { xs12: "" } },
+                            [
+                              _c("v-select", {
+                                attrs: {
+                                  items: _vm.objects,
+                                  "item-text": "title",
+                                  "item-value": "id",
+                                  label: _vm.$t("object"),
+                                  required: ""
+                                },
+                                model: {
+                                  value: _vm.editedItem.object_id,
+                                  callback: function($$v) {
+                                    _vm.$set(_vm.editedItem, "object_id", $$v)
+                                  },
+                                  expression: "editedItem.object_id"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-flex",
+                            { attrs: { xs12: "" } },
+                            [
+                              _c("v-select", {
+                                attrs: {
+                                  items: _vm.checklists,
+                                  "item-text": "title",
+                                  "item-value": "id",
+                                  label: _vm.$t("checklists"),
+                                  required: ""
+                                },
+                                model: {
+                                  value: _vm.editedItem.checklist_id,
+                                  callback: function($$v) {
+                                    _vm.$set(
+                                      _vm.editedItem,
+                                      "checklist_id",
+                                      $$v
+                                    )
+                                  },
+                                  expression: "editedItem.checklist_id"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-flex",
+                            { attrs: { xs12: "" } },
+                            [
+                              _c("v-select", {
+                                attrs: {
+                                  items: _vm.users,
+                                  "item-text": "name",
+                                  "item-value": "id",
+                                  label: _vm.$t("users"),
+                                  required: ""
+                                },
+                                model: {
+                                  value: _vm.editedItem.user_id,
+                                  callback: function($$v) {
+                                    _vm.$set(_vm.editedItem, "user_id", $$v)
+                                  },
+                                  expression: "editedItem.user_id"
+                                }
+                              })
+                            ],
+                            1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-flex",
+                            { attrs: { xs12: "" } },
+                            [
+                              _c(
+                                "v-dialog",
+                                {
+                                  ref: "picker",
+                                  attrs: {
+                                    persistent: "",
+                                    lazy: "",
+                                    "full-width": "",
+                                    width: "290px",
+                                    "return-value": _vm.editedItem.date
+                                  },
+                                  on: {
+                                    "update:returnValue": function($event) {
+                                      _vm.$set(_vm.editedItem, "date", $event)
+                                    }
+                                  },
+                                  model: {
+                                    value: _vm.picker,
+                                    callback: function($$v) {
+                                      _vm.picker = $$v
+                                    },
+                                    expression: "picker"
+                                  }
+                                },
+                                [
+                                  _c("v-text-field", {
+                                    attrs: {
+                                      slot: "activator",
+                                      label: _vm.$t("date"),
+                                      "prepend-icon": "event",
+                                      readonly: ""
+                                    },
+                                    slot: "activator",
+                                    model: {
+                                      value: _vm.editedItem.date,
+                                      callback: function($$v) {
+                                        _vm.$set(_vm.editedItem, "date", $$v)
+                                      },
+                                      expression: "editedItem.date"
+                                    }
+                                  }),
+                                  _vm._v(" "),
+                                  _c(
+                                    "v-date-picker",
+                                    {
+                                      attrs: {
+                                        "first-day-of-week": "1",
+                                        scrollable: ""
+                                      },
+                                      model: {
+                                        value: _vm.editedItem.date,
+                                        callback: function($$v) {
+                                          _vm.$set(_vm.editedItem, "date", $$v)
+                                        },
+                                        expression: "editedItem.date"
+                                      }
+                                    },
+                                    [
+                                      _c("v-spacer"),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-btn",
+                                        {
+                                          attrs: { flat: "", color: "pink" },
+                                          on: {
+                                            click: function($event) {
+                                              _vm.picker = false
+                                            }
+                                          }
+                                        },
+                                        [_vm._v(_vm._s(_vm.$t("cancel")))]
+                                      ),
+                                      _vm._v(" "),
+                                      _c(
+                                        "v-btn",
+                                        {
+                                          attrs: { flat: "", color: "primary" },
+                                          on: {
+                                            click: function($event) {
+                                              _vm.$refs.picker.save(
+                                                _vm.editedItem.date
+                                              )
+                                            }
+                                          }
+                                        },
+                                        [_vm._v("OK")]
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ],
+                                1
+                              )
+                            ],
+                            1
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              ),
+              _vm._v(" "),
+              _c(
+                "v-card-actions",
+                [
+                  _c("v-spacer"),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { color: "pink darken-1", flat: "" },
+                      nativeOn: {
+                        click: function($event) {
+                          return _vm.close($event)
+                        }
+                      }
+                    },
+                    [_vm._v(_vm._s(_vm.$t("cancel")))]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "v-btn",
+                    {
+                      attrs: { color: "blue darken-1", flat: "" },
+                      nativeOn: {
+                        click: function($event) {
+                          return _vm.save($event)
+                        }
+                      }
+                    },
+                    [_vm._v(_vm._s(_vm.$t("save")))]
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
+      _c("full-calendar", {
+        attrs: { events: _vm.fcEvents, locale: "ru", "first-day": "1" },
+        on: {
+          changeMonth: _vm.changeMonth,
+          eventClick: _vm.eventClick,
+          dayClick: _vm.dayClick,
+          moreClick: _vm.moreClick
+        }
+      })
+    ],
+    1
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-77b684e3", { render: render, staticRenderFns: staticRenderFns })
+  }
+}
+
+/***/ }),
+/* 247 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(248);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(5).default
+var update = add("476a1536", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"optionsId\":\"0\",\"vue\":true,\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/sass-loader/lib/loader.js!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./calendar.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"optionsId\":\"0\",\"vue\":true,\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/sass-loader/lib/loader.js!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./calendar.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 248 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(4)(false);
+// imports
+
+
+// module
+exports.push([module.i, "\n.full-calendar-body .weeks .week:nth-last-child(-n+2) {\n  background-color: #FBE9E7;\n}\n.full-calendar-body .dates .week-row .day-cell.today {\n  background-color: #fcf8e3;\n}\n.full-calendar-body .dates .week-row .day-cell:nth-last-child(-n+2) {\n  background-color: #FBE9E7;\n}\n.in-work-item {\n  background-color: #ffec85 !important;\n}\n.done-item {\n  background-color: #bbe3ab !important;\n}\n", ""]);
+
+// exports
+
 
 /***/ })
 /******/ ]);

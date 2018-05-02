@@ -59,7 +59,7 @@
                     success: function () {},
                     error: function () {this.error = true},
                     rememberMe: true,
-                    redirect: '/dashboard',
+                    redirect: '/tasks_calendar',
                     fetchUser: true,
                 });
             },

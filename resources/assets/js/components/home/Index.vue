@@ -28,7 +28,7 @@
                 </v-toolbar>
                 <v-list class="pt-0" dense>
                     <v-divider></v-divider>
-                    <li v-for="item in routes" v-if="($auth.check() && item.meta.auth) || (!$auth.check() && !item.meta.auth)">
+                    <li v-for="item in routes" v-if="(($auth.check() && item.meta.auth) || (!$auth.check() && !item.meta.auth)) && !item.meta.no_show">
                         <router-link :to="item.path" class="list__tile" exact v-if="!item.divider">
                             <v-list-tile-action>
                                 <v-icon>{{ item.icon }}</v-icon>
@@ -55,9 +55,9 @@
                        fixed
                        app>
                 <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
-                <v-btn icon @click.stop="mini = !mini">
-                    <v-icon v-html="mini ? 'chevron_right' : 'chevron_left'"></v-icon>
-                </v-btn>
+                <!--<v-btn icon @click.stop="mini = !mini">-->
+                    <!--<v-icon v-html="mini ? 'chevron_right' : 'chevron_left'"></v-icon>-->
+                <!--</v-btn>-->
                 <v-toolbar-title>{{ $t(this.$route.name) }}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-menu :nudge-width="100">
