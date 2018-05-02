@@ -141,7 +141,7 @@
                                 let k;
                                 for(k = 0; k < audit_tasks[i]['audit_result'].length; k++){
                                     // Если есть неудовлетворительный результат, то считаем аудит в работе
-                                    if (audit_tasks[i]['audit_result'][k]['result'] === 0) {
+                                    if (audit_tasks[i]['audit_result'][k]['result'] !== 1) {
                                         cssClass = 'in-work-item';
                                     }
                                 }
