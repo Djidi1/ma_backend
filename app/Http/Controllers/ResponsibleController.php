@@ -26,6 +26,37 @@ class ResponsibleController extends Controller
 
 //        return response()->json($checklists);
     }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getTasks(Request $request)
+    {
+        $users = User::all();
+        $objects = AuditObject::all();
+        $requirements = Requirement::all();
+      //  $responsible = Responsible::all();
+        $responsible = Responsible::with('user')->get();
+        $res_array = response()->json($responsible)->getData(true);
+        foreach ($res_array as $key_u => $responsible_user) {
+            // Заменяем id объектов массивами с данными
+            foreach ($responsible_user['object_id'] as $key_i => $item_id) {
+                $audit_object = response()->json(AuditObject::find($item_id))->getData(true);
+                $res_array[$key_u]['object_id'][$key_i] = $audit_object;
+            }
+            // Заменяем id требований массивами с данными
+            foreach ($responsible_user['requirement_id'] as $key_i => $item_id) {
+                $audit_object = response()->json(Requirement::find($item_id))->getData(true);
+                $res_array[$key_u]['requirement_id'][$key_i] = $audit_object;
+            }
+        }
+        dd($res_array);
+        return compact('responsible', 'users', 'objects', 'requirements');
+
+//        return response()->json($checklists);
+    }
     /**
      * Store a newly created resource in storage.
      *

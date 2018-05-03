@@ -47,6 +47,7 @@ Route::group(['middleware' => 'jwt.auth'], function(){
     Route::delete('users_delete/{id}', 'Admin\UsersController@destroy');
 
 // Ответственные
+    Route::get('responsible_tasks', 'ResponsibleController@getTasks');
     Route::get('responsible_all', 'ResponsibleController@index');
     Route::post('responsible_save', 'ResponsibleController@store');
     Route::put('responsible_update/{id}', 'ResponsibleController@update');

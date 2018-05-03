@@ -21,7 +21,11 @@ class Responsible extends Model
     public function user(){
         return $this->belongsTo('App\User');
     }
+
+    public function object(){
+        return $this->belongsTo('App\AuditObject');
+    }
     public function requirement(){
-        return $this->belongsTo('App\Requirement');
+        return $this->hasMany('App\Requirement');
     }
 }
