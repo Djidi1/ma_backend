@@ -94,7 +94,6 @@ Route::group(['middleware' => 'jwt.auth'], function(){
 
     Route::get('audit_results_all/{id}', 'AuditResultsController@index');
 
-
     Route::get('audit_tasks_all', 'AuditListsController@auditTasksAll');
 });
 /*

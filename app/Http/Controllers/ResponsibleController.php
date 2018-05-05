@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 
 use App\Responsible;
+use App\ResponsibleTasks;
 use App\Requirement;
 use App\AuditObject;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ResponsibleController extends Controller
 {
@@ -34,13 +37,16 @@ class ResponsibleController extends Controller
      */
     public function getTasks(Request $request)
     {
+        $user = Auth::user();
         $users = User::all();
         $objects = AuditObject::all();
         $requirements = Requirement::all();
       //  $responsible = Responsible::all();
-        $responsible = Responsible::with('user')->get();
-        $res_array = response()->json($responsible)->getData(true);
-        foreach ($res_array as $key_u => $responsible_user) {
+        $responsible_tasks = ResponsibleTasks::where('user_id', '=', $user->id)->with('audit_result_attache')->get();
+//            ->where('user_id', '=', $user->id)
+//            ->get();
+//        $res_array = response()->json($responsible)->getData(true);
+        /*foreach ($res_array as $key_u => $responsible_user) {
             // Заменяем id объектов массивами с данными
             foreach ($responsible_user['object_id'] as $key_i => $item_id) {
                 $audit_object = response()->json(AuditObject::find($item_id))->getData(true);
@@ -51,9 +57,9 @@ class ResponsibleController extends Controller
                 $audit_object = response()->json(Requirement::find($item_id))->getData(true);
                 $res_array[$key_u]['requirement_id'][$key_i] = $audit_object;
             }
-        }
-        dd($res_array);
-        return compact('responsible', 'users', 'objects', 'requirements');
+        }*/
+//        dd($res_array);
+        return compact('responsible_tasks', 'users', 'objects', 'requirements');
 
 //        return response()->json($checklists);
     }

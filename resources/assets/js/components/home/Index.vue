@@ -6,7 +6,7 @@
                                  :mini-variant.sync="mini"
                                  v-model="drawer">
                 <v-toolbar flat class="transparent">
-                    <v-card flat width="100%">
+                    <v-card flat width="100%" style="border-radius: 0;box-shadow: 0 2px 4px -1px rgba(0,0,0,.2), 0 4px 5px 0 rgba(0,0,0,.14), 0 1px 10px 0 rgba(0,0,0,.12);">
                         <v-card-media src="/images/office.jpg">
                             <v-layout column class="media">
                                 <v-spacer></v-spacer>
@@ -28,7 +28,13 @@
                 </v-toolbar>
                 <v-list class="pt-0" dense>
                     <v-divider></v-divider>
-                    <li v-for="item in routes" v-if="(($auth.check() && item.meta.auth) || (!$auth.check() && !item.meta.auth)) && !item.meta.no_show">
+                    <li
+                            v-for="item in routes"
+                            v-if="
+                            (($auth.check() && item.meta.auth && (item.meta.role_id === $auth.user().role_id || !item.meta.role_id))
+                            || (!$auth.check() && !item.meta.auth))
+                             && !item.meta.no_show"
+                    >
                         <router-link :to="item.path" class="list__tile" exact v-if="!item.divider">
                             <v-list-tile-action>
                                 <v-icon>{{ item.icon }}</v-icon>
@@ -36,6 +42,11 @@
                             <v-list-tile-content>
                                 <v-list-tile-title>{{ $t(item.title) }}</v-list-tile-title>
                             </v-list-tile-content>
+                            <v-list-tile-action v-if="item.meta.badge > 0">
+                                <v-badge color="orange" :left="true">
+                                    <span slot="badge">{{ item.meta.badge }}</span>
+                                </v-badge>
+                            </v-list-tile-action>
                         </router-link>
                         <v-divider v-if="item.divider"></v-divider>
                     </li>
@@ -105,10 +116,28 @@
             set_local(code) {
                 Vue.i18n.set(code);
                 Vue.ls.set('lang', code);
+            },
+            update_tasks_badge (){
+                // Пробегаемся по всем маршрутам
+                for (let index in this.$router.options.routes) {
+                    if( this.$router.options.routes.hasOwnProperty( index ) ) {
+                        // Если это меню с задачами, то проставялем количество задач
+                        if (this.$router.options.routes[index].name === 'tasks_list') {
+                            axios.get('/responsible_tasks')
+                                .then(response => {
+                                    this.$router.options.routes[index].meta.badge = response.data.responsible_tasks.length;
+                                });
+                        }
+                    }
+                }
+                // console.log(this.$router.options.routes[name='tasks_list'].meta.badge);
             }
         },
         mounted() {
-            this.loading = false
+            this.loading = false;
+            // if (this.$auth.check()) {
+                this.update_tasks_badge();
+            // }
         }
     }
 </script>

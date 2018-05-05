@@ -79,6 +79,7 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
         <full-calendar
                 :events="fcEvents"
                 locale="ru"
@@ -87,7 +88,8 @@
                 @eventClick="eventClick"
                 @dayClick="dayClick"
                 @moreClick="moreClick"
-        ></full-calendar>
+        >
+        </full-calendar>
     </div>
 </template>
 
@@ -104,6 +106,7 @@
             return {
                 dialog: false,
                 picker: false,
+                loading: true,
                 fcEvents : demoEvents,
 
                 editedItem: {
@@ -128,7 +131,10 @@
             getItems() {
                 axios.get('/audit_tasks_all')
                     .then(response => {
-                        let audit_tasks = response.data;
+                        this.checklists = response.data.checklists;
+                        this.objects = response.data.objects;
+                        this.users = response.data.users;
+                        let audit_tasks = response.data.audits;
                         let i;
                         for(i = 0; i < audit_tasks.length; i++){
                             if (audit_tasks.hasOwnProperty(i)) {
@@ -149,13 +155,6 @@
                             Object.defineProperty(audit_tasks[i], 'cssClass', {value: cssClass});
                         }
                         this.fcEvents = audit_tasks;
-                    });
-                axios.get('/audits_all')
-                    .then(response => {
-                        // this.items = response.data.audits;
-                        this.checklists = response.data.checklists;
-                        this.objects = response.data.objects;
-                        this.users = response.data.users;
                         this.loading = false;
                     });
             },

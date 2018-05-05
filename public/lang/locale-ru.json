@@ -33,5 +33,6 @@
   "object_groups": "Группы объектов",
   "audits": "Аудиты",
   "audit_results": "Результаты аудитов",
-  "tasks_calendar": "Календарь задач"
+  "audit_calendar": "Календарь аудитов",
+  "tasks_list": "Задачи"
 }

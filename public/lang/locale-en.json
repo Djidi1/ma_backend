@@ -33,5 +33,6 @@
   "object_groups": "Object groups",
   "audits": "Audits",
   "audit_results": "Audit results",
-  "tasks_calendar": "Calendar of tasks"
+  "audit_calendar": "Calendar of audits",
+  "tasks_list": "Tasks"
 }
