@@ -33,7 +33,7 @@ class AuditsController extends Controller
             $object_id = $data['audit']['object_id'];
             $audit_title = $data['audit']['title'];
             $audit_add_date = $data['audit']['date_add'];
-            $audit_comment = isset($data['audit']['comment'][0]) ? $data['audit']['comment'][0]['text'] : '';
+            $audit_comment = $data['audit']['comment'];
             $audit_id = 0;
             foreach ($data['audit']['check_list'] as $check_list){
                 $check_list_id = $check_list['id'];
