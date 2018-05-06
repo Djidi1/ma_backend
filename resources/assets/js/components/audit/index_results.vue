@@ -46,7 +46,7 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
+                    <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
                     <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
                 </v-card-actions>
             </v-card>
@@ -94,6 +94,7 @@
                     :items="items"
                     :search="search"
                     :loading="loading"
+                    :rows-per-page-items='[50,100,500,{"text":"All","value":-1}]'
                     class="elevation-1"
             >
                 <template slot="items" slot-scope="props">

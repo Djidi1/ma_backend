@@ -82,10 +82,10 @@
                 search: '',
                 headers: [
                     { text: 'id', align: 'right', value: 'id' },
-                    { text: 'Name', align: 'left', value: 'name' },
-                    { text: 'Group', align: 'left', value: 'group' },
-                    { text: 'Requirements', align: 'left', value: 'requirements' },
-                    { text: 'Actions', align: 'center', sortable: false, value: '' }
+                    { text: this.$t('title'), align: 'left', value: 'name' },
+                    { text: this.$t('group'), align: 'left', value: 'group' },
+                    { text: this.$t('requirements'), align: 'left', value: 'requirements' },
+                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
                 ],
                 title: '',
                 items: [],

@@ -109,10 +109,10 @@
                 search: '',
                 headers: [
                     { text: 'id', align: 'right', value: 'id' },
-                    { text: 'User', align: 'left', value: 'user' },
-                    { text: 'Objects', align: 'left', value: 'objects' },
-                    { text: 'Requirements', align: 'left', value: 'requirements' },
-                    { text: 'Actions', align: 'center', sortable: false, value: '' }
+                    { text: this.$t('user'), align: 'left', value: 'user' },
+                    { text: this.$t('objects'), align: 'left', value: 'objects' },
+                    { text: this.$t('requirements'), align: 'left', value: 'requirements' },
+                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
                 ],
                 items: [],
                 users_items: [],

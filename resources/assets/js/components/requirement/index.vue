@@ -9,10 +9,14 @@
                     <v-container grid-list-md>
                         <v-layout wrap>
                             <v-flex xs12>
-                                <v-text-field label="Title" v-model="editedItem.title" required></v-text-field>
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-text-field label="Level" v-model="editedItem.warning_level" required></v-text-field>
+                                <v-select
+                                        :items="checklist_groups"
+                                        item-text = "title"
+                                        item-value = "id"
+                                        v-model="editedItem.checklist_id"
+                                        :label="$t('checklist')"
+                                        required
+                                ></v-select>
                             </v-flex>
                             <v-flex xs12>
                                 <v-select
@@ -20,17 +24,18 @@
                                         item-text = "title"
                                         item-value = "id"
                                         v-model="editedItem.requirement_groups_id"
-                                        label="Select"
+                                        :label="$t('requirement_groups')"
                                         required
                                 ></v-select>
                             </v-flex>
                             <v-flex xs12>
+                                <v-text-field :label="$t('title')" v-model="editedItem.title" required></v-text-field>
+                            </v-flex>
+                            <v-flex xs12>
                                 <v-select
-                                        :items="checklist_groups"
-                                        item-text = "title"
-                                        item-value = "id"
-                                        v-model="editedItem.checklist_id"
-                                        label="Select"
+                                        :items="levels"
+                                        v-model="editedItem.warning_level"
+                                        :label="$t('level')"
                                         required
                                 ></v-select>
                             </v-flex>
@@ -39,14 +44,21 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
+                    <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
                     <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
         <v-card fluid fill-height fill-width>
             <v-card-title>
-                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
+                <v-select
+                        :items="checklist_groups"
+                        v-model="checklist_select"
+                        :label = "$t('checklist')"
+                        item-text = "title"
+                        item-value = "id"
+                ></v-select>
                 <v-spacer></v-spacer>
                 <v-text-field
                         append-icon="search"
@@ -59,17 +71,24 @@
             <v-data-table
                     :no-data-text="$t('no_data')"
                     :headers="headers"
-                    :items="items"
+                    :items="filteredItems"
                     :search="search"
                     :loading="loading"
                     class="elevation-1"
             >
                 <template slot="items" slot-scope="props">
                     <td class="text-xs-right">{{ props.item.id }}</td>
+                    <!--<td>{{ checklist_groups.find(x => x.id === props.item.checklist_id).title }}</td>-->
+                    <!--<td>{{ requirement_groups.find(x => x.id === props.item.requirement_groups_id).title }}</td>-->
                     <td>{{ props.item.title }}</td>
-                    <td>{{ props.item.warning_level }}</td>
-                    <td>{{ checklist_groups.find(x => x.id === props.item.checklist_id).title }}</td>
-                    <td>{{ requirement_groups.find(x => x.id === props.item.requirement_groups_id).title }}</td>
+                    <td>
+                        <v-badge
+                                :title="props.item.warning_level < 5 ? 'notice' : (props.item.warning_level > 7 ? 'danger' : 'warning')"
+                                :color="props.item.warning_level < 5 ? 'green' : (props.item.warning_level > 7 ? 'red' : 'orange')"
+                                :bottom="true" >
+                            <span slot="badge">{{ props.item.warning_level }}</span>
+                        </v-badge>
+                    </td>
                     <td class="justify-center layout px-0">
                         <v-btn icon class="mx-0" @click="editItem(props.item)">
                             <v-icon color="teal">edit</v-icon>
@@ -96,13 +115,15 @@
                 search: '',
                 headers: [
                     { text: 'id', align: 'right', value: 'id' },
-                    { text: 'Name', align: 'left', value: 'name' },
-                    { text: 'Level', align: 'left', value: 'warning_level' },
-                    { text: 'CheckList', align: 'left', value: 'checklist' },
-                    { text: 'Group', align: 'left', value: 'group' },
-                    { text: 'Actions', align: 'center', sortable: false, value: '' }
+                    // { text: this.$t('checklist'), align: 'left', value: 'checklist' },
+                    // { text: this.$t('group'), align: 'left', value: 'group' },
+                    { text: this.$t('title'), align: 'left', value: 'name' },
+                    { text: this.$t('level'), align: 'left', value: 'warning_level' },
+                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
                 ],
                 title: '',
+                checklist_select: 0,
+                checklist_selected: 0,
                 items: [],
                 requirement_groups: [],
                 checklist_groups: [],
@@ -113,6 +134,7 @@
                 defaultItem: {
                     title: ''
                 },
+                levels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 valid: false,
 
             }
@@ -120,11 +142,19 @@
         computed: {
             formTitle() {
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
+            },
+            filteredItems() {
+                return this.items.filter(item => {
+                    return item.checklist_id === this.checklist_selected
+                })
             }
         },
         watch: {
             dialog(val) {
                 val || this.close()
+            },
+            checklist_select: function (newVal) {
+                this.checklist_selected = newVal;
             }
         },
         methods: {
@@ -132,6 +162,8 @@
                 axios.get('/requirements_all')
                     .then(response => {
                         this.items = response.data.requirements;
+                        this.checklist_selected = this.items[0].checklist_id || 0;
+                        this.checklist_select = this.checklist_selected;
                         this.requirement_groups = response.data.requirement_groups;
                         this.checklist_groups = response.data.checklist_groups;
                         this.loading = false;

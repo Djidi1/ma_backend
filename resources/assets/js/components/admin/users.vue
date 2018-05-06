@@ -98,10 +98,10 @@
                 search: '',
                 headers: [
                     { text: 'id', align: 'right', value: 'id' },
-                    { text: 'Name', align: 'left', value: 'name' },
-                    { text: 'Email', align: 'left', value: 'email' },
-                    { text: 'Role', align: 'left', value: 'role' },
-                    { text: 'Actions', align: 'center', sortable: false, value: '' }
+                    { text: this.$t('name'), align: 'left', value: 'name' },
+                    { text: this.$t('email'), align: 'left', value: 'email' },
+                    { text: this.$t('role'), align: 'left', value: 'role' },
+                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
                 ],
                 items: [],
                 roles_items: [],

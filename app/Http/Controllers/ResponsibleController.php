@@ -7,6 +7,7 @@ use App\Responsible;
 use App\ResponsibleTasks;
 use App\Requirement;
 use App\AuditObject;
+use App\TaskStatus;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,8 +42,9 @@ class ResponsibleController extends Controller
         $users = User::all();
         $objects = AuditObject::all();
         $requirements = Requirement::all();
+        $statuses = TaskStatus::all();
       //  $responsible = Responsible::all();
-        $responsible_tasks = ResponsibleTasks::where('user_id', '=', $user->id)->with('audit_result_attache')->get();
+        $responsible_tasks = ResponsibleTasks::where('user_id', '=', $user->id)->with('audit_result_attache', 'task')->get();
 //            ->where('user_id', '=', $user->id)
 //            ->get();
 //        $res_array = response()->json($responsible)->getData(true);
@@ -59,7 +61,7 @@ class ResponsibleController extends Controller
             }
         }*/
 //        dd($res_array);
-        return compact('responsible_tasks', 'users', 'objects', 'requirements');
+        return compact('responsible_tasks', 'users', 'objects', 'requirements', 'statuses');
 
 //        return response()->json($checklists);
     }

@@ -71,9 +71,9 @@
                 search: '',
                 headers: [
                     { text: 'id', align: 'right', value: 'id' },
-                    { text: 'Name', align: 'left', value: 'name' },
-                    { text: 'Count', align: 'left', value: 'count' },
-                    { text: 'Actions', align: 'center', sortable: false, value: '' }
+                    { text: this.$t('title'), align: 'left', value: 'name' },
+                    { text: this.$t('requirements'), align: 'left', value: 'count' },
+                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
                 ],
                 title: '',
                 items: [],

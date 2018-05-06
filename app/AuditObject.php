@@ -16,7 +16,9 @@ class AuditObject extends Model
     public function audit_object_group(){
         return $this->belongsTo('App\AuditObjectGroup', 'audit_object_group_id');
     }
-
+    public function audit(){
+        return $this->hasMany('App\Audit', 'object_id', 'id');
+    }
     public function user(){
         return $this->belongsTo('App\User', 'user_id', 'id');
     }

@@ -9,6 +9,7 @@ require('./bootstrap');
 
 window.Vue = require('vue');
 window.moment = require('moment');
+import 'moment/locale/ru'
 
 window.axios = require('axios');
 window.axios.defaults.headers.common = {

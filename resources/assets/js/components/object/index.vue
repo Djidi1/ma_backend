@@ -55,7 +55,7 @@
                     <td class="text-xs-right">{{ props.item.id }}</td>
                     <td>{{ props.item.title }}</td>
                     <td>{{ groups.find(x => x.id === props.item.audit_object_group_id).title }}</td>
-                    <td>{{ typeof props.item.audits !== 'undefined' ? props.item.audits.length : '0' }}</td>
+                    <td>{{ typeof props.item.audit !== 'undefined' ? props.item.audit.length : '0' }}</td>
                     <td class="justify-center layout px-0">
                         <v-btn icon class="mx-0" @click="editItem(props.item)">
                             <v-icon color="teal">edit</v-icon>
@@ -82,10 +82,10 @@
                 search: '',
                 headers: [
                     { text: 'id', align: 'right', value: 'id' },
-                    { text: 'Name', align: 'left', value: 'name' },
-                    { text: 'Group', align: 'left', value: 'group' },
-                    { text: 'Audits', align: 'left', value: 'requirements' },
-                    { text: 'Actions', align: 'center', sortable: false, value: '' }
+                    { text: this.$t('title'), align: 'left', value: 'name' },
+                    { text: this.$t('group'), align: 'left', value: 'group' },
+                    { text: this.$t('audits'), align: 'left', value: 'requirements' },
+                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
                 ],
                 title: '',
                 items: [],

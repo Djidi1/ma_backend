@@ -84,6 +84,7 @@
                 :events="fcEvents"
                 locale="ru"
                 first-day='1'
+                class="pa-0"
                 @changeMonth="changeMonth"
                 @eventClick="eventClick"
                 @dayClick="dayClick"
