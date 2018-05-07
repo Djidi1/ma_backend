@@ -81,7 +81,7 @@ class AuditsController extends Controller
                                 $extension = explode('/', $file_mime )[1];
                                 $data = $attachments['url'];
                                 $data = substr($data, strpos($data, ",")+1);
-                                $file_url = "/img/attaches/attache-".time().".".$extension;
+                                $file_url = "/img/attaches/attache-".time().rand(100,999).".".$extension;
                                 $file_path = public_path(). $file_url;
                                 // Сохраняем фото
                                 Image::make(base64_decode($data))->save($file_path);
