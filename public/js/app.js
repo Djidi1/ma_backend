@@ -77970,13 +77970,13 @@ if (false) {
 /* 198 */
 /***/ (function(module, exports) {
 
-module.exports = {"lang":"Локализация","lg_russian":"Русский","lg_english":"English","login_form":"Форма входа","login":"Вход","logout":"Выход","register":"Регистрация","remember_me":"Запомнить меня","forgot_your_password":"Забыли пароль?","no_data":"Нет данных","new_item":"Добавить","edit_item":"Редактировать","search":"Поиск","cancel":"Отмена","save":"Сохранить","warning":"Предупреждение","sure_delete_item":"Вы уверены, что хотите удалить это?","name_required":"Необходимо ввести имя","email_required":"Необходимо ввести email","email_not_valid":"Введите корректный адрес email","users":"Пользователи","user":"Пользователь","author":"Автор","name":"Имя","email":"Email","photo":"Фото","role":"Группа","roles":"Группы пользователей","group":"Группа","title":"Название","results":"Результаты","comment":"Комментарий","date":"Дата","level":"Уровень","checklist":"Чек-лист","checklists":"Чек-листы","checklist_categories":"Категории чек-листов","responsible":"Ответственные","requirement":"Требование","requirements":"Требования","requirement_groups":"Группы требований","object":"Объект","objects":"Объекты","object_groups":"Группы объектов","audit":"Аудит","audits":"Аудиты","auditor":"Аудитор","audit_results":"Результаты аудитов","audit_calendar":"Календарь аудитов","done_percent":"Процент завершения","tasks_list":"Задачи","status":"Статус","date_start":"Начало","date_end":"Завершение","actions":"Действия"}
+module.exports = {"lang":"Локализация","lg_russian":"Русский","lg_english":"English","login_form":"Форма входа","login":"Вход","logout":"Выход","register":"Регистрация","remember_me":"Запомнить меня","forgot_your_password":"Забыли пароль?","no_data":"Нет данных","new_item":"Добавить","edit_item":"Редактировать","search":"Поиск","cancel":"Отмена","save":"Сохранить","warning":"Предупреждение","sure_delete_item":"Вы уверены, что хотите удалить это?","name_required":"Необходимо ввести имя","email_required":"Необходимо ввести email","email_not_valid":"Введите корректный адрес email","users":"Пользователи","user":"Пользователь","author":"Автор","name":"Имя","email":"Email","photo":"Фото","photos":"Фото","role":"Группа","roles":"Группы пользователей","group":"Группа","title":"Название","result":"Результат","results":"Результаты","comment":"Комментарий","date":"Дата","level":"Уровень","checklist":"Чек-лист","checklists":"Чек-листы","checklist_categories":"Категории чек-листов","responsible":"Ответственные","requirement":"Требование","requirements":"Требования","requirement_groups":"Группы требований","object":"Объект","objects":"Объекты","object_groups":"Группы объектов","audit":"Аудит","audits":"Аудиты","auditor":"Аудитор","audit_results":"Результаты аудитов","audit_calendar":"Календарь аудитов","done_percent":"Процент завершения","tasks_list":"Задачи","status":"Статус","date_start":"Начало","date_end":"Завершение","actions":"Действия"}
 
 /***/ }),
 /* 199 */
 /***/ (function(module, exports) {
 
-module.exports = {"lang":"Language","lg_russian":"Русский","lg_english":"English","login_form":"Login form","login":"Login","logout":"Logout","register":"Register","remember_me":"Remember Me","forgot_your_password":"Forgot your password?","no_data":"No data available","new_item":"New item","edit_item":"Edit","search":"Search","cancel":"Cancel","save":"Save","warning":"Warning","sure_delete_item":"Are you sure you want to delete this item?","name_required":"Name is required","email_required":"Email is required","email_not_valid":"E-mail must be valid","users":"Users","user":"User","author":"Author","name":"Name","email":"Email","photo":"Photo","role":"Role","roles":"Roles","group":"Group","title":"Title","results":"Results","comment":"Comment","date":"Date","level":"Level","checklist":"CheckList","checklists":"CheckLists","checklist_categories":"CheckList categories","responsible":"Responsible","requirements":"Requirements","requirement":"Requirement","requirement_groups":"Requirement groups","object":"Object","objects":"Objects","object_groups":"Object groups","audit":"Audit","audits":"Audits","auditor":"Auditor","audit_results":"Audit results","audit_calendar":"Calendar of audits","tasks_list":"Tasks","done_percent":"Finish percent","status":"Status","date_start":"Begin","date_end":"Finish","actions":"Actions"}
+module.exports = {"lang":"Language","lg_russian":"Русский","lg_english":"English","login_form":"Login form","login":"Login","logout":"Logout","register":"Register","remember_me":"Remember Me","forgot_your_password":"Forgot your password?","no_data":"No data available","new_item":"New item","edit_item":"Edit","search":"Search","cancel":"Cancel","save":"Save","warning":"Warning","sure_delete_item":"Are you sure you want to delete this item?","name_required":"Name is required","email_required":"Email is required","email_not_valid":"E-mail must be valid","users":"Users","user":"User","author":"Author","name":"Name","email":"Email","photo":"Photo","photos":"Photos","role":"Role","roles":"Roles","group":"Group","title":"Title","result":"Result","results":"Results","comment":"Comment","date":"Date","level":"Level","checklist":"CheckList","checklists":"CheckLists","checklist_categories":"CheckList categories","responsible":"Responsible","requirements":"Requirements","requirement":"Requirement","requirement_groups":"Requirement groups","object":"Object","objects":"Objects","object_groups":"Object groups","audit":"Audit","audits":"Audits","auditor":"Auditor","audit_results":"Audit results","audit_calendar":"Calendar of audits","tasks_list":"Tasks","done_percent":"Finish percent","status":"Status","date_start":"Begin","date_end":"Finish","actions":"Actions"}
 
 /***/ }),
 /* 200 */
@@ -80113,6 +80113,10 @@ if (false) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_1d26fe7e_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_index_results_vue__ = __webpack_require__(221);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(1);
 var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(247)
+}
 /* script */
 
 
@@ -80121,7 +80125,7 @@ var disposed = false
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
-var __vue_styles__ = null
+var __vue_styles__ = injectStyle
 /* scopeId */
 var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
@@ -83164,6 +83168,10 @@ if (false) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__node_modules_vue_loader_lib_template_compiler_index_id_data_v_3a3fff7d_hasScoped_false_optionsId_0_buble_transforms_node_modules_vue_loader_lib_selector_type_template_index_0_index_vue__ = __webpack_require__(239);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__node_modules_vue_loader_lib_runtime_component_normalizer__ = __webpack_require__(1);
 var disposed = false
+function injectStyle (context) {
+  if (disposed) return
+  __webpack_require__(249)
+}
 /* script */
 
 
@@ -83172,7 +83180,7 @@ var disposed = false
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
-var __vue_styles__ = null
+var __vue_styles__ = injectStyle
 /* scopeId */
 var __vue_scopeId__ = null
 /* moduleIdentifier (server only) */
@@ -85004,6 +85012,88 @@ module.exports = {
     }
 
 };
+
+/***/ }),
+/* 247 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(248);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(5).default
+var update = add("20ee9444", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"optionsId\":\"0\",\"vue\":true,\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./index_results.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"optionsId\":\"0\",\"vue\":true,\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./index_results.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 248 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(4)(false);
+// imports
+
+
+// module
+exports.push([module.i, "\nimg.jumbotron__image {\n    width: 100%;\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 249 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(250);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var add = __webpack_require__(5).default
+var update = add("73cdc71e", content, false, {});
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"optionsId\":\"0\",\"vue\":true,\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./index.vue", function() {
+     var newContent = require("!!../../../../../node_modules/css-loader/index.js!../../../../../node_modules/vue-loader/lib/style-compiler/index.js?{\"optionsId\":\"0\",\"vue\":true,\"scoped\":false,\"sourceMap\":false}!../../../../../node_modules/vue-loader/lib/selector.js?type=styles&index=0!./index.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 250 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(4)(false);
+// imports
+
+
+// module
+exports.push([module.i, "\nimg.jumbotron__image {\n    width: 100%;\n}\n", ""]);
+
+// exports
+
 
 /***/ })
 /******/ ]);

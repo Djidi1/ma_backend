@@ -344,3 +344,8 @@
         }
     }
 </script>
+<style>
+    img.jumbotron__image {
+        width: 100%;
+    }
+</style>
