@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 // Вход из Мобильного приложения
-Route::post('login', 'API\PassportController@login');
-Route::post('register', 'API\PassportController@register');
+Route::post('login', [ 'as' => 'login', 'uses' => 'API\PassportController@login']);
+Route::post('register', [ 'as' => 'login', 'uses' => 'API\PassportController@register']);
 
 Route::group(['middleware' => 'auth:api'], function(){
     Route::post('get-details', 'API\PassportController@getDetails');

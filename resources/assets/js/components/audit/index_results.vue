@@ -141,11 +141,11 @@
                 search: '',
                 headers: [
                     { text: 'id', align: 'right', value: 'id' },
-                    { text: 'Requirement', align: 'left', value: 'requirement' },
-                    { text: 'Comment', align: 'left', value: 'comment' },
-                    { text: 'Date', align: 'left', value: 'date' },
-                    { text: 'Result', align: 'left', value: 'result' },
-                    { text: 'Photos', align: 'left', value: 'photos' },
+                    { text: this.$t('requirement'), align: 'left', value: 'requirement' },
+                    { text: this.$t('comment'), align: 'left', value: 'comment' },
+                    { text: this.$t('date'), align: 'left', value: 'date' },
+                    { text: this.$t('result'), align: 'left', value: 'result' },
+                    { text: this.$t('photos'), align: 'left', value: 'photos' },
                     // { text: 'Actions', align: 'center', sortable: false, value: '' }
                 ],
                 title: '',
