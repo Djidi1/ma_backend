@@ -11,8 +11,8 @@
     },
     "devDependencies": {
         "axios": "^0.18",
-        "browser-sync": "^2.23.6",
-        "browser-sync-webpack-plugin": "^2.0.1",
+        "browser-sync": "^2.24.4",
+        "browser-sync-webpack-plugin": "^2.2.2",
         "cross-env": "^5.1.4",
         "laravel-mix": "^2.0",
         "lodash": "^4.17.4",
@@ -25,6 +25,8 @@
     },
     "dependencies": {
         "@websanova/vue-auth": "^2.21.3-beta",
+        "ag-grid": "^17.1.1",
+        "ag-grid-vue": "^17.1.0",
         "moment": "^2.21.0",
         "vue-fullcalendar": "^1.0.9",
         "vue-ls": "^2.4.1",

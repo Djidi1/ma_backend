@@ -28,6 +28,9 @@ import fullCalendar from 'vue-fullcalendar'
 import VuetifyConfirm from 'vuetify-confirm'
 import 'vuetify/dist/vuetify.min.css'
 
+import "ag-grid/dist/styles/ag-grid.css";
+import "ag-grid/dist/styles/ag-theme-balham.css";
+
 Vue.component('full-calendar', fullCalendar);
 
 Vue.use(Vuetify);

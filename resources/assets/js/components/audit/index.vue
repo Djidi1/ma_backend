@@ -90,63 +90,90 @@
                         item-value = "id"
                 ></v-select>
                 <v-spacer></v-spacer>
-                <v-text-field
-                        append-icon="search"
-                        :label="$t('search')"
-                        single-line
-                        hide-details
-                        v-model="search"
-                ></v-text-field>
             </v-card-title>
-            <v-data-table
-                    :no-data-text="$t('no_data')"
-                    :headers="headers"
-                    :items="filteredItems"
-                    :search="search"
-                    :loading="loading"
-                    :rows-per-page-items='[50,100,500,{"text":"All","value":-1}]'
-                    class="elevation-1"
+            <ag-grid-vue style="width: 100%; height: 300px;"
+                         class="ag-theme-balham"
+                         :gridOptions="gridOptions"
+                         :columnDefs="columnDefs"
+                         :rowData="filteredItems"
+
+                         :enableColResize="true"
+                         :enableSorting="true"
+                         :enableFilter="true"
             >
-                <template slot="items" slot-scope="props">
-                    <tr>
-                        <td class="text-xs-right">{{ props.item.id }}</td>
-                        <td>{{ props.item.title }}</td>
-                        <td>{{ checklists.find(x => x.id === props.item.checklist_id).title }}</td>
-                        <!--<td>{{ objects.find(x => x.id === props.item.object_id).title }}</td>-->
-                        <td>{{ users.find(x => x.id === props.item.user_id).name }}</td>
-                        <td>
-                            <v-chip
-                                    text-color="white"
-                                    :color="props.item.audit_result.length === 0
-                                    ? 'blue'
-                                    : (countResults(props.item.audit_result) === props.item.audit_result.length ? 'green' : 'orange')">
-                                {{ countResults(props.item.audit_result) }} / {{ props.item.audit_result.length }}
-                            </v-chip>
-                        </td>
-                        <td>{{ props.item.comment }}</td>
-                        <td>{{ frontEndDateFormat(props.item.date) }}</td>
-                        <td class="justify-center layout px-0">
-                            <v-btn icon class="mx-0" @click="openResult(props.item.id)" v-if="props.item.audit_result.length > 0">
-                                <v-icon color="blue">open_in_browser</v-icon>
-                            </v-btn>
-                            <v-btn icon class="mx-0" @click="editItem(props.item)" v-if="props.item.audit_result.length === 0">
-                                <v-icon color="teal">edit</v-icon>
-                            </v-btn>
-                            <v-btn icon class="mx-0" @click="deleteItem(props.item)" v-if="props.item.audit_result.length === 0">
-                                <v-icon color="pink">delete</v-icon>
-                            </v-btn>
-                        </td>
-                    </tr>
-                </template>
-                <v-alert slot="no-results" :value="true" color="error" icon="warning">
-                    Your search for "{{ search }}" found no results.
-                </v-alert>
-            </v-data-table>
+            </ag-grid-vue>
+            <!--<v-data-table-->
+                    <!--:no-data-text="$t('no_data')"-->
+                    <!--:headers="headers"-->
+                    <!--:items="filteredItems"-->
+                    <!--:search="search"-->
+                    <!--:loading="loading"-->
+                    <!--:rows-per-page-items='[50,100,500,{"text":"All","value":-1}]'-->
+                    <!--class="elevation-1"-->
+            <!--&gt;-->
+                <!--<template slot="items" slot-scope="props">-->
+                    <!--<tr>-->
+                        <!--<td class="text-xs-right">{{ props.item.id }}</td>-->
+                        <!--<td>{{ props.item.title }}</td>-->
+                        <!--<td>{{ checklists.find(x => x.id === props.item.checklist_id).title }}</td>-->
+                        <!--&lt;!&ndash;<td>{{ objects.find(x => x.id === props.item.object_id).title }}</td>&ndash;&gt;-->
+                        <!--<td>{{ users.find(x => x.id === props.item.user_id).name }}</td>-->
+                        <!--<td>-->
+                            <!--<v-chip-->
+                                    <!--text-color="white"-->
+                                    <!--:color="props.item.audit_result.length === 0-->
+                                    <!--? 'blue'-->
+                                    <!--: (countResults(props.item.audit_result) === props.item.audit_result.length ? 'green' : 'orange')">-->
+                                <!--{{ countResults(props.item.audit_result) }} / {{ props.item.audit_result.length }}-->
+                            <!--</v-chip>-->
+                        <!--</td>-->
+                        <!--<td>{{ props.item.comment }}</td>-->
+                        <!--<td>{{ frontEndDateFormat(props.item.date) }}</td>-->
+                        <!--<td class="justify-center layout px-0">-->
+                            <!--<v-btn icon class="mx-0" @click="openResult(props.item.id)" v-if="props.item.audit_result.length > 0">-->
+                                <!--<v-icon color="blue">open_in_browser</v-icon>-->
+                            <!--</v-btn>-->
+                            <!--<v-btn icon class="mx-0" @click="editItem(props.item)" v-if="props.item.audit_result.length === 0">-->
+                                <!--<v-icon color="teal">edit</v-icon>-->
+                            <!--</v-btn>-->
+                            <!--<v-btn icon class="mx-0" @click="deleteItem(props.item)" v-if="props.item.audit_result.length === 0">-->
+                                <!--<v-icon color="pink">delete</v-icon>-->
+                            <!--</v-btn>-->
+                        <!--</td>-->
+                    <!--</tr>-->
+                <!--</template>-->
+                <!--<v-alert slot="no-results" :value="true" color="error" icon="warning">-->
+                    <!--Your search for "{{ search }}" found no results.-->
+                <!--</v-alert>-->
+            <!--</v-data-table>-->
         </v-card>
     </div>
 </template>
 
 <script>
+    import {AgGridVue} from "ag-grid-vue";
+    import Vue from "vue";
+
+    const ActionButtons = Vue.extend({
+        template: `<span>
+                <v-btn small icon class="mx-0 my-0" @click="editItem" v-if="params.data.audit_result.length === 0"><v-icon color="teal">edit</v-icon></v-btn>
+                <v-btn small icon class="mx-0 my-0" @click="deleteItem" v-if="params.data.audit_result.length === 0"><v-icon color="pink">delete</v-icon></v-btn>
+                <v-btn small icon class="mx-0 my-0" @click="openResult" v-if="params.data.audit_result.length > 0"><v-icon color="blue">open_in_browser</v-icon></v-btn>
+        </span>`,
+        methods: {
+            editItem() {
+                this.params.context.componentParent.editItem(this.params.data);
+            },
+            deleteItem() {
+                this.params.context.componentParent.deleteItem(this.params.data);
+            },
+            openResult() {
+                this.params.context.componentParent.openResult(this.params.value);
+            }
+        }
+    });
+
+
     export default {
         data() {
             return {
@@ -181,7 +208,14 @@
                     title: ''
                 },
                 valid: false,
+                gridOptions: {},
+                columnDefs: null,
+                rowData: null,
+                params: null
             }
+        },
+        components: {
+            'ag-grid-vue': AgGridVue
         },
         computed: {
             formTitle() {
@@ -221,6 +255,7 @@
                 return moment(date, 'DD.MM.YYYY').format('YYYY-MM-DD');
             },
             getItems() {
+                this.gridOptions.api.showLoadingOverlay();
                 axios.get('/audits_all')
                     .then(response => {
                         this.items = response.data.audits;
@@ -230,7 +265,42 @@
                         this.objects = response.data.objects;
                         this.users = response.data.users;
                         this.loading = false;
+                        this.gridOptions.api.sizeColumnsToFit();
+                        this.gridOptions.api.hideOverlay();
                     });
+                this.columnDefs = [
+                    // {headerName: 'id', align: 'right', field: 'id'},
+                    {headerName: this.$t('title'), suppressSizeToFit: true, align: 'left', field: 'title'},
+                    {headerName: this.$t('checklist'), align: 'left', field: 'checklist.title', enableRowGroup: true},
+                    {
+                        headerName: this.$t('auditor'), align: 'left', valueGetter: function (params) {
+                            return params.data.user.name
+                        },
+                        enableRowGroup: true
+                    },
+                    {
+                        headerName: this.$t('results'), align: 'left', field: 'audit_result',
+                        cellRenderer: function(params) {
+                            let good_results = 0;
+                            let results = params.value;
+                            for (let result in results) {
+                                if (results.hasOwnProperty(result) && results[result].result === 1) {
+                                    good_results++;
+                                }
+                            }
+                            let color = params.value.length === 0 ? 'blue' : (good_results === params.value.length ? 'green' : 'orange');
+                            return '<b class="' + color + '--text">' + good_results + '/' + params.value.length+'</b>';
+                        }
+                    },
+                    {headerName: this.$t('comment'), align: 'left', field: 'comment'},
+                    {headerName: this.$t('date'), align: 'left', field: 'date', enableRowGroup: true},
+                    {
+                        headerName: this.$t('actions'), field: 'id',
+                        cellRendererFramework: ActionButtons,
+                        colId: "params",
+                        suppressCellSelection: true
+                    }
+                ];
             },
             editItem(item) {
                 this.editedIndex = this.items.indexOf(item);
@@ -243,7 +313,8 @@
                 this.$confirm(this.$t('sure_delete_item')).then(res => {
                     if (res) {
                         axios.delete('/audits_delete/' + item.id);
-                        this.items.splice(index, 1)
+                        this.items.splice(index, 1);
+                        this.gridOptions.api.refreshCells();
                     }
                 });
             },
@@ -268,6 +339,7 @@
                         .then(response => {
                             if (response.data === 1) {
                                 Object.assign(this.items[item_index], editedItem);
+                                this.gridOptions.api.refreshCells();
                             }
                         })
                         .catch(e => {
@@ -278,7 +350,8 @@
                     new_item.date_add = new_item.date;
                     axios.post(`/audits_save`, new_item)
                         .then(response => {
-                            this.items.push(response.data)
+                            this.items.push(response.data);
+                            this.gridOptions.api.refreshCells();
                         })
                         .catch(e => {
                             this.errors.push(e)
@@ -286,6 +359,14 @@
                 }
                 this.close()
             }
+        },
+        beforeMount() {
+            this.gridOptions = {
+                context: { componentParent: this },
+                suppressDragLeaveHidesColumns: true,
+                suppressMakeColumnVisibleAfterUnGroup: true,
+                rowGroupPanelShow: 'always'
+            };
         },
         mounted() {
             this.getItems();
