@@ -15,10 +15,20 @@ class Requirement extends Model
         'warning_level'
     ];
 
+    protected $casts = [
+        'checklist_id' => 'integer',
+        'requirements_type_id' => 'integer',
+        'requirement_groups_id' => 'integer',
+        'warning_level' => 'integer',
+    ];
+
     public function checklist(){
         return $this->belongsTo('App\Checklist');
     }
     public function requirements_type(){
         return $this->belongsTo('App\Requirements_type');
+    }
+    public function responsible(){
+        return $this->belongsTo('App\Responsible');
     }
 }

@@ -13,7 +13,10 @@ class AuditResult extends Model
         'result',
         'comment'
     ];
-
+    protected $casts = [
+        'audit_id' => 'integer',
+        'requirement_id' => 'integer',
+    ];
     public function audit(){
         return $this->belongsTo('App\Audit');
     }

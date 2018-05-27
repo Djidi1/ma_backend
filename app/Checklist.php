@@ -29,6 +29,11 @@ class Checklist extends Model
         'cl_category_id'
     ];
 
+
+    protected $casts = [
+        'cl_category_id' => 'integer',
+    ];
+
     public function cl_category(){
         return $this->belongsTo('App\ClCategory');
     }

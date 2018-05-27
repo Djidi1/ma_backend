@@ -1,6 +1,6 @@
 <template>
     <v-app standalone>
-        <div v-if="$auth.ready()">
+        <div v-if="$auth.ready()" style="height: 100%">
             <v-navigation-drawer fixed
                                  app
                                  :mini-variant.sync="mini"
@@ -31,7 +31,7 @@
                     <li
                             v-for="item in routes"
                             v-if="
-                            (($auth.check() && item.meta.auth && (item.meta.role_id === $auth.user().role_id || !item.meta.role_id))
+                            (($auth.check() && item.meta.auth && (item.meta.role_id === parseInt($auth.user().role_id) || !item.meta.role_id))
                             || (!$auth.check() && !item.meta.auth))
                              && !item.meta.no_show"
                     >
@@ -83,7 +83,7 @@
                     </v-list>
                 </v-menu>
             </v-toolbar>
-            <v-content fill-height fill-width>
+            <v-content fill-height fill-width style="height: 100%">
                 <v-container fluid fill-height fill-width>
                     <slot></slot>
                     <router-view></router-view>

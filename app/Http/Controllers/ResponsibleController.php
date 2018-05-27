@@ -25,7 +25,7 @@ class ResponsibleController extends Controller
         $users = User::all();
         $objects = AuditObject::all();
         $requirements = Requirement::all();
-        $responsible = Responsible::all();
+        $responsible = Responsible::with('user')->get();
         return compact('responsible', 'users', 'objects', 'requirements');
 
 //        return response()->json($checklists);

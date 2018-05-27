@@ -1,6 +1,6 @@
 <template>
-    <div style="width: 100%">
-        <v-dialog v-model="dialog" max-width="500px">
+    <div style="width: 100%; height: 100%">
+        <v-dialog v-model="dialog" persistent max-width="500px">
             <v-card>
                 <v-card-title>
                     <span class="headline">{{ formTitle }}</span>
@@ -9,9 +9,6 @@
                     <v-container grid-list-md>
                         <v-layout wrap>
                             <v-flex xs12>
-                                <v-text-field :label="$t('title')" v-model="editedItem.title" required></v-text-field>
-                            </v-flex>
-                            <v-flex xs12>
                                 <v-select
                                         :items="objects"
                                         item-text = "title"
@@ -19,6 +16,7 @@
                                         v-model="editedItem.object_id"
                                         :label="$t('object')"
                                         required
+                                        autocomplete
                                 ></v-select>
                             </v-flex>
                             <v-flex xs12>
@@ -69,6 +67,9 @@
                                     </v-date-picker>
                                 </v-dialog>
                             </v-flex>
+                            <v-flex xs12>
+                                <v-text-field :label="$t('comment')" v-model="editedItem.title"></v-text-field>
+                            </v-flex>
                         </v-layout>
                     </v-container>
                 </v-card-text>
@@ -79,8 +80,32 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
-        <v-card fluid fill-height fill-width>
+        <v-dialog
+                v-model="dialog_results"
+                fullscreen
+                hide-overlay
+                transition="dialog-bottom-transition"
+                scrollable
+                persistent>
+            <v-card tile>
+                <v-toolbar card dark color="primary">
+                    <v-btn icon dark @click.native="dialog_results = false">
+                        <v-icon>close</v-icon>
+                    </v-btn>
+                    <v-toolbar-title>{{ $t('results') }}</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                </v-toolbar>
+                <v-card-text>
+                    <v-container grid-list-md>
+                        <v-layout wrap>
+                            <results ref="results"></results>
+                        </v-layout>
+                    </v-container>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
+        <v-card fluid fill-height fill-width style="height: 100%">
+            <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
             <v-card-title>
                 <v-select
                         :items="objects"
@@ -88,10 +113,12 @@
                         :label = "$t('object')"
                         item-text = "title"
                         item-value = "id"
+                        autocomplete
                 ></v-select>
                 <v-spacer></v-spacer>
+                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
             </v-card-title>
-            <ag-grid-vue style="width: 100%; height: 300px;"
+            <ag-grid-vue style="width: 100%;"
                          class="ag-theme-balham"
                          :gridOptions="gridOptions"
                          :columnDefs="columnDefs"
@@ -102,50 +129,11 @@
                          :enableFilter="true"
             >
             </ag-grid-vue>
-            <!--<v-data-table-->
-                    <!--:no-data-text="$t('no_data')"-->
-                    <!--:headers="headers"-->
-                    <!--:items="filteredItems"-->
-                    <!--:search="search"-->
-                    <!--:loading="loading"-->
-                    <!--:rows-per-page-items='[50,100,500,{"text":"All","value":-1}]'-->
-                    <!--class="elevation-1"-->
-            <!--&gt;-->
-                <!--<template slot="items" slot-scope="props">-->
-                    <!--<tr>-->
-                        <!--<td class="text-xs-right">{{ props.item.id }}</td>-->
-                        <!--<td>{{ props.item.title }}</td>-->
-                        <!--<td>{{ checklists.find(x => x.id === props.item.checklist_id).title }}</td>-->
-                        <!--&lt;!&ndash;<td>{{ objects.find(x => x.id === props.item.object_id).title }}</td>&ndash;&gt;-->
-                        <!--<td>{{ users.find(x => x.id === props.item.user_id).name }}</td>-->
-                        <!--<td>-->
-                            <!--<v-chip-->
-                                    <!--text-color="white"-->
-                                    <!--:color="props.item.audit_result.length === 0-->
-                                    <!--? 'blue'-->
-                                    <!--: (countResults(props.item.audit_result) === props.item.audit_result.length ? 'green' : 'orange')">-->
-                                <!--{{ countResults(props.item.audit_result) }} / {{ props.item.audit_result.length }}-->
-                            <!--</v-chip>-->
-                        <!--</td>-->
-                        <!--<td>{{ props.item.comment }}</td>-->
-                        <!--<td>{{ frontEndDateFormat(props.item.date) }}</td>-->
-                        <!--<td class="justify-center layout px-0">-->
-                            <!--<v-btn icon class="mx-0" @click="openResult(props.item.id)" v-if="props.item.audit_result.length > 0">-->
-                                <!--<v-icon color="blue">open_in_browser</v-icon>-->
-                            <!--</v-btn>-->
-                            <!--<v-btn icon class="mx-0" @click="editItem(props.item)" v-if="props.item.audit_result.length === 0">-->
-                                <!--<v-icon color="teal">edit</v-icon>-->
-                            <!--</v-btn>-->
-                            <!--<v-btn icon class="mx-0" @click="deleteItem(props.item)" v-if="props.item.audit_result.length === 0">-->
-                                <!--<v-icon color="pink">delete</v-icon>-->
-                            <!--</v-btn>-->
-                        <!--</td>-->
-                    <!--</tr>-->
-                <!--</template>-->
-                <!--<v-alert slot="no-results" :value="true" color="error" icon="warning">-->
-                    <!--Your search for "{{ search }}" found no results.-->
-                <!--</v-alert>-->
-            <!--</v-data-table>-->
+            <v-alert :value="true" outline color="info" icon="info">
+                <b class="blue--text">N</b> - аудит не проводился (запланирован)<br/>
+                <b class="orange--text">N</b> - выявлены несоответствия требованиям <br/>
+                <b class="green--text">N</b> - успешно пройденный аудит <br/>
+            </v-alert>
         </v-card>
     </div>
 </template>
@@ -153,6 +141,7 @@
 <script>
     import {AgGridVue} from "ag-grid-vue";
     import Vue from "vue";
+    import Results from './index_results.vue';
 
     const ActionButtons = Vue.extend({
         template: `<span>
@@ -178,21 +167,11 @@
         data() {
             return {
                 dialog: false,
+                dialog_results: false,
                 picker: false,
                 date: '',
                 loading: true,
                 search: '',
-                headers: [
-                    { text: 'id', align: 'right', value: 'id' },
-                    { text: this.$t('title'), align: 'left', value: 'name' },
-                    { text: this.$t('checklist'), align: 'left', value: 'checklist' },
-                    // { text: this.$t('object'), align: 'left', value: 'object' },
-                    { text: this.$t('auditor'), align: 'left', value: 'user' },
-                    { text: this.$t('results'), align: 'left', value: 'results' },
-                    { text: this.$t('comment'), align: 'left', value: 'comment' },
-                    { text: this.$t('date'), align: 'left', value: 'date' },
-                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
-                ],
                 title: '',
                 items: [],
                 checklists: [],
@@ -215,7 +194,8 @@
             }
         },
         components: {
-            'ag-grid-vue': AgGridVue
+            'ag-grid-vue': AgGridVue,
+            'results': Results
         },
         computed: {
             formTitle() {
@@ -223,7 +203,7 @@
             },
             filteredItems() {
                 return this.items.filter(item => {
-                    return item.object_id === this.object_selected
+                    return parseInt(item.object_id) === this.object_selected
                 })
             }
         },
@@ -246,7 +226,9 @@
                 return good_results;
             },
             openResult(id) {
-                this.$router.push({path: '/audit_results/' + id });
+                this.$refs.results.getItems(id);
+                this.dialog_results = true;
+                // this.$router.push({path: '/audit_results/' + id });
             },
             frontEndDateFormat: function(date) {
                 return moment(date, 'YYYY-MM-DD').format('DD.MM.YYYY');
@@ -260,7 +242,7 @@
                     .then(response => {
                         this.items = response.data.audits;
                         this.object_selected = this.items[0].object_id || 0;
-                        this.object_select = this.object_selected;
+                        this.object_select = parseInt(this.object_selected);
                         this.checklists = response.data.checklists;
                         this.objects = response.data.objects;
                         this.users = response.data.users;
@@ -269,8 +251,8 @@
                         this.gridOptions.api.hideOverlay();
                     });
                 this.columnDefs = [
-                    // {headerName: 'id', align: 'right', field: 'id'},
-                    {headerName: this.$t('title'), suppressSizeToFit: true, align: 'left', field: 'title'},
+                    {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
+                    // {headerName: this.$t('title'), suppressSizeToFit: true, align: 'left', field: 'title'},
                     {headerName: this.$t('checklist'), align: 'left', field: 'checklist.title', enableRowGroup: true},
                     {
                         headerName: this.$t('auditor'), align: 'left', valueGetter: function (params) {
@@ -279,23 +261,24 @@
                         enableRowGroup: true
                     },
                     {
-                        headerName: this.$t('results'), align: 'left', field: 'audit_result',
+                        headerName: this.$t('nonconformity'), cellStyle: {textAlign: "center"}, field: 'audit_result',
                         cellRenderer: function(params) {
                             let good_results = 0;
                             let results = params.value;
                             for (let result in results) {
-                                if (results.hasOwnProperty(result) && results[result].result === 1) {
+                                if (results.hasOwnProperty(result) && parseInt(results[result].result) === 1) {
                                     good_results++;
                                 }
                             }
                             let color = params.value.length === 0 ? 'blue' : (good_results === params.value.length ? 'green' : 'orange');
-                            return '<b class="' + color + '--text">' + good_results + '/' + params.value.length+'</b>';
+                            return '<b class="' + color + '--text">' + (params.value.length - good_results) +'</b>';
                         }
                     },
                     {headerName: this.$t('comment'), align: 'left', field: 'comment'},
                     {headerName: this.$t('date'), align: 'left', field: 'date', enableRowGroup: true},
                     {
                         headerName: this.$t('actions'), field: 'id',
+                        cellStyle: {textAlign: "center"},
                         cellRendererFramework: ActionButtons,
                         colId: "params",
                         suppressCellSelection: true
@@ -365,7 +348,12 @@
                 context: { componentParent: this },
                 suppressDragLeaveHidesColumns: true,
                 suppressMakeColumnVisibleAfterUnGroup: true,
-                rowGroupPanelShow: 'always'
+                floatingFilter:true,
+                enableFilter: true,
+                enableSorting: true,
+                suppressMenu: true,
+                domLayout: 'autoHeight',
+                rowGroupPanelShow: 'always',
             };
         },
         mounted() {

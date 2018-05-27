@@ -1,6 +1,6 @@
 <template>
-    <div style="width: 100%">
-        <v-dialog v-model="dialog" max-width="500px">
+    <div style="width: 100%; height:100%">
+        <v-dialog v-model="dialog" persistent max-width="500px">
             <v-card>
                 <v-card-title>
                     <span class="headline">{{ formTitle }}</span>
@@ -49,8 +49,8 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
-        <v-card fluid fill-height fill-width>
+        <v-card fluid fill-height fill-width style="height: 100%">
+            <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
             <v-card-title>
                 <v-select
                         :items="checklist_groups"
@@ -58,75 +58,63 @@
                         :label = "$t('checklist')"
                         item-text = "title"
                         item-value = "id"
+                        autocomplete
                 ></v-select>
                 <v-spacer></v-spacer>
-                <v-text-field
-                        append-icon="search"
-                        :label="$t('search')"
-                        single-line
-                        hide-details
-                        v-model="search"
-                ></v-text-field>
+                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
             </v-card-title>
-            <v-data-table
-                    :no-data-text="$t('no_data')"
-                    :headers="headers"
-                    :items="filteredItems"
-                    :search="search"
-                    :loading="loading"
-                    class="elevation-1"
+            <ag-grid-vue style="width: 100%;"
+                         class="ag-theme-balham"
+                         :gridOptions="gridOptions"
+                         :columnDefs="columnDefs"
+                         :rowData="filteredItems"
+
+                         :enableColResize="true"
+                         :enableSorting="true"
+                         :enableFilter="true"
             >
-                <template slot="items" slot-scope="props">
-                    <td class="text-xs-right">{{ props.item.id }}</td>
-                    <!--<td>{{ checklist_groups.find(x => x.id === props.item.checklist_id).title }}</td>-->
-                    <!--<td>{{ requirement_groups.find(x => x.id === props.item.requirement_groups_id).title }}</td>-->
-                    <td>{{ props.item.title }}</td>
-                    <td>
-                        <v-badge
-                                :title="props.item.warning_level < 5 ? 'notice' : (props.item.warning_level > 7 ? 'danger' : 'warning')"
-                                :color="props.item.warning_level < 5 ? 'green' : (props.item.warning_level > 7 ? 'red' : 'orange')"
-                                :bottom="true" >
-                            <span slot="badge">{{ props.item.warning_level }}</span>
-                        </v-badge>
-                    </td>
-                    <td class="justify-center layout px-0">
-                        <v-btn icon class="mx-0" @click="editItem(props.item)">
-                            <v-icon color="teal">edit</v-icon>
-                        </v-btn>
-                        <v-btn icon class="mx-0" @click="deleteItem(props.item)">
-                            <v-icon color="pink">delete</v-icon>
-                        </v-btn>
-                    </td>
-                </template>
-                <v-alert slot="no-results" :value="true" color="error" icon="warning">
-                    Your search for "{{ search }}" found no results.
-                </v-alert>
-            </v-data-table>
+            </ag-grid-vue>
+            <v-alert :value="true" outline color="info" icon="info">
+                <b class="green--text">1..4</b> - низкий уровень опасности<br/>
+                <b class="orange--text">5..7</b> - средний уровень опасности <br/>
+                <b class="red--text">8..10</b> - высокий уровень опасности <br/>
+            </v-alert>
         </v-card>
     </div>
 </template>
 
 <script>
+    import {AgGridVue} from "ag-grid-vue";
+    import Vue from "vue";
+
+    const ActionButtons = Vue.extend({
+        template: `<span>
+                <v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="teal">edit</v-icon></v-btn>
+                <v-btn small icon class="mx-0 my-0" @click="deleteItem"><v-icon color="pink">delete</v-icon></v-btn>
+
+        </span>`,
+        methods: {
+            editItem() {
+                this.params.context.componentParent.editItem(this.params.data);
+            },
+            deleteItem() {
+                this.params.context.componentParent.deleteItem(this.params.data);
+            }
+        }
+    });
     export default {
         data() {
             return {
                 dialog: false,
                 loading: true,
                 search: '',
-                headers: [
-                    { text: 'id', align: 'right', value: 'id' },
-                    // { text: this.$t('checklist'), align: 'left', value: 'checklist' },
-                    // { text: this.$t('group'), align: 'left', value: 'group' },
-                    { text: this.$t('title'), align: 'left', value: 'name' },
-                    { text: this.$t('level'), align: 'left', value: 'warning_level' },
-                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
-                ],
                 title: '',
                 checklist_select: 0,
                 checklist_selected: 0,
                 items: [],
                 requirement_groups: [],
                 checklist_groups: [],
+                responsible: [],
                 editedIndex: -1,
                 editedItem: {
                     title: ''
@@ -136,8 +124,14 @@
                 },
                 levels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 valid: false,
-
+                gridOptions: {},
+                columnDefs: null,
+                rowData: null,
+                params: null
             }
+        },
+        components: {
+            'ag-grid-vue': AgGridVue
         },
         computed: {
             formTitle() {
@@ -145,7 +139,7 @@
             },
             filteredItems() {
                 return this.items.filter(item => {
-                    return item.checklist_id === this.checklist_selected
+                    return parseInt(item.checklist_id) === this.checklist_selected
                 })
             }
         },
@@ -159,15 +153,53 @@
         },
         methods: {
             getItems() {
+                let self = this;
                 axios.get('/requirements_all')
                     .then(response => {
                         this.items = response.data.requirements;
                         this.checklist_selected = this.items[0].checklist_id || 0;
-                        this.checklist_select = this.checklist_selected;
+                        this.checklist_select = parseInt(this.checklist_selected);
                         this.requirement_groups = response.data.requirement_groups;
                         this.checklist_groups = response.data.checklist_groups;
+                        this.responsible = response.data.responsible;
                         this.loading = false;
+                        this.gridOptions.api.sizeColumnsToFit();
+                        this.gridOptions.api.hideOverlay();
                     });
+                this.columnDefs = [
+                    // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
+                    {headerName: this.$t('title'), align: 'left', field: 'title'},
+                    {
+                        headerName: this.$t('level'), width: 90, cellStyle: {textAlign: "center"}, field: 'warning_level',
+                        cellRenderer: function(params) {
+                            //:color="props.item.warning_level < 5 ? 'green' : (props.item.warning_level > 7 ? 'red' : 'orange')"
+                            let color = params.value < 5 ? 'green' : (params.value > 7 ? 'red' : 'orange');
+                            return '<b class="' + color + '--text">' + params.value +'</b>';
+                        }
+                    },
+                    {
+                        headerName: this.$t('responsible'), field: 'id',
+                        cellRenderer: function(params) {
+                            let responsible_names = [];
+                            for(let index in self.responsible) {
+                                if (self.responsible.hasOwnProperty(index)) {
+                                    let attr = self.responsible[index];
+                                    if (attr.requirement_id.indexOf(params.value) > -1){
+                                        responsible_names.push(self.responsible[index].user.name);
+                                    }
+                                }
+                            }
+                            return responsible_names.join(', ');
+                        }
+                    },
+                    {
+                        headerName: this.$t('actions'), field: 'id',
+                        cellStyle: {textAlign: "center"},
+                        cellRendererFramework: ActionButtons,
+                        colId: "params",
+                        suppressCellSelection: true
+                    }
+                ];
             },
             editItem(item) {
                 this.editedIndex = this.items.indexOf(item);
@@ -180,6 +212,7 @@
                 this.$confirm(this.$t('sure_delete_item')).then(res => {
                     if (res) {
                         axios.delete('/requirements_delete/' + item.id);
+                        this.gridOptions.api.refreshCells();
                         this.items.splice(index, 1)
                     }
                 });
@@ -203,6 +236,7 @@
                         .then(response => {
                             if (response.data === 1) {
                                 Object.assign(this.items[item_index], editedItem);
+                                this.gridOptions.api.refreshCells();
                             }
                         })
                         .catch(e => {
@@ -211,7 +245,8 @@
                 } else {
                     axios.post(`/requirements_save`, this.editedItem)
                         .then(response => {
-                            this.items.push(response.data)
+                            this.items.push(response.data);
+                            this.gridOptions.api.refreshCells();
                         })
                         .catch(e => {
                             this.errors.push(e)
@@ -219,6 +254,19 @@
                 }
                 this.close()
             }
+        },
+        beforeMount() {
+            this.gridOptions = {
+                context: { componentParent: this },
+                suppressDragLeaveHidesColumns: true,
+                suppressMakeColumnVisibleAfterUnGroup: true,
+                floatingFilter:true,
+                enableFilter: true,
+                enableSorting: true,
+                suppressMenu: true,
+                domLayout: 'autoHeight',
+                rowGroupPanelShow: 'always',
+            };
         },
         mounted() {
             this.getItems();

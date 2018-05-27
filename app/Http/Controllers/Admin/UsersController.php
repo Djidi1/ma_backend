@@ -21,7 +21,7 @@ class UsersController extends Controller
     public function index()
     {
         $roles = Role::all();
-        $users = User::all();
+        $users = User::with('role')->get();
 
         return compact('users', 'roles');
     }

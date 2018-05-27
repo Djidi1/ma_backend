@@ -16,6 +16,7 @@ class Responsible extends Model
     protected $casts = [
         'requirement_id' => 'array',
         'object_id' => 'array',
+        'user_id' => 'integer',
     ];
 
     public function user(){

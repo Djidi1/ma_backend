@@ -19,6 +19,12 @@ class Audit extends Model
         'comment'
     ];
 
+    protected $casts = [
+        'object_id' => 'integer',
+        'user_id' => 'integer',
+        'checklist_id' => 'integer',
+    ];
+
 //    public function setDateAttribute( $value ) {
 //        $this->attributes['date'] = (new Carbon($value))->format('d/m/y');
 //    }

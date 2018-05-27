@@ -1,6 +1,6 @@
 <template>
-    <div style="width:100%">
-        <v-dialog v-model="dialog" max-width="500px">
+    <div style="width:100%; height: 100%">
+        <v-dialog v-model="dialog" persistent max-width="500px">
             <v-card>
                 <v-card-title>
                     <span class="headline">{{ formTitle }}</span>
@@ -45,75 +45,57 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
+                    <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
                     <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <v-card fluid fill-height fill-width>
+        <v-card fluid fill-height fill-width style="height: 100%">
+            <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
             <v-card-title>
-                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
                 <v-spacer></v-spacer>
-                <v-text-field
-                        append-icon="search"
-                        :label="$t('search')"
-                        single-line
-                        hide-details
-                        v-model="search"
-                ></v-text-field>
+                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
             </v-card-title>
-            <v-data-table
-                    :no-data-text="$t('no_data')"
-                    :headers="headers"
-                    :items="items"
-                    :search="search"
-                    :loading="loading"
-                    class="elevation-1"
+            <ag-grid-vue style="width: 100%;"
+                         class="ag-theme-balham"
+                         :gridOptions="gridOptions"
+                         :columnDefs="columnDefs"
+                         :rowData="items"
+
+                         :enableColResize="true"
+                         :enableSorting="true"
+                         :enableFilter="true"
             >
-                <template slot="items" slot-scope="props">
-                    <td class="text-xs-right">{{ props.item.id }}</td>
-                    <td>{{ users_items.find(x => x.id === props.item.user_id).name }}</td>
-                    <td>
-                        <template v-for="(item, index) in props.item.object_id">
-                           <v-chip v-html="objects_items.find(x => x.id === item).title"></v-chip>
-                        </template>
-                    </td>
-                    <td>
-                        <template v-for="(item, index) in props.item.requirement_id">
-                            <v-chip v-html="requirements_items.find(x => x.id === item).title"></v-chip>
-                        </template>
-                    </td>
-                    <td class="justify-center layout px-0">
-                        <v-btn icon class="mx-0" @click="editItem(props.item)">
-                            <v-icon color="teal">edit</v-icon>
-                        </v-btn>
-                        <v-btn icon class="mx-0" @click="deleteItem(props.item)">
-                            <v-icon color="pink">delete</v-icon>
-                        </v-btn>
-                    </td>
-                </template>
-                <v-alert slot="no-results" :value="true" color="error" icon="warning">
-                    Your search for "{{ search }}" found no results.
-                </v-alert>
-            </v-data-table>
+            </ag-grid-vue>
         </v-card>
     </div>
 </template>
 
 <script>
+    import {AgGridVue} from "ag-grid-vue";
+    import Vue from "vue";
+
+    const ActionButtons = Vue.extend({
+        template: `<span>
+                <v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="teal">edit</v-icon></v-btn>
+                <v-btn small icon class="mx-0 my-0" @click="deleteItem"><v-icon color="pink">delete</v-icon></v-btn>
+
+        </span>`,
+        methods: {
+            editItem() {
+                this.params.context.componentParent.editItem(this.params.data);
+            },
+            deleteItem() {
+                this.params.context.componentParent.deleteItem(this.params.data);
+            }
+        }
+    });
     export default {
         data() {
             return {
                 dialog: false,
                 loading: true,
                 search: '',
-                headers: [
-                    { text: 'id', align: 'right', value: 'id' },
-                    { text: this.$t('user'), align: 'left', value: 'user' },
-                    { text: this.$t('objects'), align: 'left', value: 'objects' },
-                    { text: this.$t('requirements'), align: 'left', value: 'requirements' },
-                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
-                ],
                 items: [],
                 users_items: [],
                 objects_items: [],
@@ -128,8 +110,15 @@
                     user_id: '',
                     object_id: [],
                     requirement_id: []
-                }
+                },
+                gridOptions: {},
+                columnDefs: null,
+                rowData: null,
+                params: null
             }
+        },
+        components: {
+            'ag-grid-vue': AgGridVue
         },
         computed: {
             formTitle() {
@@ -149,8 +138,57 @@
                         this.users_items = response.data.users;
                         this.objects_items = response.data.objects;
                         this.requirements_items = response.data.requirements;
+                        this.gridOptions.api.sizeColumnsToFit();
+                        this.gridOptions.api.hideOverlay();
                         this.loading = false;
                     });
+                let self = this;
+                this.columnDefs = [
+                    // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
+                    {
+                        headerName: this.$t('user'), field: 'user',
+                        cellRenderer: function(params) {
+                            return params.value.name;
+                        }
+                    },
+                    {
+                        headerName: this.$t('objects'), field: 'object_id',
+                        cellRenderer: function(params) {
+                            let item_names = [];
+                            for(let index in self.objects_items) {
+                                if (self.objects_items.hasOwnProperty(index)) {
+                                    let attr = self.objects_items[index];
+                                    if (params.value.indexOf(attr.id) > -1){
+                                        item_names.push(self.objects_items[index].title);
+                                    }
+                                }
+                            }
+                            return Array.from(new Set(item_names)).join(', ');
+                        }
+                    },
+                    {
+                        headerName: this.$t('requirements'), field: 'requirement_id',
+                        cellRenderer: function(params) {
+                            let item_names = [];
+                            for(let index in self.requirements_items) {
+                                if (self.requirements_items.hasOwnProperty(index)) {
+                                    let attr = self.requirements_items[index];
+                                    if (params.value.indexOf(attr.id) > -1){
+                                        item_names.push(self.requirements_items[index].title);
+                                    }
+                                }
+                            }
+                            return Array.from(new Set(item_names)).join(', ');
+                        }
+                    },
+                    {
+                        headerName: this.$t('actions'), field: 'id',
+                        cellStyle: {textAlign: "center"},
+                        cellRendererFramework: ActionButtons,
+                        colId: "params",
+                        suppressCellSelection: true
+                    }
+                ];
             },
             editItem(item) {
                 this.editedIndex = this.items.indexOf(item);
@@ -163,7 +201,8 @@
                 this.$confirm(this.$t('sure_delete_item')).then(res => {
                     if (res) {
                         axios.delete('/responsible_delete/' + item.id);
-                        this.items.splice(index, 1)
+                        this.items.splice(index, 1);
+                        this.gridOptions.api.refreshCells();
                     }
                 });
             },
@@ -183,6 +222,7 @@
                     axios.put('/responsible_update/' + item.id, this.editedItem)
                         .then(response => {
                             Object.assign(this.items[item_index], item);
+                            this.gridOptions.api.refreshCells();
                         })
                         .catch(e => {
                             this.errors.push(e)
@@ -190,7 +230,8 @@
                 } else {
                     axios.post(`/responsible_save`, this.editedItem)
                         .then(response => {
-                            this.items.push(response.data)
+                            this.items.push(response.data);
+                            this.gridOptions.api.refreshCells();
                         })
                         .catch(e => {
                             this.errors.push(e)
@@ -198,6 +239,19 @@
                 }
                 this.close()
             }
+        },
+        beforeMount() {
+            this.gridOptions = {
+                context: { componentParent: this },
+                suppressDragLeaveHidesColumns: true,
+                suppressMakeColumnVisibleAfterUnGroup: true,
+                floatingFilter:true,
+                enableFilter: true,
+                enableSorting: true,
+                suppressMenu: true,
+                domLayout: 'autoHeight',
+                rowGroupPanelShow: 'always',
+            };
         },
         mounted() {
             this.getItems();

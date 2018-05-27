@@ -13,6 +13,13 @@ class ResponsibleTasks extends Model
         'requirement_id'
     ];
 
+    protected $casts = [
+        'user_id' => 'integer',
+        'object_id' => 'integer',
+        'requirement_id' => 'integer',
+        'audit_id' => 'integer',
+    ];
+
     public function audit_result_attache(){
         return $this->hasMany('App\AuditResultAttache', 'audit_result_id', 'id');
     }

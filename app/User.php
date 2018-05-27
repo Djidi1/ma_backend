@@ -21,6 +21,10 @@ class User extends Authenticatable
         'name', 'email', 'password', 'role_id',
     ];
 
+    protected $casts = [
+        'role_id' => 'integer',
+    ];
+
     /**
      * The attributes that should be hidden for arrays.
      *

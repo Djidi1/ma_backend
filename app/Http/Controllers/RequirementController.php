@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Checklist;
 use App\Requirement;
 use App\RequirementGroups;
+use App\Responsible;
 use Illuminate\Http\Request;
 
 class RequirementController extends Controller
@@ -19,7 +20,8 @@ class RequirementController extends Controller
         $checklist_groups = Checklist::all();
         $requirement_groups = RequirementGroups::all();
         $requirements = Requirement::all();
-        return compact('requirements', 'requirement_groups', 'checklist_groups');
+        $responsible = Responsible::with('user')->get();
+        return compact('requirements', 'responsible', 'requirement_groups', 'checklist_groups');
 
 //        return response()->json($checklists);
     }

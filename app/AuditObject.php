@@ -13,6 +13,11 @@ class AuditObject extends Model
         'audit_object_group_id'
     ];
 
+    protected $casts = [
+        'user_id' => 'integer',
+        'audit_object_group_id' => 'integer',
+    ];
+
     public function audit_object_group(){
         return $this->belongsTo('App\AuditObjectGroup', 'audit_object_group_id');
     }

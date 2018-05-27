@@ -1,17 +1,30 @@
 <template>
-    <v-flex style="width: 100%">
-        <v-dialog v-model="dialog" max-width="500px">
-            <v-card>
-                <v-card-title>
-                    <span class="headline">{{ formTitle }}</span>
-                </v-card-title>
+    <v-flex style="width: 100%; height: 100%">
+        <v-dialog
+                v-model="dialog"
+                fullscreen
+                hide-overlay
+                transition="dialog-bottom-transition"
+                scrollable
+                persistent>
+            <v-card tile>
+                <v-toolbar card dark color="primary">
+                    <v-btn icon dark @click.native="dialog = false">
+                        <v-icon>close</v-icon>
+                    </v-btn>
+                    <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                    <v-toolbar-items>
+                        <v-btn dark flat @click.native="save">{{ $t('save') }}</v-btn>
+                    </v-toolbar-items>
+                </v-toolbar>
                 <v-card-text>
                     <v-container grid-list-md>
                         <v-layout wrap>
                             <v-flex xs12>
                                 <v-text-field :label="$t('comment')" v-model="editedItem.comment" required></v-text-field>
                             </v-flex>
-                            <v-flex xs8>
+                            <v-flex xs12>
                                 <v-select
                                         :items="statuses"
                                         item-text = "title"
@@ -20,9 +33,6 @@
                                         :label="$t('status')"
                                         required
                                 ></v-select>
-                            </v-flex>
-                            <v-flex xs4>
-                                <v-text-field :label="$t('done_percent')" v-model="editedItem.done_percent" required></v-text-field>
                             </v-flex>
                             <v-flex xs6>
                                 <v-dialog
@@ -83,11 +93,6 @@
                         </v-layout>
                     </v-container>
                 </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
-                    <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
-                </v-card-actions>
             </v-card>
         </v-dialog>
         <v-dialog v-model="dialog_photo" max-width="800px">
@@ -97,7 +102,8 @@
                 </v-carousel>
             </v-card>
         </v-dialog>
-        <v-card fluid fill-height fill-width>
+        <v-card fluid fill-height fill-width style="height: 100%">
+            <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
             <v-card-title>
                 <v-select
                         :items="objects"
@@ -105,81 +111,59 @@
                         :label = "$t('object')"
                         item-text = "title"
                         item-value = "id"
+                        autocomplete
                 ></v-select>
                 <v-spacer></v-spacer>
-                <v-text-field
-                        append-icon="search"
-                        :label="$t('search')"
-                        single-line
-                        hide-details
-                        v-model="search"
-                ></v-text-field>
             </v-card-title>
-            <v-data-table
-                    :no-data-text="$t('no_data')"
-                    :headers="headers"
-                    :items="filteredItems"
-                    :search="search"
-                    :loading="loading"
-                    :rows-per-page-items='[50,100,500,{"text":"All","value":-1}]'
-                    class="elevation-1"
+            <ag-grid-vue style="width: 100%;"
+                         class="ag-theme-balham"
+                         :gridOptions="gridOptions"
+                         :columnDefs="columnDefs"
+                         :rowData="filteredItems"
+
+                         :enableColResize="true"
+                         :enableSorting="true"
+                         :enableFilter="true"
             >
-                <template slot="items" slot-scope="props">
-                    <tr @click="props.expanded = !props.expanded">
-                        <td class="text-xs-right">{{ props.item.id }}</td>
-                        <!--<td>{{ props.item.object_title }}</td>-->
-                        <td>{{ props.item.audit_title }}</td>
-                        <td>{{ props.item.requrement_title }}</td>
-                        <td>{{ frontEndDateFormat(props.item.date_checking) }}</td>
-                        <td>{{ props.item.comment }}</td>
-                        <td>
-                            <v-btn icon
-                                   v-on:click='result_attaches(props.item.audit_result_attache)'
-                                   v-if="props.item.audit_result_attache.length > 0">
-                                <v-badge color="orange">
-                                    <span slot="badge">{{ props.item.audit_result_attache.length }}</span>
-                                    <v-icon color="blue">photo</v-icon>
-                                </v-badge>
-                            </v-btn>
-                        </td>
-                        <td>
-                            <span v-html="result_icon(props.item.result, props.item.task)"></span>
-                            <b v-if="props.item.task.hasOwnProperty(0)"> {{ props.item.task[0].done_percent}}%</b>
-                        </td>
-                        <td class="justify-center layout px-0">
-                            <!--<v-btn icon class="mx-0" @click="openResult(props.item.id)">-->
-                                <!--<v-icon color="blue">open_in_browser</v-icon>-->
-                            <!--</v-btn>-->
-                            <v-btn icon class="mx-0" @click.stop="editItem(props.item)">
-                                <v-icon color="blue">work</v-icon>
-                            </v-btn>
-                            <!--<v-btn icon class="mx-0" @click="deleteItem(props.item)">-->
-                                <!--<v-icon color="pink">delete</v-icon>-->
-                            <!--</v-btn>-->
-                        </td>
-                    </tr>
-                </template>
-                <template slot="expand" slot-scope="props">
-                    <v-card flat v-if="props.item.task.hasOwnProperty(0)">
-                        <v-card-text>
-                            <v-layout wrap>
-                                <v-flex xs6>{{ $t('comment') }}: <b>{{ props.item.task[0].comment }}</b></v-flex>
-                                <v-flex xs2>{{ $t('done_percent') }}: <b>{{ props.item.task[0].done_percent }}</b></v-flex>
-                                <v-flex xs2>{{ $t('date_start') }}: <b>{{ props.item.task[0].start }}</b></v-flex>
-                                <v-flex xs2>{{ $t('date_end') }}: <b>{{ props.item.task[0].end }}</b></v-flex>
-                            </v-layout>
-                        </v-card-text>
-                    </v-card>
-                </template>
-                <v-alert slot="no-results" :value="true" color="error" icon="warning">
-                    Your search for "{{ search }}" found no results.
-                </v-alert>
-            </v-data-table>
+            </ag-grid-vue>
         </v-card>
     </v-flex>
 </template>
 
 <script>
+    import {AgGridVue} from "ag-grid-vue";
+    import Vue from "vue";
+
+    const ActionButtons = Vue.extend({
+        template: `<span>
+                <v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="blue">work</v-icon></v-btn>
+        </span>`,
+        methods: {
+            editItem() {
+                this.params.context.componentParent.editItem(this.params.data);
+            }
+        }
+    });
+
+    const Attaches = Vue.extend({
+        template: `<span>
+                <v-btn  small icon class="mx-0 my-0"
+                   v-on:click='result_attaches()'
+                   v-if="params.data.audit_result_attache.length > 0">
+                    <v-icon color="blue">photo</v-icon>
+                </v-btn>
+            </span>`,
+        methods: {
+            result_attaches() {
+                this.params.context.componentParent.result_attaches(this.params.data.audit_result_attache);
+            },
+        }
+    });
+
+
+    /*
+
+     */
     export default {
         data() {
             return {
@@ -191,17 +175,6 @@
                 date: '',
                 loading: true,
                 search: '',
-                headers: [
-                    { text: 'id', align: 'right', value: 'id' },
-                    // { text: this.$t('object'), align: 'left', value: 'object' },
-                    { text: this.$t('audit'), align: 'left', value: 'audit' },
-                    { text: this.$t('requirement'), align: 'left', value: 'requirement' },
-                    { text: this.$t('date'), align: 'left', value: 'date' },
-                    { text: this.$t('comment'), align: 'left', value: 'comment' },
-                    { text: this.$t('photo'), align: 'left', value: 'photo' },
-                    { text: this.$t('results'), align: 'left', value: 'results' },
-                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
-                ],
                 title: '',
                 items: [],
                 requirements: [],
@@ -215,7 +188,15 @@
                 defaultItem: {task_status_id: 1},
                 valid: false,
                 new_task: false,
+
+                gridOptions: {},
+                columnDefs: null,
+                rowData: null,
+                params: null
             }
+        },
+        components: {
+            'ag-grid-vue': AgGridVue
         },
         computed: {
             formTitle() {
@@ -247,6 +228,7 @@
                 return moment(date, 'DD.MM.YYYY').format('YYYY-MM-DD');
             },
             getItems() {
+                let self = this;
                 axios.get('/responsible_tasks')
                     .then(response => {
                         this.items = response.data.responsible_tasks;
@@ -256,8 +238,50 @@
                         this.objects = response.data.objects;
                         this.users = response.data.users;
                         this.statuses = response.data.statuses;
+                        this.gridOptions.api.sizeColumnsToFit();
+                        this.gridOptions.api.hideOverlay();
                         this.loading = false;
                     });
+                this.columnDefs = [
+                    // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
+                    // {headerName: this.$t('title'), suppressSizeToFit: true, align: 'left', field: 'title'},
+                    // {headerName: this.$t('audit'), align: 'left', field: 'audit_title', enableRowGroup: true},
+                    {headerName: this.$t('requirement'), align: 'left', field: 'requrement_title', enableRowGroup: true},
+                    {headerName: this.$t('date'), align: 'left', field: 'date_checking', enableRowGroup: true},
+                    {
+                        headerName: this.$t('date_start'), align: 'left', field: 'task',
+                        cellRenderer: function (params) {
+                            return params.value.hasOwnProperty(0) ? params.value[0].start : '-';
+                        }
+                    },
+                    {
+                        headerName: this.$t('date_end'), align: 'left', field: 'task',
+                        cellRenderer: function (params) {
+                            return params.value.hasOwnProperty(0) ? params.value[0].end : '-';
+                        }
+                    },
+                    {headerName: this.$t('comment'), align: 'left', field: 'comment', enableRowGroup: true},
+                    {
+                        headerName: this.$t('photo'), field: 'id', width: 120,
+                        cellStyle: {textAlign: "center"},
+                        cellRendererFramework: Attaches,
+                        colId: "params",
+                        suppressCellSelection: false
+                    },
+                    {
+                        headerName: this.$t('result'), cellStyle: {textAlign: "center"}, field: 'result', width: 120,
+                        cellRenderer: function(params) {
+                            return self.result_icon(params.value, params.data.task);
+                        }
+                    },
+                    {
+                        headerName: this.$t('actions'), field: 'id', width: 90,
+                        cellStyle: {textAlign: "center"},
+                        cellRendererFramework: ActionButtons,
+                        colId: "params",
+                        suppressCellSelection: true
+                    }
+                ];
             },
             result_icon(result, task) {
                 let icon;
@@ -294,11 +318,13 @@
             },
 
             deleteItem(item) {
+                let self = this;
                 const index = this.items.indexOf(item);
                 this.$confirm(this.$t('sure_delete_item')).then(res => {
                     if (res) {
                         axios.delete('/audits_delete/' + item.id);
-                        this.items.splice(index, 1)
+                        this.items.splice(index, 1);
+                        self.gridOptions.api.refreshCells({force: true});
                     }
                 });
             },
@@ -319,6 +345,7 @@
                     axios.post(`/task_save`, new_item)
                         .then(response => {
                             Object.assign(self.items[item_index].task, {0: response.data});
+                            self.gridOptions.api.refreshCells({force: true});
                         })
                         .catch(e => {
                             this.errors.push(e)
@@ -330,6 +357,7 @@
                         .then(response => {
                             if (response.data === 1) {
                                 Object.assign(self.items[item_index].task, {0: editedItem});
+                                self.gridOptions.api.refreshCells({force: true});
                             }
                         })
                         .catch(e => {
@@ -338,6 +366,19 @@
                 }
                 this.close()
             }
+        },
+        beforeMount() {
+            this.gridOptions = {
+                context: { componentParent: this },
+                suppressDragLeaveHidesColumns: true,
+                suppressMakeColumnVisibleAfterUnGroup: true,
+                floatingFilter:true,
+                enableFilter: true,
+                enableSorting: true,
+                suppressMenu: true,
+                domLayout: 'autoHeight',
+                rowGroupPanelShow: 'always',
+            };
         },
         mounted() {
             this.getItems();

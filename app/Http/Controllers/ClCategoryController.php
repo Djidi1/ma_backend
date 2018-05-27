@@ -15,7 +15,7 @@ class ClCategoryController extends Controller
 
     public function index()
     {
-        return ClCategory::all();
+        return ClCategory::with('checklists')->get();
     }
 
     /**

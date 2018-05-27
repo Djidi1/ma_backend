@@ -1,96 +1,104 @@
 <template>
-    <div style="width: 100%">
-        <v-dialog v-model="dialog" max-width="500px">
-            <v-card>
-                <v-card-title>
-                    <span class="headline">{{ formTitle }}</span>
-                </v-card-title>
-                <v-card-text>
-                    <v-container grid-list-md>
-                        <v-layout wrap>
-                            <v-flex xs12>
-                                <v-text-field :label="$t('title')" v-model="editedItem.title" required></v-text-field>
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-select
-                                        :items="objects"
-                                        item-text = "title"
-                                        item-value = "id"
-                                        v-model="editedItem.object_id"
-                                        :label="$t('object')"
-                                        required
-                                ></v-select>
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-select
-                                        :items="checklists"
-                                        item-text = "title"
-                                        item-value = "id"
-                                        v-model="editedItem.checklist_id"
-                                        :label="$t('checklists')"
-                                        required
-                                ></v-select>
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-select
-                                        :items="users"
-                                        item-text = "name"
-                                        item-value = "id"
-                                        v-model="editedItem.user_id"
-                                        :label="$t('users')"
-                                        required
-                                ></v-select>
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-dialog
-                                        ref="picker"
-                                        persistent
-                                        v-model="picker"
-                                        lazy
-                                        full-width
-                                        width="290px"
-                                        :return-value.sync="editedItem.date"
-                                >
-                                    <v-text-field
-                                            slot="activator"
-                                            :label="$t('date')"
-                                            v-model="editedItem.date"
-                                            prepend-icon="event"
-                                            readonly
-                                    ></v-text-field>
-                                    <v-date-picker
-                                            v-model="editedItem.date"
-                                            first-day-of-week="1"
-                                            scrollable
+    <div style="width: 100%; height: 100%">
+        <v-card fluid fill-height fill-width style="height: 100%">
+            <v-dialog v-model="dialog" persistent max-width="500px">
+                <v-card>
+                    <v-card-title>
+                        <span class="headline">{{ formTitle }}</span>
+                    </v-card-title>
+                    <v-card-text>
+                        <v-container grid-list-md>
+                            <v-layout wrap>
+                                <v-flex xs12>
+                                    <v-select
+                                            :items="objects"
+                                            item-text = "title"
+                                            item-value = "id"
+                                            v-model="editedItem.object_id"
+                                            :label="$t('object')"
+                                            required
+                                    ></v-select>
+                                </v-flex>
+                                <v-flex xs12>
+                                    <v-select
+                                            :items="checklists"
+                                            item-text = "title"
+                                            item-value = "id"
+                                            v-model="editedItem.checklist_id"
+                                            :label="$t('checklist')"
+                                            required
+                                    ></v-select>
+                                </v-flex>
+                                <v-flex xs12>
+                                    <v-select
+                                            :items="users"
+                                            item-text = "name"
+                                            item-value = "id"
+                                            v-model="editedItem.user_id"
+                                            :label="$t('auditor')"
+                                            required
+                                    ></v-select>
+                                </v-flex>
+                                <v-flex xs12>
+                                    <v-dialog
+                                            ref="picker"
+                                            persistent
+                                            v-model="picker"
+                                            lazy
+                                            full-width
+                                            width="290px"
+                                            :return-value.sync="editedItem.date"
                                     >
-                                        <v-spacer></v-spacer>
-                                        <v-btn flat color="pink" @click="picker = false">{{$t('cancel')}}</v-btn>
-                                        <v-btn flat color="primary" @click="$refs.picker.save(editedItem.date)">OK</v-btn>
-                                    </v-date-picker>
-                                </v-dialog>
-                            </v-flex>
-                        </v-layout>
-                    </v-container>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
-                    <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-        <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
-        <full-calendar
-                :events="fcEvents"
-                locale="ru"
-                first-day='1'
-                class="pa-0"
-                @changeMonth="changeMonth"
-                @eventClick="eventClick"
-                @dayClick="dayClick"
-                @moreClick="moreClick"
-        >
-        </full-calendar>
+                                        <v-text-field
+                                                slot="activator"
+                                                :label="$t('date')"
+                                                v-model="editedItem.date"
+                                                prepend-icon="event"
+                                                readonly
+                                        ></v-text-field>
+                                        <v-date-picker
+                                                v-model="editedItem.date"
+                                                first-day-of-week="1"
+                                                scrollable
+                                        >
+                                            <v-spacer></v-spacer>
+                                            <v-btn flat color="pink" @click="picker = false">{{$t('cancel')}}</v-btn>
+                                            <v-btn flat color="primary" @click="$refs.picker.save(editedItem.date)">OK</v-btn>
+                                        </v-date-picker>
+                                    </v-dialog>
+                                </v-flex>
+                                <v-flex xs12>
+                                    <v-text-field :label="$t('comment')" v-model="editedItem.title" required></v-text-field>
+                                </v-flex>
+                            </v-layout>
+                        </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
+                        <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
+            <full-calendar
+                    :events="fcEvents"
+                    locale="ru"
+                    first-day='1'
+                    class="pa-0"
+                    @changeMonth="changeMonth"
+                    @eventClick="eventClick"
+                    @dayClick="dayClick"
+                    @moreClick="moreClick"
+                    style="overflow:hidden"
+            >
+            </full-calendar>
+            <v-alert :value="true" outline color="info" icon="info">
+                <b class="blue--text">N</b> - аудит не проводился (запланирован)<br/>
+                <b class="orange--text">N</b> - выявлены несоответствия требованиям <br/>
+                <b class="green--text">N</b> - успешно пройденный аудит <br/>
+            </v-alert>
+        </v-card>
     </div>
 </template>
 

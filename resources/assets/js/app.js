@@ -8,6 +8,14 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
+
+/**
+ * Uncomment below when compiling to production
+ */
+Vue.config.devtools = false;
+Vue.config.debug = false;
+Vue.config.silent = true;
+
 window.moment = require('moment');
 import 'moment/locale/ru'
 
@@ -112,16 +120,3 @@ const app = new Vue({
         Vue.i18n.set(lang);
     },
 });
-
-/*
-const app = new Vue({
-    store: store,
-    router: router,
-    el: '#app',
-    data(){
-        return {
-            routes: routes
-        }
-    },
-});
-*/

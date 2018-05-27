@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Responsible;
 use App\User;
 use App\AuditObject;
 use App\AuditObjectGroup;
@@ -29,7 +30,8 @@ class ObjectsController extends Controller
     {
         $object_groups = AuditObjectGroup::all();
         $objects = AuditObject::with('audit_object_group', 'audit')->get();
-        return compact('objects', 'object_groups');
+        $responsible = Responsible::with('user')->get();
+        return compact('objects', 'object_groups', 'responsible');
 
 //        return response()->json($checklists);
     }

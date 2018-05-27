@@ -1,6 +1,6 @@
 <template>
-    <div style="width: 100%">
-        <v-dialog v-model="dialog" max-width="500px">
+    <div style="width: 100%; height: 100%">
+        <v-dialog v-model="dialog" persistent max-width="500px">
             <v-card>
                 <v-card-title>
                     <span class="headline">{{ formTitle }}</span>
@@ -31,65 +31,57 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <v-card fluid fill-height fill-width>
+        <v-card fluid fill-height fill-width style="height: 100%">
+            <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
             <v-card-title>
-                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
                 <v-spacer></v-spacer>
-                <v-text-field
-                        append-icon="search"
-                        :label="$t('search')"
-                        single-line
-                        hide-details
-                        v-model="search"
-                ></v-text-field>
+                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
             </v-card-title>
-            <v-data-table
-                    :no-data-text="$t('no_data')"
-                    :headers="headers"
-                    :items="items"
-                    :search="search"
-                    :loading="loading"
-                    class="elevation-1"
+            <ag-grid-vue style="width: 100%;"
+                         class="ag-theme-balham"
+                         :gridOptions="gridOptions"
+                         :columnDefs="columnDefs"
+                         :rowData="items"
+
+                         :enableColResize="true"
+                         :enableSorting="true"
+                         :enableFilter="true"
             >
-                <template slot="items" slot-scope="props">
-                    <td class="text-xs-right">{{ props.item.id }}</td>
-                    <td>{{ props.item.title }}</td>
-                    <td>{{ groups.find(x => x.id === props.item.audit_object_group_id).title }}</td>
-                    <td>{{ typeof props.item.audit !== 'undefined' ? props.item.audit.length : '0' }}</td>
-                    <td class="justify-center layout px-0">
-                        <v-btn icon class="mx-0" @click="editItem(props.item)">
-                            <v-icon color="teal">edit</v-icon>
-                        </v-btn>
-                        <v-btn icon class="mx-0" @click="deleteItem(props.item)">
-                            <v-icon color="pink">delete</v-icon>
-                        </v-btn>
-                    </td>
-                </template>
-                <v-alert slot="no-results" :value="true" color="error" icon="warning">
-                    Your search for "{{ search }}" found no results.
-                </v-alert>
-            </v-data-table>
+            </ag-grid-vue>
         </v-card>
     </div>
 </template>
 
 <script>
+    import {AgGridVue} from "ag-grid-vue";
+    import Vue from "vue";
+
+    const ActionButtons = Vue.extend({
+        template: `<span>
+                <v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="teal">edit</v-icon></v-btn>
+                <v-btn small icon class="mx-0 my-0" @click="deleteItem"><v-icon color="pink">delete</v-icon></v-btn>
+
+        </span>`,
+        methods: {
+            editItem() {
+                this.params.context.componentParent.editItem(this.params.data);
+            },
+            deleteItem() {
+                this.params.context.componentParent.deleteItem(this.params.data);
+            }
+        }
+    });
+
     export default {
         data() {
             return {
                 dialog: false,
                 loading: true,
                 search: '',
-                headers: [
-                    { text: 'id', align: 'right', value: 'id' },
-                    { text: this.$t('title'), align: 'left', value: 'name' },
-                    { text: this.$t('group'), align: 'left', value: 'group' },
-                    { text: this.$t('audits'), align: 'left', value: 'requirements' },
-                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
-                ],
                 title: '',
                 items: [],
                 groups: [],
+                responsible: [],
                 editedIndex: -1,
                 editedItem: {
                     title: ''
@@ -98,8 +90,15 @@
                     title: ''
                 },
                 valid: false,
+                gridOptions: {},
+                columnDefs: null,
+                rowData: null,
+                params: null
 
             }
+        },
+        components: {
+            'ag-grid-vue': AgGridVue
         },
         computed: {
             formTitle() {
@@ -113,12 +112,54 @@
         },
         methods: {
             getItems() {
+                let self = this;
                 axios.get('/objects_all')
                     .then(response => {
                         this.items = response.data.objects;
                         this.groups = response.data.object_groups;
+                        this.responsible = response.data.responsible;
                         this.loading = false;
+                        this.gridOptions.api.sizeColumnsToFit();
+                        this.gridOptions.api.hideOverlay();
                     });
+                this.columnDefs = [
+                    // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
+                    {
+                        headerName: this.$t('group'), field: 'audit_object_group',
+                        cellRenderer: function(params) {
+                            return params.value.title;
+                        }
+                    },
+                    {headerName: this.$t('title'), align: 'left', field: 'title'},
+                    {
+                        headerName: this.$t('responsible'), field: 'id',
+                        cellRenderer: function(params) {
+                            let responsible_names = [];
+                            for(let index in self.responsible) {
+                                if (self.responsible.hasOwnProperty(index)) {
+                                    let attr = self.responsible[index];
+                                    if (attr.object_id.indexOf(params.value) > -1){
+                                        responsible_names.push(self.responsible[index].user.name);
+                                    }
+                                }
+                            }
+                            return Array.from(new Set(responsible_names)).join(', ');
+                        }
+                    },
+                    {
+                        headerName: this.$t('audits'), width: 90, cellStyle: {textAlign: "center"}, field: 'audit',
+                        cellRenderer: function(params) {
+                            return params.value.length;
+                        }
+                    },
+                    {
+                        headerName: this.$t('actions'), field: 'id',
+                        cellStyle: {textAlign: "center"},
+                        cellRendererFramework: ActionButtons,
+                        colId: "params",
+                        suppressCellSelection: true
+                    }
+                ];
             },
             editItem(item) {
                 this.editedIndex = this.items.indexOf(item);
@@ -131,7 +172,8 @@
                 this.$confirm(this.$t('sure_delete_item')).then(res => {
                     if (res) {
                         axios.delete('/objects_delete/' + item.id);
-                        this.items.splice(index, 1)
+                        this.items.splice(index, 1);
+                        this.gridOptions.api.refreshCells();
                     }
                 });
             },
@@ -145,16 +187,20 @@
             },
             save() {
                 if (this.editedIndex > -1) {
+                    this.loading = true;
                     let item_index = this.editedIndex;
                     let editedItem = this.editedItem;
                     let item = this.editedItem;
                     delete item['cl_category'];
                     delete item['audit_object_group'];
+                    delete item['audit'];
                     axios.put('/objects_update/' + item.id, item)
                         .then(response => {
                             if (response.data === 1) {
                                 Object.assign(this.items[item_index], editedItem);
+                                this.gridOptions.api.refreshCells();
                             }
+                            this.loading = false;
                         })
                         .catch(e => {
                             this.errors.push(e)
@@ -162,7 +208,8 @@
                 } else {
                     axios.post(`/objects_save`, this.editedItem)
                         .then(response => {
-                            this.items.push(response.data)
+                            this.items.push(response.data);
+                            this.gridOptions.api.refreshCells();
                         })
                         .catch(e => {
                             this.errors.push(e)
@@ -170,6 +217,19 @@
                 }
                 this.close()
             }
+        },
+        beforeMount() {
+            this.gridOptions = {
+                context: { componentParent: this },
+                suppressDragLeaveHidesColumns: true,
+                suppressMakeColumnVisibleAfterUnGroup: true,
+                floatingFilter:true,
+                enableFilter: true,
+                enableSorting: true,
+                suppressMenu: true,
+                domLayout: 'autoHeight',
+                rowGroupPanelShow: 'always',
+            };
         },
         mounted() {
             this.getItems();

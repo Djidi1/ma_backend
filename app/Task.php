@@ -18,6 +18,11 @@ class Task extends Model
     ];
     protected $guarded = [];
 
+    protected $casts = [
+        'result_id' => 'integer',
+        'task_status_id' => 'integer',
+    ];
+
     public function task_status(){
         return $this->belongsTo('App\TaskStatus');
     }
