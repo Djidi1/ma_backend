@@ -43,7 +43,7 @@ class ResponsibleController extends Controller
         $objects = AuditObject::all();
         $requirements = Requirement::all();
         $statuses = TaskStatus::all();
-      //  $responsible = Responsible::all();
+        $responsible = Responsible::with('user')->get();
         $responsible_tasks = ResponsibleTasks::where('user_id', '=', $user->id)->with('audit_result_attache', 'task')->get();
 //            ->where('user_id', '=', $user->id)
 //            ->get();
@@ -61,7 +61,7 @@ class ResponsibleController extends Controller
             }
         }*/
 //        dd($res_array);
-        return compact('responsible_tasks', 'users', 'objects', 'requirements', 'statuses');
+        return compact('responsible_tasks', 'responsible', 'users', 'objects', 'requirements', 'statuses');
 
 //        return response()->json($checklists);
     }

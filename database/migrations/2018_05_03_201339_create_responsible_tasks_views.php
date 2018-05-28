@@ -22,6 +22,7 @@ class CreateResponsibleTasksViews extends Migration
                           ar.audit_id,
                           a.title AS audit_title,
                           ar.created_at AS date_checking,
+                          ar.requirement_id,
                           r1.title AS requrement_title,
                           ar.result,
                           ar.comment
@@ -45,6 +46,7 @@ class CreateResponsibleTasksViews extends Migration
                           ar.audit_id,
                           a.title,
                           ar.created_at,
+                          ar.requirement_id,
                           r1.title,
                           ar.result,
                           ar.comment

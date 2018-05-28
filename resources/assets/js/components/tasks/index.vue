@@ -114,8 +114,12 @@
                         autocomplete
                 ></v-select>
                 <v-spacer></v-spacer>
+                <v-alert v-for :value="true" outline color="info">
+                    <b>{{ $t('responsible') }}:</b> <i v-for="(item,i) in responsibleUsers">{{item}}; </i>
+                </v-alert>
             </v-card-title>
-            <ag-grid-vue style="width: 100%;"
+
+            <ag-grid-vue style="width: 100%; min-width: 500px"
                          class="ag-theme-balham"
                          :gridOptions="gridOptions"
                          :columnDefs="columnDefs"
@@ -179,6 +183,7 @@
                 items: [],
                 requirements: [],
                 objects: [],
+                responsible: [],
                 object_select: 0,
                 object_selected: 0,
                 users: [],
@@ -206,6 +211,18 @@
                 return this.items.filter(item => {
                     return item.object_id === this.object_selected
                 })
+            },
+            responsibleUsers() {
+                let responsible_names = [];
+                for(let index in this.responsible) {
+                    if (this.responsible.hasOwnProperty(index)) {
+                        let attr = this.responsible[index];
+                        if (attr.object_id.indexOf(this.object_selected) > -1){
+                            responsible_names.push(this.responsible[index].user.name);
+                        }
+                    }
+                }
+                return [...new Set(responsible_names)];
             }
         },
         watch: {
@@ -235,6 +252,7 @@
                         this.object_selected = this.items[0].object_id || 0;
                         this.object_select = this.object_selected;
                         this.requirements = response.data.requirements;
+                        this.responsible = response.data.responsible;
                         this.objects = response.data.objects;
                         this.users = response.data.users;
                         this.statuses = response.data.statuses;
@@ -248,6 +266,21 @@
                     // {headerName: this.$t('audit'), align: 'left', field: 'audit_title', enableRowGroup: true},
                     {headerName: this.$t('requirement'), align: 'left', field: 'requrement_title', enableRowGroup: true},
                     {headerName: this.$t('date'), align: 'left', field: 'date_checking', enableRowGroup: true},
+                    {
+                        headerName: this.$t('responsible'), field: 'requirement_id',
+                        cellRenderer: function(params) {
+                            let responsible_names = [];
+                            for(let index in self.responsible) {
+                                if (self.responsible.hasOwnProperty(index)) {
+                                    let attr = self.responsible[index];
+                                    if (attr.requirement_id.indexOf(params.value) > -1){
+                                        responsible_names.push(self.responsible[index].user.name);
+                                    }
+                                }
+                            }
+                            return [...new Set(responsible_names)].join(', ');
+                        }
+                    },
                     {
                         headerName: this.$t('date_start'), align: 'left', field: 'task',
                         cellRenderer: function (params) {
