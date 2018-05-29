@@ -24,7 +24,10 @@ class ResponsibleTasks extends Model
         return $this->hasMany('App\AuditResultAttache', 'audit_result_id', 'id');
     }
     public function task(){
-        return $this->hasMany('App\Task', 'result_id', 'id');
+        return $this->belongsTo('App\Task', 'id', 'result_id');
+    }
+    public function task_comments(){
+        return $this->hasMany('App\TaskComment', 'task_id', 'id');
     }
     public function user(){
         return $this->belongsTo('App\User');

@@ -44,7 +44,7 @@ class ResponsibleController extends Controller
         $requirements = Requirement::all();
         $statuses = TaskStatus::all();
         $responsible = Responsible::with('user')->get();
-        $responsible_tasks = ResponsibleTasks::where('user_id', '=', $user->id)->with('audit_result_attache', 'task')->get();
+        $responsible_tasks = ResponsibleTasks::where('user_id', '=', $user->id)->with('audit_result_attache', 'task', 'task_comments.user')->get();
 //            ->where('user_id', '=', $user->id)
 //            ->get();
 //        $res_array = response()->json($responsible)->getData(true);

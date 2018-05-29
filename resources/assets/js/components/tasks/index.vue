@@ -90,6 +90,25 @@
                                     </v-date-picker>
                                 </v-dialog>
                             </v-flex>
+                            <v-flex xs12>
+                                <v-divider></v-divider>
+                                <v-list two-line subheader>
+                                    <v-subheader>{{ $t('comment') }}</v-subheader>
+                                    <template v-for="(item,index) in commentsItem">
+                                        <v-list-tile avatar>
+                                            <v-list-tile-content>
+                                                <v-list-tile-sub-title>{{ item.user.name }}</v-list-tile-sub-title>
+                                                <v-list-tile-title>{{ item.message }}</v-list-tile-title>
+                                            </v-list-tile-content>
+                                            <v-list-tile-action>
+                                                <v-icon color="blue lighten-1">create</v-icon>
+                                                <v-list-tile-action-text>{{ item.created_at }}</v-list-tile-action-text>
+                                            </v-list-tile-action>
+                                        </v-list-tile>
+                                        <v-divider v-if="index + 1 < items.length" :key="index"></v-divider>
+                                    </template>
+                                </v-list>
+                            </v-flex>
                         </v-layout>
                     </v-container>
                 </v-card-text>
@@ -189,6 +208,8 @@
                 users: [],
                 statuses: [],
                 editedIndex: -1,
+                commentsItem: {},
+                defaultCommentsItem: {},
                 editedItem: {task_status_id: 1},
                 defaultItem: {task_status_id: 1},
                 valid: false,
@@ -284,13 +305,13 @@
                     {
                         headerName: this.$t('date_start'), align: 'left', field: 'task',
                         cellRenderer: function (params) {
-                            return params.value.hasOwnProperty(0) ? params.value[0].start : '-';
+                            return params.value !== null ? params.value.start : '-';
                         }
                     },
                     {
                         headerName: this.$t('date_end'), align: 'left', field: 'task',
                         cellRenderer: function (params) {
-                            return params.value.hasOwnProperty(0) ? params.value[0].end : '-';
+                            return params.value !== null ? params.value.end : '-';
                         }
                     },
                     {headerName: this.$t('comment'), align: 'left', field: 'comment', enableRowGroup: true},
@@ -319,9 +340,9 @@
             result_icon(result, task) {
                 let icon;
                 // Если работы по устранению замечаний завершены
-                if (task.hasOwnProperty(0) && task[0].task_status_id === 3) {
+                if (task !== null && task.task_status_id === 3) {
                     icon = '<i class="icon teal--text material-icons">done</i>';
-                }else if (task.hasOwnProperty(0) && task[0].task_status_id === 2) {
+                }else if (task !== null && task.task_status_id === 2) {
                     icon = '<i class="icon blue--text material-icons">schedule</i>';
                 }else {
                     icon = '<i class="icon grey--text material-icons">remove</i>';
@@ -341,8 +362,9 @@
             },
             editItem(item) {
                 this.editedIndex = this.items.indexOf(item);
-                if (item.task.hasOwnProperty(0)) {
-                    this.editedItem = Object.assign({}, item.task[0]);
+                if (item.task !== null) {
+                    this.editedItem = Object.assign({}, item.task);
+                    this.commentsItem = Object.assign({}, item.task_comments);
                     this.new_task = false;
                 }else{
                     this.new_task = true;
@@ -366,6 +388,7 @@
                 this.dialog = false;
                 setTimeout(() => {
                     this.editedItem = Object.assign({}, this.defaultItem);
+                    this.commentsItem = Object.assign({}, this.defaultCommentsItem);
                     this.editedIndex = -1
                 }, 300)
             },
