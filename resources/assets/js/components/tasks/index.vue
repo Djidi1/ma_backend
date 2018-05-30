@@ -149,6 +149,14 @@
                          :enableFilter="true"
             >
             </ag-grid-vue>
+
+
+            <v-alert :value="true"  color="info" icon="info">
+                <v-icon color="teal">done</v-icon> - замечания устранены<br/>
+                <v-icon color="blue">schedule</v-icon> - работы запланироаны<br/>
+                <v-icon color="grey">remove</v-icon> - обнаружены несоответствия<br/>
+                <v-icon color="teal">clear</v-icon> - требование не применимо к текущему объекту<br/>
+            </v-alert>
         </v-card>
     </v-flex>
 </template>
@@ -444,5 +452,10 @@
 <style>
     img.jumbotron__image {
         width: 100%;
+    }
+    .alert.info {
+        background-color: #fff!important;
+        color: #2196f3;
+        border: 1px solid #2196f3 !important;
     }
 </style>
