@@ -18,16 +18,16 @@
                                         required
                                 ></v-select>
                             </v-flex>
-                            <v-flex xs12>
-                                <v-select
-                                        :items="requirement_groups"
-                                        item-text = "title"
-                                        item-value = "id"
-                                        v-model="editedItem.requirement_groups_id"
-                                        :label="$t('requirement_groups')"
-                                        required
-                                ></v-select>
-                            </v-flex>
+                            <!--<v-flex xs12>-->
+                                <!--<v-select-->
+                                        <!--:items="requirement_groups"-->
+                                        <!--item-text = "title"-->
+                                        <!--item-value = "id"-->
+                                        <!--v-model="editedItem.requirement_groups_id"-->
+                                        <!--:label="$t('requirement_groups')"-->
+                                        <!--required-->
+                                <!--&gt;</v-select>-->
+                            <!--</v-flex>-->
                             <v-flex xs12>
                                 <v-text-field :label="$t('title')" v-model="editedItem.title" required></v-text-field>
                             </v-flex>
@@ -157,7 +157,7 @@
                 axios.get('/requirements_all')
                     .then(response => {
                         this.items = response.data.requirements;
-                        this.checklist_selected = this.items[0].checklist_id || 0;
+                        this.checklist_selected = this.items.hasOwnProperty(0) ? (this.items[0].checklist_id || 0) : 0;
                         this.checklist_select = parseInt(this.checklist_selected);
                         this.requirement_groups = response.data.requirement_groups;
                         this.checklist_groups = response.data.checklist_groups;
@@ -230,6 +230,7 @@
                     let item_index = this.editedIndex;
                     let editedItem = this.editedItem;
                     let item = this.editedItem;
+                    item['requirement_groups_id'] = '0';
                     delete item['cl_category'];
                     delete item['requirement'];
                     axios.put('/requirements_update/' + item.id, item)
@@ -243,7 +244,9 @@
                             this.errors.push(e)
                         });
                 } else {
-                    axios.post(`/requirements_save`, this.editedItem)
+                    let item = this.editedItem;
+                    item['requirement_groups_id'] = '0';
+                    axios.post(`/requirements_save`, item)
                         .then(response => {
                             this.items.push(response.data);
                             this.gridOptions.api.refreshCells();

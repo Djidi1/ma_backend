@@ -241,7 +241,7 @@
                 axios.get('/audits_all')
                     .then(response => {
                         this.items = response.data.audits;
-                        this.object_selected = this.items[0].object_id || 0;
+                        this.object_selected = this.items.hasOwnProperty(0) ? (this.items[0].object_id || 0) : 0;
                         this.object_select = parseInt(this.object_selected);
                         this.checklists = response.data.checklists;
                         this.objects = response.data.objects;

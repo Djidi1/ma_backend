@@ -109,6 +109,15 @@
                                     </template>
                                 </v-list>
                             </v-flex>
+                            <v-flex xs12>
+                                <v-text-field
+                                        v-model="comment_message"
+                                        :label="$t('comment')"
+                                        textarea
+                                        :rules="[(v) => v.length <= 500 || 'Max 500 characters']"
+                                        :counter="500"
+                                ></v-text-field>
+                            </v-flex>
                         </v-layout>
                     </v-container>
                 </v-card-text>
@@ -207,6 +216,7 @@
                 loading: true,
                 search: '',
                 title: '',
+                comment_message: '',
                 items: [],
                 requirements: [],
                 objects: [],
@@ -278,7 +288,7 @@
                 axios.get('/responsible_tasks')
                     .then(response => {
                         this.items = response.data.responsible_tasks;
-                        this.object_selected = this.items[0].object_id || 0;
+                        this.object_selected = this.items.hasOwnProperty(0) ? (this.items[0].object_id || 0) : 0;
                         this.object_select = this.object_selected;
                         this.requirements = response.data.requirements;
                         this.responsible = response.data.responsible;
