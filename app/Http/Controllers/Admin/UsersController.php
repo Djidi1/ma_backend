@@ -55,6 +55,7 @@ class UsersController extends Controller
         if (trim($request->password) != '') {
             $requestData['password'] = Hash::make($request->password);
         }
+        unset ($requestData['id']);
         $result = User::where('id', $request->id)->update($requestData);
         return $result;
     }
