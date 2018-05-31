@@ -28,7 +28,7 @@ class CreateResponsibleTasksViews extends Migration
                           ar.comment
                         FROM responsible r
                           LEFT JOIN audit_results ar
-                            ON FIND_IN_SET(ar.requirement_id, REPLACE(REPLACE(r.requirement_id, ']', ''), '[', '')) > 0
+                            ON REPLACE(REPLACE(r.requirement_id,'[',','),']',',') LIKE CONCAT('%,',ar.requirement_id,',%')
                             AND ar.result < 1
                           LEFT JOIN requirements r1
                             ON ar.requirement_id = r1.id
@@ -52,7 +52,7 @@ class CreateResponsibleTasksViews extends Migration
                           ar.comment
                         FROM responsible r
                           LEFT JOIN audits a
-                            ON FIND_IN_SET(a.object_id, REPLACE(REPLACE(r.object_id, ']', ''), '[', '')) > 0
+                            ON REPLACE(REPLACE(r.object_id,'[',','),']',',') LIKE CONCAT('%,',a.object_id,',%')
                           LEFT JOIN audit_objects ao
                             ON ao.id = a.object_id
                           LEFT JOIN audit_results ar
