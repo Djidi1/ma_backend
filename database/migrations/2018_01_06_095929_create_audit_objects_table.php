@@ -17,7 +17,7 @@ class CreateAuditObjectsTable extends Migration
             $table->increments('id');
             $table->string('title');
             $table->integer('user_id');
-            $table->integer('group_object_id');
+            $table->integer('audit_object_group_id');
             $table->timestamps();
         });
     }
