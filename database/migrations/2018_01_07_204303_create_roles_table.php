@@ -25,7 +25,8 @@ class CreateRolesTable extends Migration
 
             $data = array(
                 array('title'=>'Administrator'),
-                array('title'=>'User')
+                array('title'=>'Manager'),
+                array('title'=>'Auditor')
             );
             DB::table('roles')->insert($data);
         }

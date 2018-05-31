@@ -42,6 +42,7 @@ class RequirementGroupsController extends Controller
     public function update(Request $request)
     {
         $requestData = $request->all();
+        unset ($requestData['id']);
         $result = RequirementGroups::where('id', $request->id)->update($requestData);
         return $result;
     }

@@ -46,7 +46,9 @@ class ClCategoryController extends Controller
         $this->validate($request,[
            'title' => 'required|min:3'
         ]);
-        $result = ClCategory::where('id', $request->id)->update($request->all());
+        $requestData = $request->all();
+        unset ($requestData['id']);
+        $result = ClCategory::where('id', $request->id)->update($requestData);
         return $result;
     }
 

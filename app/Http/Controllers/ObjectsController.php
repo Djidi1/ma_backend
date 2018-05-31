@@ -58,6 +58,7 @@ class ObjectsController extends Controller
     public function update(Request $request)
     {
         $requestData = $request->all();
+        unset ($requestData['id']);
         $result = AuditObject::where('id', $request->id)->update($requestData);
         return $result;
     }

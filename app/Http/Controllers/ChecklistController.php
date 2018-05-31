@@ -51,6 +51,7 @@ class ChecklistController extends Controller
     public function update(Request $request)
     {
         $requestData = $request->all();
+        unset ($requestData['id']);
         $result = Checklist::where('id', $request->id)->update($requestData);
         return $result;
     }

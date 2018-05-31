@@ -41,6 +41,7 @@ class ObjectGroupsController extends Controller
     public function update(Request $request)
     {
         $requestData = $request->all();
+        unset ($requestData['id']);
         $result = AuditObjectGroup::where('id', $request->id)->update($requestData);
         return $result;
     }
