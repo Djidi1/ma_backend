@@ -31,7 +31,7 @@ class AuditsController extends Controller
         $data = $request->json()->all();
         if (isset($data['audit'])) {
             $object_id = $data['audit']['object_id'];
-            $audit_title = $data['audit']['title'];
+            $audit_title = $data['audit']['title'] || '';
             $audit_add_date = $data['audit']['date_add'];
             $audit_comment = $data['audit']['comment'];
             $audit_comment = isset($audit_comment[0]['text']) ? $audit_comment[0]['text'] : '';

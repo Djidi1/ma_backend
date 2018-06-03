@@ -104,7 +104,7 @@
     export default {
         data() {
             return {
-                drawer: true,
+                drawer: false,
                 mini: false,
                 languages: languages,
                 routes: this.$router.options.routes,
