@@ -92,8 +92,13 @@
                             </v-flex>
                             <v-flex xs12>
                                 <v-divider></v-divider>
-                                <v-list two-line subheader>
-                                    <v-subheader>{{ $t('comment') }}</v-subheader>
+                            </v-flex>
+                            <v-card width="100%" tile v-if="editedItem.id > 0">
+                                <v-card-title primary-title>
+                                    <h3>{{ $t('comments') }}</h3>
+                                </v-card-title>
+                                <v-divider></v-divider>
+                                <v-list two-line>
                                     <template v-for="(item,index) in commentsItem">
                                         <v-list-tile avatar>
                                             <v-list-tile-content>
@@ -105,19 +110,28 @@
                                                 <v-list-tile-action-text>{{ item.created_at }}</v-list-tile-action-text>
                                             </v-list-tile-action>
                                         </v-list-tile>
-                                        <v-divider v-if="index + 1 < items.length" :key="index"></v-divider>
+                                        <v-divider v-if="index + 1 < commentsItem.length" :key="index"></v-divider>
                                     </template>
                                 </v-list>
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-text-field
-                                        v-model="comment_message"
-                                        :label="$t('comment')"
-                                        textarea
-                                        :rules="[(v) => v.length <= 500 || 'Max 500 characters']"
-                                        :counter="500"
-                                ></v-text-field>
-                            </v-flex>
+                                <v-divider></v-divider>
+                                <v-flex xs12>
+                                    <v-text-field
+                                            v-model="comment_message"
+                                            :label="$t('comment')"
+                                            multi-line
+                                            :rules="[(v) => v.length <= 500 || 'Max 500 characters']"
+                                            :counter="500"
+                                    ></v-text-field>
+                                </v-flex>
+                                <v-divider></v-divider>
+                                <v-card-actions>
+                                    <v-btn icon>
+                                        <v-icon>attach_file</v-icon>
+                                    </v-btn>
+                                    <v-spacer></v-spacer>
+                                    <v-btn color="info" @click="send_comment()">{{$t('send')}} <v-icon right dark>send</v-icon></v-btn>
+                                </v-card-actions>
+                            </v-card>
                         </v-layout>
                     </v-container>
                 </v-card-text>
@@ -228,11 +242,11 @@
                 editedIndex: -1,
                 commentsItem: {},
                 defaultCommentsItem: {},
-                editedItem: {task_status_id: 1},
-                defaultItem: {task_status_id: 1},
+                editedItem: {task_status_id: 1, id: 0},
+                defaultItem: {task_status_id: 1, id: 0},
                 valid: false,
                 new_task: false,
-
+                errors: [],
                 gridOptions: {},
                 columnDefs: null,
                 rowData: null,
@@ -410,12 +424,26 @@
                     this.editedIndex = -1
                 }, 300)
             },
+            send_comment() {
+                let self = this;
+                axios.post(`/send_task_comment`, {task_id: this.editedItem.id, comment_message: self.comment_message})
+                    .then(response => {
+                        let new_value = response.data.hasOwnProperty(0) ? response.data[0] : {};
+                        let new_key = Math.max(...Object.keys(self.commentsItem)) + 1;
+                        self.commentsItem = Object.assign({}, self.commentsItem, {[new_key]: new_value});
+                        self.comment_message = '';
+                    })
+                    .catch(e => {
+                        this.errors.push(e)
+                    });
+            },
             save() {
                 let self = this;
                 let item_index = this.editedIndex;
                 if (this.new_task) {
                     let new_item = this.editedItem;
                     new_item.result_id = this.items[this.editedIndex].id;
+                    new_item.done_percent = 0;
                     axios.post(`/task_save`, new_item)
                         .then(response => {
                             Object.assign(self.items[item_index].task, {0: response.data});
@@ -427,6 +455,7 @@
                 } else {
                     let editedItem = this.editedItem;
                     let item = this.editedItem;
+                    item.done_percent = 0;
                     axios.put('/task_update/' + item.id, item)
                         .then(response => {
                             if (response.data === 1) {

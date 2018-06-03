@@ -17,7 +17,7 @@ class CreateAuditResultsTable extends Migration
             $table->increments('id');
             $table->integer('audit_id');
             $table->integer('requirement_id');
-            $table->boolean('result');
+            $table->integer('result');
             $table->string('comment',4000);
             $table->timestamps();
         });

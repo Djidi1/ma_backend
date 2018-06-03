@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\Task;
+use App\TaskComment;
 use App\AuditObjectGroup;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -30,6 +33,21 @@ class TasksController extends Controller
         return $result;
     }
 
+    public function saveTaskComment (Request $request)
+    {
+        $user = Auth::user();
+        $data = $request->json()->all();
+        $comment_id = DB::table('task_comments')->insertGetId(
+            [
+                'message' => $data['comment_message'],
+                'task_id' => $data['task_id'],
+                'user_id' => $user->id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]
+        );
+        return TaskComment::where('id', $comment_id)->with('user')->get();
+    }
 
     /**
      * Update the specified resource in storage.
