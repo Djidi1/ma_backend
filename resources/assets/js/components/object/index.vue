@@ -34,6 +34,14 @@
         <v-card fluid fill-height fill-width style="height: 100%">
             <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
             <v-card-title>
+                <v-select
+                        :items="groups"
+                        v-model="object_group_select"
+                        :label = "$t('group')"
+                        item-text = "title"
+                        item-value = "id"
+                        autocomplete
+                ></v-select>
                 <v-spacer></v-spacer>
                 <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
             </v-card-title>
@@ -41,7 +49,7 @@
                          class="ag-theme-balham"
                          :gridOptions="gridOptions"
                          :columnDefs="columnDefs"
-                         :rowData="items"
+                         :rowData="filteredItems"
 
                          :enableColResize="true"
                          :enableSorting="true"
@@ -59,8 +67,7 @@
     const ActionButtons = Vue.extend({
         template: `<span>
                 <v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="teal">edit</v-icon></v-btn>
-                <v-btn small icon class="mx-0 my-0" @click="deleteItem"><v-icon color="pink">delete</v-icon></v-btn>
-
+                <v-btn small icon class="mx-0 my-0" @click="deleteItem" v-if="params.data.audit.length === 0"><v-icon color="pink">delete</v-icon></v-btn>
         </span>`,
         methods: {
             editItem() {
@@ -82,6 +89,8 @@
                 items: [],
                 groups: [],
                 responsible: [],
+                object_group_select: 0,
+                object_group_selected: 0,
                 editedIndex: -1,
                 editedItem: {
                     title: ''
@@ -103,11 +112,19 @@
         computed: {
             formTitle() {
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
+            },
+            filteredItems() {
+                return this.items.filter(item => {
+                    return parseInt(item.audit_object_group_id) === this.object_group_selected
+                })
             }
         },
         watch: {
             dialog(val) {
                 val || this.close()
+            },
+            object_group_select: function (newVal) {
+                this.object_group_selected = newVal;
             }
         },
         methods: {
@@ -116,6 +133,8 @@
                 axios.get('/objects_all')
                     .then(response => {
                         this.items = response.data.objects;
+                        this.object_group_selected = this.items.hasOwnProperty(0) ? (this.items[0].audit_object_group_id || 0) : 0;
+                        this.object_group_select = parseInt(this.object_group_selected);
                         this.groups = response.data.object_groups;
                         this.responsible = response.data.responsible;
                         this.loading = false;
@@ -124,12 +143,12 @@
                     });
                 this.columnDefs = [
                     // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
-                    {
-                        headerName: this.$t('group'), field: 'audit_object_group',
-                        cellRenderer: function(params) {
-                            return params.value.title;
-                        }
-                    },
+                    // {
+                    //     headerName: this.$t('group'), field: 'audit_object_group',
+                    //     cellRenderer: function(params) {
+                    //         return params.value.title;
+                    //     }
+                    // },
                     {headerName: this.$t('title'), align: 'left', field: 'title'},
                     {
                         headerName: this.$t('responsible'), field: 'id',

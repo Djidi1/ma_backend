@@ -49,7 +49,7 @@
     const ActionButtons = Vue.extend({
         template: `<span>
                 <v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="teal">edit</v-icon></v-btn>
-                <v-btn small icon class="mx-0 my-0" @click="deleteItem"><v-icon color="pink">delete</v-icon></v-btn>
+                <v-btn small icon class="mx-0 my-0" v-if="params.data.audit_objects.length === 0" @click="deleteItem"><v-icon color="pink">delete</v-icon></v-btn>
 
         </span>`,
         methods: {
