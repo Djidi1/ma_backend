@@ -21,7 +21,7 @@ class ObjectsController extends Controller
      */
     public function getObjects(Request $request)
     {
-//        $user = Auth::user();
+        //        $user = Auth::user();
         $objects = AuditObject::with('audit_object_group', 'user')->get();
         return response()->json($objects);
     }
@@ -33,7 +33,7 @@ class ObjectsController extends Controller
         $responsible = Responsible::with('user')->get();
         return compact('objects', 'object_groups', 'responsible');
 
-//        return response()->json($checklists);
+        //        return response()->json($checklists);
     }
     /**
      * Store a newly created resource in storage.
@@ -45,7 +45,8 @@ class ObjectsController extends Controller
     {
         $requestData = $request->all();
         $result = AuditObject::create($requestData);
-        return $result;
+        $object = AuditObject::with('audit_object_group', 'audit')->where('id', $result->id)->first();
+        return $object;
     }
 
 

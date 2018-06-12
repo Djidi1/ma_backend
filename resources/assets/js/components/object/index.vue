@@ -26,7 +26,7 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
+                    <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
                     <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
                 </v-card-actions>
             </v-card>
@@ -93,10 +93,12 @@
                 object_group_selected: 0,
                 editedIndex: -1,
                 editedItem: {
-                    title: ''
+                    title: '',
+                    audit_object_group_id: 0
                 },
                 defaultItem: {
-                    title: ''
+                    title: '',
+                    audit_object_group_id: 0
                 },
                 valid: false,
                 gridOptions: {},
@@ -125,6 +127,8 @@
             },
             object_group_select: function (newVal) {
                 this.object_group_selected = newVal;
+                this.editedItem.audit_object_group_id = newVal;
+                this.defaultItem.audit_object_group_id = newVal;
             }
         },
         methods: {
@@ -134,6 +138,8 @@
                     .then(response => {
                         this.items = response.data.objects;
                         this.object_group_selected = this.items.hasOwnProperty(0) ? (this.items[0].audit_object_group_id || 0) : 0;
+                        this.editedItem.audit_object_group_id = this.object_group_selected;
+                        this.defaultItem.audit_object_group_id = this.object_group_selected;
                         this.object_group_select = parseInt(this.object_group_selected);
                         this.groups = response.data.object_groups;
                         this.responsible = response.data.responsible;

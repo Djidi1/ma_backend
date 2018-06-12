@@ -50,7 +50,7 @@
     const ActionButtons = Vue.extend({
         template: `<span>
                     <v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="teal">edit</v-icon></v-btn>
-                    <v-btn small icon class="mx-0 my-0" @click="deleteItem"><v-icon color="pink">delete</v-icon></v-btn>
+                    <v-btn small icon class="mx-0 my-0" v-if="params.data.checklists.length === 0" @click="deleteItem"><v-icon color="pink">delete</v-icon></v-btn>
 
             </span>`,
         methods: {
@@ -68,11 +68,6 @@
                 dialog: false,
                 loading: true,
                 search: '',
-                headers: [
-                    { text: 'id', align: 'right', value: 'id' },
-                    { text: this.$t('title'), align: 'left', value: 'name' },
-                    { text: this.$t('actions'), align: 'center', sortable: false, value: '' }
-                ],
                 title: '',
                 items: [],
                 groups: [],
@@ -90,7 +85,8 @@
                 gridOptions: {},
                 columnDefs: null,
                 rowData: null,
-                params: null
+                params: null,
+                errors: [],
             }
         },
         components: {
@@ -166,9 +162,9 @@
                     // Object.assign(this.items[this.editedIndex], this.editedItem)
                     axios.put('/cl_categories_update/' + item.id, this.editedItem)
                         .then(response => {
-                            if (response.data === 1) {
-                                Object.assign(this.items[item_index], item);
-                            }
+                            console.log(this.items);
+                            Object.assign(this.items[item_index], item);
+                            console.log(this.items);
                             this.gridOptions.api.refreshCells();
                         })
                         .catch(e => {

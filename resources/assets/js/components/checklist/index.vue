@@ -42,10 +42,7 @@
                          :gridOptions="gridOptions"
                          :columnDefs="columnDefs"
                          :rowData="items"
-
                          :enableColResize="true"
-                         :enableSorting="true"
-                         :enableFilter="true"
             >
             </ag-grid-vue>
         </v-card>
@@ -59,7 +56,7 @@
     const ActionButtons = Vue.extend({
         template: `<span>
                     <v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="teal">edit</v-icon></v-btn>
-                    <v-btn small icon class="mx-0 my-0" @click="deleteItem"><v-icon color="pink">delete</v-icon></v-btn>
+                    <v-btn small icon class="mx-0 my-0" @click="deleteItem" v-if="params.data.requirement.length === 0"><v-icon color="pink">delete</v-icon></v-btn>
 
             </span>`,
         methods: {
@@ -138,6 +135,8 @@
                         headerName: this.$t('actions'), field: 'id',
                         cellStyle: {textAlign: "center"},
                         cellRendererFramework: ActionButtons,
+                        suppressFilter: true,
+                        suppressSorting: true,
                         colId: "params",
                         suppressCellSelection: true
                     }
@@ -203,9 +202,6 @@
                 suppressDragLeaveHidesColumns: true,
                 suppressMakeColumnVisibleAfterUnGroup: true,
                 floatingFilter:true,
-                enableFilter: true,
-                enableSorting: true,
-                suppressMenu: true,
                 domLayout: 'autoHeight',
                 rowGroupPanelShow: 'always',
             };

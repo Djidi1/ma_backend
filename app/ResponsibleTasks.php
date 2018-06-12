@@ -16,6 +16,7 @@ class ResponsibleTasks extends Model
     protected $casts = [
         'user_id' => 'integer',
         'object_id' => 'integer',
+        'audit_object_group_id' => 'integer',
         'requirement_id' => 'integer',
         'audit_id' => 'integer',
     ];

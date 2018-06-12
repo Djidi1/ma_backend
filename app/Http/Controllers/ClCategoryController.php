@@ -26,11 +26,9 @@ class ClCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,[
-           'title' => 'required|min:3'
-        ]);
         $result = ClCategory::create($request->all());
-        return $result;
+        $cl_category = ClCategory::with('checklists')->where('id', $result->id)->first();
+        return $cl_category;
     }
 
 
@@ -42,14 +40,11 @@ class ClCategoryController extends Controller
      */
     public function update(Request $request)
     {
-
-        $this->validate($request,[
-           'title' => 'required|min:3'
-        ]);
         $requestData = $request->all();
         unset ($requestData['id']);
         $result = ClCategory::where('id', $request->id)->update($requestData);
-        return $result;
+        $cl_category = ClCategory::with('checklists')->where('id', $request->id)->first();
+        return $cl_category;
     }
 
     /**

@@ -81,43 +81,38 @@
                 </v-card>
             </v-dialog>
             <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
-            <full-calendar
-                    :events="fcEvents"
-                    locale="ru"
-                    first-day='1'
-                    class="pa-0"
-                    @changeMonth="changeMonth"
-                    @eventClick="eventClick"
-                    @dayClick="dayClick"
-                    @moreClick="moreClick"
-                    style="overflow:hidden"
+            <calendar-view
+				:events="events"
+                :show-date="showDate"
+				:starting-day-of-week="1"
+                @show-date-change="setShowDate"
+                class="theme-default"
+                
+				@click-date="onClickDay"
+				@click-event="onClickEvent"
             >
-            </full-calendar>
+            </calendar-view>
             <v-alert :value="true" outline color="info" icon="info">
-                <b class="blue--text">N</b> - аудит не проводился (запланирован)<br/>
-                <b class="orange--text">N</b> - выявлены несоответствия требованиям <br/>
-                <b class="green--text">N</b> - успешно пройденный аудит <br/>
+                <b class="blue--text"><v-icon>today</v-icon></b> - запланирован (аудит не проводился)<br/>
+                <b class="green--text"><v-icon>done_all</v-icon></b> - проведен (успешно пройденный аудит) <br/>
+                <b class="orange--text"><v-icon>clear</v-icon></b> - просрочен (выявлены несоответствия требованиям) <br/>
             </v-alert>
         </v-card>
     </div>
 </template>
 
 <script>
-    let demoEvents = [
-        {
-            title : 'Демонстрация MobileAudit',
-            start : '2018-04-14',
-            end : '2018-04-14'
-        }
-    ];
+    import CalendarView from "vue-simple-calendar"
+    import CalendarMathMixin from "vue-simple-calendar/dist/calendar-math-mixin.js"
+    
+	require("vue-simple-calendar/dist/static/css/default.css")
+
     export default {
         data () {
             return {
                 dialog: false,
                 picker: false,
                 loading: true,
-                fcEvents : demoEvents,
-
                 editedItem: {
                     title: '',
                     date: ''
@@ -129,14 +124,24 @@
                 checklists: [],
                 objects: [],
                 users: [],
+                showDate: new Date(),
+                events: [],
             }
         },
+		components: {
+			CalendarView
+		},
+	    mixins: [CalendarMathMixin],
         computed: {
             formTitle() {
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
             }
         },
         methods: {
+            thisMonth(d, h, m) {
+                const t = new Date()
+                return new Date(t.getFullYear(), t.getMonth(), d, h || 0, m || 0)
+            },
             getItems() {
                 axios.get('/audit_tasks_all')
                     .then(response => {
@@ -147,8 +152,10 @@
                         let i;
                         for(i = 0; i < audit_tasks.length; i++){
                             if (audit_tasks.hasOwnProperty(i)) {
-                                Object.defineProperty(audit_tasks[i], 'start', Object.getOwnPropertyDescriptor(audit_tasks[i], 'date'));
+                                Object.defineProperty(audit_tasks[i], 'startDate', Object.getOwnPropertyDescriptor(audit_tasks[i], 'date'));
                             }
+                            audit_tasks[i].title = this.objects.find(x => x.id === audit_tasks[i].object_id).audit_object_group.title +
+                                                   ' / ' + this.objects.find(x => x.id === audit_tasks[i].object_id).title;
                             let cssClass = 'new-item';
                             // Если все результаты положительные, то аудит успешный
                             if (audit_tasks[i]['audit_result'].length > 0) {
@@ -161,12 +168,15 @@
                                     }
                                 }
                             }
-                            Object.defineProperty(audit_tasks[i], 'cssClass', {value: cssClass});
+                            Object.defineProperty(audit_tasks[i], 'classes', {value: cssClass});
                         }
-                        this.fcEvents = audit_tasks;
+                        this.events = audit_tasks;
                         this.loading = false;
                     });
             },
+            setShowDate(d) {
+				this.showDate = d;
+			},
             close() {
                 this.dialog = false;
                 setTimeout(() => {
@@ -174,7 +184,7 @@
                     this.editedIndex = -1;
                 }, 300)
             },
-            save(event) {
+            save() {
                 if (this.editedIndex > -1) {
                     let item_index = this.editedIndex;
                     let editedItem = this.editedItem;
@@ -183,15 +193,15 @@
                     delete item['audit_result'];
                     delete item['checklist'];
                     delete item['user'];
-                    delete item['start'];
+                    delete item['startDate'];
                     delete item['end'];
                     delete item['cellIndex'];
                     delete item['isShow'];
                     axios.put('/audits_update/' + item.id, item)
                         .then(response => {
                             if (response.data === 1) {
-                                Object.defineProperty(editedItem, 'start', Object.getOwnPropertyDescriptor(editedItem, 'date'));
-                                Object.assign(this.fcEvents[item_index], editedItem);
+                                Object.defineProperty(editedItem, 'startDate', Object.getOwnPropertyDescriptor(editedItem, 'date'));
+                                Object.assign(this.events[item_index], editedItem);
                             }
                         })
                         .catch(e => {
@@ -203,8 +213,8 @@
                     axios.post(`/audits_save`, new_item)
                         .then(response => {
                             let addedItem = response.data;
-                            Object.defineProperty(addedItem, 'start', Object.getOwnPropertyDescriptor(addedItem, 'date'));
-                            this.fcEvents.push(addedItem)
+                            Object.defineProperty(addedItem, 'startDate', Object.getOwnPropertyDescriptor(addedItem, 'date'));
+                            this.events.push(addedItem)
                         })
                         .catch(e => {
                             this.errors.push(e)
@@ -212,61 +222,48 @@
                 }
                 this.close()
             },
-            'changeMonth' (start, end, current) {
-            },
-            'eventClick' (event) {
-                this.editedIndex = this.fcEvents.indexOf(event);
-                this.editedItem = Object.assign({}, event);
-                this.dialog = true
-            },
-            'dayClick' (day) {
+            onClickDay(day) {
                 this.editedIndex = -1;
                 Object.defineProperty(this.editedItem, 'date', {value: moment(day).format('YYYY-MM-DD')});
                 this.dialog = true
             },
-            'moreClick' (day, events, jsEvent) {
-                console.log('moreCLick', day, events, jsEvent)
+            onClickEvent(event) {
+                this.editedIndex = this.events.indexOf(event);
+                this.editedItem = Object.assign({}, event.originalEvent);
+                this.dialog = true
+            },
+            chg_btns(class_name, color, icon) {
+                let d = document.getElementsByClassName(class_name);
+                d[0].className += " btn btn--icon";
+                d[0].innerHTML = '<div class="btn__content"><i aria-hidden="true" class="icon '+color+'--text material-icons">'+icon+'</i></div>';
             }
         },
         mounted () {
-            let d = document.getElementsByClassName('prev-month');
-            d[0].className += " btn btn--icon";
-            d[0].innerHTML = '<div class="btn__content"><i aria-hidden="true" class="icon blue--text material-icons">keyboard_arrow_left</i></div>';
-            let n = document.getElementsByClassName('next-month');
-            n[0].className += " btn btn--icon";
-            n[0].innerHTML = '<div class="btn__content"><i aria-hidden="true" class="icon blue--text material-icons">keyboard_arrow_right</i></div>';
-
+            this.chg_btns('previousPeriod', 'blue', 'keyboard_arrow_left')
+            this.chg_btns('nextPeriod', 'blue', 'keyboard_arrow_right')
+            this.chg_btns('currentPeriod', 'green', 'today')
+            this.chg_btns('previousYear', 'orange', 'first_page')
+            this.chg_btns('nextYear', 'orange', 'last_page')
             this.getItems();
         }
     }
 </script>
 
 <style lang="scss">
-    .full-calendar-body {
-        .weeks{
-            .week{
-                &:nth-last-child(-n+2) {
-                    background-color: #FBE9E7;
-                }
-            }
-        }
-        .dates {
-            .week-row {
-                .day-cell {
-                    &.today {
-                        background-color: #fcf8e3;
-                    }
-                    &:nth-last-child(-n+2) {
-                        background-color: #FBE9E7;
-                    }
-                }
-            }
-        }
+    .dow6, .cv-day.dow0, .cv-header-day.dow5 {
+        background-color: #FBE9E7 !important;
     }
     .in-work-item {
         background-color: #ffec85 !important;
     }
     .done-item {
         background-color: #bbe3ab !important;
+    }
+    .cv-event {
+        cursor: pointer;
+    }
+    button.previousPeriod, button.nextPeriod, button.currentPeriod, button.nextYear, button.previousYear {
+        padding: 0;
+        border: none;
     }
 </style>

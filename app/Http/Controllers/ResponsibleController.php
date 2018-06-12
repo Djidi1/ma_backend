@@ -7,6 +7,7 @@ use App\Responsible;
 use App\ResponsibleTasks;
 use App\Requirement;
 use App\AuditObject;
+use App\AuditObjectGroup;
 use App\TaskStatus;
 use App\User;
 use Illuminate\Http\Request;
@@ -40,28 +41,12 @@ class ResponsibleController extends Controller
     {
         $user = Auth::user();
         $users = User::all();
-        $objects = AuditObject::all();
+        $object_groups = AuditObjectGroup::all();
         $requirements = Requirement::all();
         $statuses = TaskStatus::all();
         $responsible = Responsible::with('user')->get();
         $responsible_tasks = ResponsibleTasks::where('user_id', '=', $user->id)->with('audit_result_attache', 'task', 'task_comments.user')->get();
-//            ->where('user_id', '=', $user->id)
-//            ->get();
-//        $res_array = response()->json($responsible)->getData(true);
-        /*foreach ($res_array as $key_u => $responsible_user) {
-            // Заменяем id объектов массивами с данными
-            foreach ($responsible_user['object_id'] as $key_i => $item_id) {
-                $audit_object = response()->json(AuditObject::find($item_id))->getData(true);
-                $res_array[$key_u]['object_id'][$key_i] = $audit_object;
-            }
-            // Заменяем id требований массивами с данными
-            foreach ($responsible_user['requirement_id'] as $key_i => $item_id) {
-                $audit_object = response()->json(Requirement::find($item_id))->getData(true);
-                $res_array[$key_u]['requirement_id'][$key_i] = $audit_object;
-            }
-        }*/
-//        dd($res_array);
-        return compact('responsible_tasks', 'responsible', 'users', 'objects', 'requirements', 'statuses');
+        return compact('responsible_tasks', 'responsible', 'users', 'object_groups', 'requirements', 'statuses');
 
 //        return response()->json($checklists);
     }

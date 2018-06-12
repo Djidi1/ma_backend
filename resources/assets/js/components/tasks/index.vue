@@ -100,7 +100,7 @@
                                 <v-divider></v-divider>
                                 <v-list two-line>
                                     <template v-for="(item,index) in commentsItem">
-                                        <v-list-tile avatar>
+                                        <v-list-tile avatar :key="index">
                                             <v-list-tile-content>
                                                 <v-list-tile-sub-title>{{ item.user.name }}</v-list-tile-sub-title>
                                                 <v-list-tile-title>{{ item.message }}</v-list-tile-title>
@@ -148,37 +148,47 @@
             <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
             <v-card-title>
                 <v-select
-                        :items="objects"
+                        :items="object_groups"
                         v-model="object_select"
-                        :label = "$t('object')"
+                        :label = "$t('object_groups')"
                         item-text = "title"
                         item-value = "id"
                         autocomplete
                 ></v-select>
                 <v-spacer></v-spacer>
-                <v-alert v-for :value="true" outline color="info">
-                    <b>{{ $t('responsible') }}:</b> <i v-for="(item,i) in responsibleUsers">{{item}}; </i>
+                <v-alert :value="true" outline color="info">
+                    <b>{{ $t('responsible') }}:</b> <i v-for="(item,i) in responsibleUsers" :key="i">{{item}}; </i>
                 </v-alert>
             </v-card-title>
-
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn-toggle v-model="toggle_multiple" multiple>
+                    <v-btn flat class="mx-0" :value="3">
+                        <v-icon color="teal">done</v-icon>
+                    </v-btn>
+                    <v-btn flat class="mx-0" :value="2">
+                        <v-icon color="blue">schedule</v-icon>
+                    </v-btn>
+                    <v-btn flat class="mx-0" :value="1">
+                        <v-icon color="red">clear</v-icon>
+                    </v-btn>
+                    <v-btn flat class="mx-0" :value="0">
+                        ALL
+                    </v-btn>
+                </v-btn-toggle>
+            </v-card-actions>
             <ag-grid-vue style="width: 100%; min-width: 500px"
                          class="ag-theme-balham"
                          :gridOptions="gridOptions"
                          :columnDefs="columnDefs"
                          :rowData="filteredItems"
-
                          :enableColResize="true"
-                         :enableSorting="true"
-                         :enableFilter="true"
             >
             </ag-grid-vue>
-
-
             <v-alert :value="true"  color="info" icon="info">
-                <v-icon color="teal">done</v-icon> - замечания устранены<br/>
-                <v-icon color="blue">schedule</v-icon> - работы запланироаны<br/>
-                <v-icon color="grey">remove</v-icon> - обнаружены несоответствия<br/>
-                <v-icon color="teal">clear</v-icon> - требование не применимо к текущему объекту<br/>
+                <v-icon color="teal">done</v-icon> - выполнены<br/>
+                <v-icon color="blue">schedule</v-icon> - в процессе выполнения<br/>
+                <v-icon color="red">clear</v-icon> - просрочены<br/>
             </v-alert>
         </v-card>
     </v-flex>
@@ -201,12 +211,12 @@
 
     const Attaches = Vue.extend({
         template: `<span>
-                <v-btn  small icon class="mx-0 my-0"
-                   v-on:click='result_attaches()'
-                   v-if="params.data.audit_result_attache.length > 0">
-                    <v-icon color="blue">photo</v-icon>
-                </v-btn>
-            </span>`,
+                        <v-btn  small icon class="mx-0 my-0"
+                        v-on:click='result_attaches()'
+                        v-if="params.data.audit_result_attache.length > 0">
+                            <v-icon color="blue">photo</v-icon>
+                        </v-btn>
+                    </span>`,
         methods: {
             result_attaches() {
                 this.params.context.componentParent.result_attaches(this.params.data.audit_result_attache);
@@ -233,7 +243,7 @@
                 comment_message: '',
                 items: [],
                 requirements: [],
-                objects: [],
+                object_groups: [],
                 responsible: [],
                 object_select: 0,
                 object_selected: 0,
@@ -250,7 +260,8 @@
                 gridOptions: {},
                 columnDefs: null,
                 rowData: null,
-                params: null
+                params: null,
+                toggle_multiple: [0]
             }
         },
         components: {
@@ -262,7 +273,19 @@
             },
             filteredItems() {
                 return this.items.filter(item => {
-                    return item.object_id === this.object_selected
+                    // фильтр по статусу
+                    let filter_status = true;
+                    if (item.task !== null) {
+                        if (this.toggle_multiple.length === 1 && this.toggle_multiple.indexOf(0) === 0) {
+                            filter_status = true;
+                        } else if (this.toggle_multiple.indexOf(item.task.task_status_id) > -1) {
+                            filter_status = true;
+                        } else {
+                            filter_status = false;
+                        }
+                    }
+                    // фильтр по выбранной группе
+                    return filter_status && item.audit_object_group_id === this.object_selected
                 })
             },
             responsibleUsers() {
@@ -284,6 +307,21 @@
             },
             object_select: function (newVal) {
                 this.object_selected = newVal;
+            },
+            toggle_multiple: function (new_value, old_value) {
+                // Если новое значение не равно старому и не установлено одно значение
+                if (new_value !== old_value && this.toggle_multiple.length !== 1 ) {
+                    if (new_value.length === 0) {
+                        this.toggle_multiple = [0]
+                    } else {
+                        if (old_value.length === 1 && old_value.indexOf(0) === 0 && new_value.length > 1){
+                            let index = this.toggle_multiple.indexOf(0);
+                            if (index !== -1) this.toggle_multiple.splice(index, 1);
+                        } else if (new_value.length > 1 && new_value.indexOf(0) > -1){
+                            this.toggle_multiple = [0]
+                        }
+                    }                 
+                }
             }
         },
         methods: {
@@ -302,11 +340,11 @@
                 axios.get('/responsible_tasks')
                     .then(response => {
                         this.items = response.data.responsible_tasks;
-                        this.object_selected = this.items.hasOwnProperty(0) ? (this.items[0].object_id || 0) : 0;
+                        this.object_selected = this.items.hasOwnProperty(0) ? (this.items[0].audit_object_group_id || 0) : 0;
                         this.object_select = this.object_selected;
                         this.requirements = response.data.requirements;
                         this.responsible = response.data.responsible;
-                        this.objects = response.data.objects;
+                        this.object_groups = response.data.object_groups;
                         this.users = response.data.users;
                         this.statuses = response.data.statuses;
                         this.gridOptions.api.sizeColumnsToFit();
@@ -315,18 +353,18 @@
                     });
                 this.columnDefs = [
                     // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
-                    // {headerName: this.$t('title'), suppressSizeToFit: true, align: 'left', field: 'title'},
+                    {headerName: this.$t('object'), width: 120, suppressSizeToFit: true, align: 'left', field: 'object_title'},
                     // {headerName: this.$t('audit'), align: 'left', field: 'audit_title', enableRowGroup: true},
                     {headerName: this.$t('requirement'), align: 'left', field: 'requrement_title', enableRowGroup: true},
                     {headerName: this.$t('date'), align: 'left', field: 'date_checking', enableRowGroup: true},
                     {
                         headerName: this.$t('responsible'), field: 'requirement_id',
-                        cellRenderer: function(params) {
+                        valueGetter: function(params) {
                             let responsible_names = [];
                             for(let index in self.responsible) {
                                 if (self.responsible.hasOwnProperty(index)) {
                                     let attr = self.responsible[index];
-                                    if (attr.requirement_id.indexOf(params.value) > -1){
+                                    if (attr.requirement_id.indexOf(params.data.requirement_id) > -1){
                                         responsible_names.push(self.responsible[index].user.name);
                                     }
                                 }
@@ -336,32 +374,38 @@
                     },
                     {
                         headerName: this.$t('date_start'), align: 'left', field: 'task',
-                        cellRenderer: function (params) {
-                            return params.value !== null ? params.value.start : '-';
+                        valueGetter: function(params) {
+                            return params.data.task !== null ? params.data.task.start : '-';
                         }
                     },
                     {
                         headerName: this.$t('date_end'), align: 'left', field: 'task',
-                        cellRenderer: function (params) {
-                            return params.value !== null ? params.value.end : '-';
+                        valueGetter: function(params) {
+                            return params.data.task !== null ? params.data.task.end : '-';
                         }
                     },
                     {headerName: this.$t('comment'), align: 'left', field: 'comment', enableRowGroup: true},
                     {
                         headerName: this.$t('photo'), field: 'id', width: 120,
                         cellStyle: {textAlign: "center"},
+                        suppressFilter: true,
+                        suppressSorting: true,
                         cellRendererFramework: Attaches,
                         colId: "params",
                         suppressCellSelection: false
                     },
                     {
                         headerName: this.$t('result'), cellStyle: {textAlign: "center"}, field: 'result', width: 120,
+                        suppressFilter: true,
+                        suppressSorting: true,
                         cellRenderer: function(params) {
                             return self.result_icon(params.value, params.data.task);
                         }
                     },
                     {
                         headerName: this.$t('actions'), field: 'id', width: 90,
+                        suppressFilter: true,
+                        suppressSorting: true,
                         cellStyle: {textAlign: "center"},
                         cellRendererFramework: ActionButtons,
                         colId: "params",
@@ -446,7 +490,7 @@
                     new_item.done_percent = 0;
                     axios.post(`/task_save`, new_item)
                         .then(response => {
-                            Object.assign(self.items[item_index].task, {0: response.data});
+                            Object.assign(self.items[item_index].task, response.data);
                             self.gridOptions.api.refreshCells({force: true});
                         })
                         .catch(e => {
@@ -459,7 +503,7 @@
                     axios.put('/task_update/' + item.id, item)
                         .then(response => {
                             if (response.data === 1) {
-                                Object.assign(self.items[item_index].task, {0: editedItem});
+                                Object.assign(self.items[item_index].task, editedItem);
                                 self.gridOptions.api.refreshCells({force: true});
                             }
                         })
@@ -476,7 +520,6 @@
                 suppressDragLeaveHidesColumns: true,
                 suppressMakeColumnVisibleAfterUnGroup: true,
                 floatingFilter:true,
-                enableFilter: true,
                 enableSorting: true,
                 suppressMenu: true,
                 domLayout: 'autoHeight',

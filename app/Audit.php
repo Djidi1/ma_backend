@@ -29,7 +29,7 @@ class Audit extends Model
 //        $this->attributes['date'] = (new Carbon($value))->format('d/m/y');
 //    }
     public function checklist(){
-        return $this->belongsTo('App\Checklist', 'checklist_id');
+        return $this->belongsTo('App\Checklist', 'checklist_id', 'id');
     }
 
     public function audit_object(){

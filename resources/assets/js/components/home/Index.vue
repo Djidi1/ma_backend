@@ -26,10 +26,11 @@
                         </v-card-media>
                     </v-card>
                 </v-toolbar>
-                <v-list class="pt-0" dense>
+                <v-list class="pt-3" dense>
                     <v-divider></v-divider>
                     <li
-                            v-for="item in routes"
+                            v-for="(item, index) in routes"
+                            :key="index"
                             v-if="
                             (($auth.check() && item.meta.auth && (item.meta.role_id === parseInt($auth.user().role_id) || !item.meta.role_id))
                             || (!$auth.check() && !item.meta.auth))
@@ -141,3 +142,14 @@
         }
     }
 </script>
+
+<style>
+.ag-floating-filter-input {
+    background: #fff;
+    border-radius: 4px;
+}
+.navigation-drawer>.list .list__tile--active .list__tile__title,
+.list__tile--active .list__tile__action:first-of-type .icon {
+    color: #2196F3 !important;
+}
+</style>

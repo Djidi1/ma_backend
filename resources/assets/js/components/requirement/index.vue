@@ -68,10 +68,7 @@
                          :gridOptions="gridOptions"
                          :columnDefs="columnDefs"
                          :rowData="filteredItems"
-
                          :enableColResize="true"
-                         :enableSorting="true"
-                         :enableFilter="true"
             >
             </ag-grid-vue>
             <v-alert :value="true" outline color="info" icon="info">
@@ -149,6 +146,8 @@
             },
             checklist_select: function (newVal) {
                 this.checklist_selected = newVal;
+                this.editedItem.checklist_id = newVal;
+                this.defaultItem.checklist_id = newVal;
             }
         },
         methods: {
@@ -158,6 +157,8 @@
                     .then(response => {
                         this.items = response.data.requirements;
                         this.checklist_selected = this.items.hasOwnProperty(0) ? (this.items[0].checklist_id || 0) : 0;
+                        this.editedItem.checklist_id = this.checklist_selected;
+                        this.defaultItem.checklist_id = this.checklist_selected;
                         this.checklist_select = parseInt(this.checklist_selected);
                         this.requirement_groups = response.data.requirement_groups;
                         this.checklist_groups = response.data.checklist_groups;
@@ -196,6 +197,8 @@
                         headerName: this.$t('actions'), field: 'id',
                         cellStyle: {textAlign: "center"},
                         cellRendererFramework: ActionButtons,
+                        suppressFilter: true,
+                        suppressSorting: true,
                         colId: "params",
                         suppressCellSelection: true
                     }
@@ -264,9 +267,6 @@
                 suppressDragLeaveHidesColumns: true,
                 suppressMakeColumnVisibleAfterUnGroup: true,
                 floatingFilter:true,
-                enableFilter: true,
-                enableSorting: true,
-                suppressMenu: true,
                 domLayout: 'autoHeight',
                 rowGroupPanelShow: 'always',
             };

@@ -166,19 +166,23 @@
                     });
                 this.columnDefs = [
                     // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
-                    {headerName: this.$t('requirement'), align: 'left', field: 'requirement.title'},
+                    {headerName: this.$t('requirement'), align: 'left', field: 'requirement.title', tooltipField: 'requirement.title'},
                     {headerName: this.$t('comment'), align: 'left', field: 'comment'},
                     {headerName: this.$t('date'), align: 'left', field: 'created_at'},
                     {
                         headerName: this.$t('result'), cellStyle: {textAlign: "center"}, field: 'result',
+                        suppressFilter: true,
+                        suppressSorting: true,
                         cellRenderer: function(params) {
-                            return self.result_icon(params.value, params.data.task);
+                            return self.result_icon(parseInt(params.value), params.data.task);
                         }
                     },
                     {
                         headerName: this.$t('photo'), field: 'id',
                         cellStyle: {textAlign: "center"},
                         cellRendererFramework: Attaches,
+                        suppressFilter: true,
+                        suppressSorting: true,
                         colId: "params",
                         suppressCellSelection: true
                     }

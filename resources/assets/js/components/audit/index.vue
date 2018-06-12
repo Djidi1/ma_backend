@@ -10,7 +10,7 @@
                         <v-layout wrap>
                             <v-flex xs12>
                                 <v-select
-                                        :items="objects"
+                                        :items="filteredObjects"
                                         item-text = "title"
                                         item-value = "id"
                                         v-model="editedItem.object_id"
@@ -108,9 +108,9 @@
             <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
             <v-card-title>
                 <v-select
-                        :items="objects"
+                        :items="object_groups"
                         v-model="object_select"
-                        :label = "$t('object')"
+                        :label = "$t('object_groups')"
                         item-text = "title"
                         item-value = "id"
                         autocomplete
@@ -118,15 +118,26 @@
                 <v-spacer></v-spacer>
                 <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
             </v-card-title>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn-toggle v-model="toggle_multiple" multiple>
+                    <v-btn flat class="mx-0" :value="1">
+                        <v-icon color="teal">done</v-icon>
+                    </v-btn>
+                    <v-btn flat class="mx-0" :value="2">
+                        <v-icon color="orange">clear</v-icon>
+                    </v-btn>
+                    <v-btn flat class="mx-0" :value="0">
+                        ALL
+                    </v-btn>
+                </v-btn-toggle>
+            </v-card-actions>
             <ag-grid-vue style="width: 100%;"
                          class="ag-theme-balham"
                          :gridOptions="gridOptions"
                          :columnDefs="columnDefs"
                          :rowData="filteredItems"
-
                          :enableColResize="true"
-                         :enableSorting="true"
-                         :enableFilter="true"
             >
             </ag-grid-vue>
             <v-alert :value="true" outline color="info" icon="info">
@@ -177,6 +188,7 @@
                 checklists: [],
                 object_select: 0,
                 object_selected: 0,
+                object_groups: [],
                 objects: [],
                 users: [],
                 editedIndex: -1,
@@ -190,7 +202,9 @@
                 gridOptions: {},
                 columnDefs: null,
                 rowData: null,
-                params: null
+                params: null,
+                toggle_multiple: [0],
+                errors: []
             }
         },
         components: {
@@ -201,9 +215,34 @@
             formTitle() {
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
             },
+            filteredObjects() {
+                return this.objects.filter(object => {
+                    return parseInt(object.audit_object_group_id) === this.object_selected
+                })
+            },
             filteredItems() {
                 return this.items.filter(item => {
-                    return parseInt(item.object_id) === this.object_selected
+                    let good_results = 0;
+                    for (let result in item.audit_result) {
+                        if (item.audit_result.hasOwnProperty(result) && parseInt(item.audit_result[result].result) === 1) {
+                            good_results++;
+                        }
+                    }
+                    // фильтр по статусу
+                    let filter_status = true;
+                    if (item.task !== null) {
+                        if (this.toggle_multiple.length === 1 && this.toggle_multiple.indexOf(0) === 0) {
+                            filter_status = true;
+                        } else if (this.toggle_multiple.indexOf(1) > -1 && good_results === item.audit_result.length) {
+                            filter_status = true;
+                        } else if (this.toggle_multiple.indexOf(2) > -1 && good_results < item.audit_result.length) {
+                            filter_status = true;
+                        } else {
+                            filter_status = false;
+                        }
+                    }
+                    // фильтр по выбранной группе
+                    return filter_status && parseInt(item.audit_object.audit_object_group_id) === this.object_selected
                 })
             }
         },
@@ -213,6 +252,21 @@
             },
             object_select: function (newVal) {
                 this.object_selected = newVal;
+            },
+            toggle_multiple: function (new_value, old_value) {
+                // Если новое значение не равно старому и не установлено одно значение
+                if (new_value !== old_value && this.toggle_multiple.length !== 1 ) {
+                    if (new_value.length === 0) {
+                        this.toggle_multiple = [0]
+                    } else {
+                        if (old_value.length === 1 && old_value.indexOf(0) === 0 && new_value.length > 1){
+                            let index = this.toggle_multiple.indexOf(0);
+                            if (index !== -1) this.toggle_multiple.splice(index, 1);
+                        } else if (new_value.length > 1 && new_value.indexOf(0) > -1){
+                            this.toggle_multiple = [0]
+                        }
+                    }                 
+                }
             }
         },
         methods: {
@@ -228,7 +282,6 @@
             openResult(id) {
                 this.$refs.results.getItems(id);
                 this.dialog_results = true;
-                // this.$router.push({path: '/audit_results/' + id });
             },
             frontEndDateFormat: function(date) {
                 return moment(date, 'YYYY-MM-DD').format('DD.MM.YYYY');
@@ -241,9 +294,10 @@
                 axios.get('/audits_all')
                     .then(response => {
                         this.items = response.data.audits;
-                        this.object_selected = this.items.hasOwnProperty(0) ? (this.items[0].object_id || 0) : 0;
+                        this.object_selected = this.items.hasOwnProperty(0) ? (this.items[0].audit_object.audit_object_group_id || 0) : 0;
                         this.object_select = parseInt(this.object_selected);
                         this.checklists = response.data.checklists;
+                        this.object_groups = response.data.object_groups;
                         this.objects = response.data.objects;
                         this.users = response.data.users;
                         this.loading = false;
@@ -252,8 +306,11 @@
                     });
                 this.columnDefs = [
                     {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
-                    // {headerName: this.$t('title'), suppressSizeToFit: true, align: 'left', field: 'title'},
-                    {headerName: this.$t('checklist'), align: 'left', field: 'checklist.title', enableRowGroup: true},
+                    {headerName: this.$t('title'), width: 90, suppressSizeToFit: true, align: 'left', field: 'audit_object.title'},
+                    {
+                        headerName: this.$t('checklist'), align: 'left', field: 'checklist.title', 
+                        tooltipField: 'checklist.title', enableRowGroup: true
+                    },
                     {
                         headerName: this.$t('auditor'), align: 'left', valueGetter: function (params) {
                             return params.data.user.name
@@ -280,6 +337,8 @@
                         headerName: this.$t('actions'), field: 'id',
                         cellStyle: {textAlign: "center"},
                         cellRendererFramework: ActionButtons,
+                        suppressFilter: true,
+                        suppressSorting: true,
                         colId: "params",
                         suppressCellSelection: true
                     }
@@ -320,10 +379,8 @@
                     delete item['user'];
                     axios.put('/audits_update/' + item.id, item)
                         .then(response => {
-                            if (response.data === 1) {
-                                Object.assign(this.items[item_index], editedItem);
-                                this.gridOptions.api.refreshCells();
-                            }
+                            Object.assign(this.items[item_index], response.data);
+                            this.gridOptions.api.refreshCells();
                         })
                         .catch(e => {
                             this.errors.push(e)
@@ -349,9 +406,7 @@
                 suppressDragLeaveHidesColumns: true,
                 suppressMakeColumnVisibleAfterUnGroup: true,
                 floatingFilter:true,
-                enableFilter: true,
                 enableSorting: true,
-                suppressMenu: true,
                 domLayout: 'autoHeight',
                 rowGroupPanelShow: 'always',
             };

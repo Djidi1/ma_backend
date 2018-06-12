@@ -17,6 +17,7 @@ class CreateResponsibleTasksViews extends Migration
                         SELECT
                           r.user_id,
                           ar.id,
+                          ao.audit_object_group_id,
                           a.object_id,
                           ao.title AS object_title,
                           ar.audit_id,
@@ -41,6 +42,7 @@ class CreateResponsibleTasksViews extends Migration
                         SELECT
                           r.user_id,
                           ar.id,
+                          ao.audit_object_group_id,
                           a.object_id,
                           ao.title,
                           ar.audit_id,

@@ -32,14 +32,12 @@ import Vuetify from 'vuetify';
 import VueRouter from 'vue-router';
 import VueAxios from 'vue-axios';
 import VueLocalStorage from 'vue-ls';
-import fullCalendar from 'vue-fullcalendar'
 import VuetifyConfirm from 'vuetify-confirm'
 import 'vuetify/dist/vuetify.min.css'
 
 import "ag-grid/dist/styles/ag-grid.css";
 import "ag-grid/dist/styles/ag-theme-balham.css";
 
-Vue.component('full-calendar', fullCalendar);
 
 Vue.use(Vuetify);
 Vue.use(VueRouter);

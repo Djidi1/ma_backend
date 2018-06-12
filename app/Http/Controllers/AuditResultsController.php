@@ -23,9 +23,16 @@ class AuditResultsController extends Controller
     public function index(Request $request)
     {
         $audit_id = $request->id;
-        $audit_results = AuditResult::with('audit', 'requirement', 'audit_result_attache')->where('audit_id', $audit_id)->get();
-        $audits = Audit::all();
-        return compact('audit_results', 'audits');
+        if ($audit_id > 0) {
+            $audit_results = AuditResult::with('audit', 'requirement', 'audit_result_attache')->
+                        where('audit_id', $audit_id)->
+                        where('result', '!=', '1')->
+                        get();
+            $audits = Audit::all();
+            return compact('audit_results', 'audits');
+        } else {
+            return 'false';
+        }
     }
 
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Audit;
 use App\AuditObject;
+use App\AuditObjectGroup;
 use App\AuditResult;
 use App\Checklist;
 use App\User;
@@ -19,17 +20,18 @@ class AuditListsController extends Controller
     public function index()
     {
         $checklists = Checklist::all();
+        $object_groups = AuditObjectGroup::All();
         $objects = AuditObject::all();
         $results = AuditResult::all();
         $users = User::all();
 
         $audits = Audit::with('checklist', 'audit_object', 'audit_result', 'user')->get();
-        return compact('audits', 'checklists', 'objects', 'results', 'users');
+        return compact('audits', 'checklists', 'object_groups', 'objects', 'results', 'users');
     }
 
     public function auditTasksAll()
     {
-        $audits = Audit::with('audit_result', 'user')->get();
+        $audits = Audit::with('audit_result', 'audit_object', 'user')->get();
         $checklists = Checklist::all();
         $objects = AuditObject::all();
         $users = User::all();
@@ -46,7 +48,8 @@ class AuditListsController extends Controller
     {
         $requestData = $request->all();
         $result = Audit::create($requestData);
-        return $result;
+        $audit = Audit::with('checklist', 'audit_object', 'audit_result', 'user')->where('id', $result->id)->first();
+        return $audit;
     }
 
 
@@ -61,7 +64,8 @@ class AuditListsController extends Controller
         $requestData = $request->all();
         unset ($requestData['id']);
         $result = Audit::where('id', $request->id)->update($requestData);
-        return $result;
+        $audit = Audit::with('checklist', 'audit_object', 'audit_result', 'user')->where('id', $request->id)->first();
+        return $audit;
     }
 
     /**
