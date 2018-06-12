@@ -85,8 +85,9 @@
 				:events="events"
                 :show-date="showDate"
 				:starting-day-of-week="1"
+                eventContentHeight="2.4em"
                 @show-date-change="setShowDate"
-                class="theme-default"
+                class="theme-default wrap-event-title-on-hover"
                 
 				@click-date="onClickDay"
 				@click-event="onClickEvent"
@@ -137,6 +138,17 @@
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
             }
         },
+        updated() {
+            if (this.events.length > 0) {
+                let regex = /(<([^>]+)>)/ig;
+                let elms = document.getElementsByClassName('cv-event')
+                for (let i = 0; i < elms.length; i++) {
+                    if (elms.hasOwnProperty(i)) {
+                        elms[i].setAttribute("title", elms[i].getAttribute("title").replace(regex, ""));
+                    }
+                }
+            }
+        },
         methods: {
             thisMonth(d, h, m) {
                 const t = new Date()
@@ -154,8 +166,9 @@
                             if (audit_tasks.hasOwnProperty(i)) {
                                 Object.defineProperty(audit_tasks[i], 'startDate', Object.getOwnPropertyDescriptor(audit_tasks[i], 'date'));
                             }
-                            audit_tasks[i].title = this.objects.find(x => x.id === audit_tasks[i].object_id).audit_object_group.title +
-                                                   ' / ' + this.objects.find(x => x.id === audit_tasks[i].object_id).title;
+                            audit_tasks[i].title = '<span class="cut-text">' +
+                                                    audit_tasks[i].audit_object.audit_object_group.title +
+                                                   '</span><br/><b>' + audit_tasks[i].audit_object.title + '</b>';
                             let cssClass = 'new-item';
                             // Если все результаты положительные, то аудит успешный
                             if (audit_tasks[i]['audit_result'].length > 0) {
@@ -243,7 +256,7 @@
             this.chg_btns('nextPeriod', 'blue', 'keyboard_arrow_right')
             this.chg_btns('currentPeriod', 'green', 'today')
             this.chg_btns('previousYear', 'orange', 'first_page')
-            this.chg_btns('nextYear', 'orange', 'last_page')
+            this.chg_btns('nextYear', 'orange', 'last_page')         
             this.getItems();
         }
     }
@@ -261,6 +274,14 @@
     }
     .cv-event {
         cursor: pointer;
+        height: 34px;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+    }
+    .cut-text { 
+        text-overflow: ellipsis;
+        overflow: hidden; 
+        white-space: nowrap;
     }
     button.previousPeriod, button.nextPeriod, button.currentPeriod, button.nextYear, button.previousYear {
         padding: 0;

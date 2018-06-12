@@ -45,7 +45,7 @@ class ResponsibleController extends Controller
         $requirements = Requirement::all();
         $statuses = TaskStatus::all();
         $responsible = Responsible::with('user')->get();
-        $responsible_tasks = ResponsibleTasks::where('user_id', '=', $user->id)->with('audit_result_attache', 'task', 'task_comments.user')->get();
+        $responsible_tasks = ResponsibleTasks::where('user_id', '=', $user->id)->with('audit_result_attache', 'task', 'task_comments.user', 'object_group')->get();
         return compact('responsible_tasks', 'responsible', 'users', 'object_groups', 'requirements', 'statuses');
 
 //        return response()->json($checklists);

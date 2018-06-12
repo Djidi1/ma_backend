@@ -33,8 +33,21 @@ class ResponsibleTasks extends Model
     public function user(){
         return $this->belongsTo('App\User');
     }
+    /*
+            return $this->hasManyThrough(
+            'App\Post',
+            'App\User',
+            'country_id', // Foreign key on users table...
+            'user_id', // Foreign key on posts table...
+            'id', // Local key on countries table...
+            'id' // Local key on users table...
+        );
+    */
     public function object(){
         return $this->belongsTo('App\AuditObject');
+    }
+    public function object_group(){
+        return $this->belongsTo('App\AuditObjectGroup', 'audit_object_group_id');
     }
     public function requirement(){
         return $this->hasMany('App\Requirement');

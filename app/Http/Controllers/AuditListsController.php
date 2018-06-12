@@ -31,7 +31,7 @@ class AuditListsController extends Controller
 
     public function auditTasksAll()
     {
-        $audits = Audit::with('audit_result', 'audit_object', 'user')->get();
+        $audits = Audit::with('audit_result', 'audit_object.audit_object_group', 'user')->get();
         $checklists = Checklist::all();
         $objects = AuditObject::all();
         $users = User::all();
