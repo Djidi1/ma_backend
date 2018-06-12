@@ -68,7 +68,7 @@
                                     </v-dialog>
                                 </v-flex>
                                 <v-flex xs12>
-                                    <v-text-field :label="$t('comment')" v-model="editedItem.title" required></v-text-field>
+                                    <v-text-field :label="$t('comment')" v-model="editedItem.orig_title" required></v-text-field>
                                 </v-flex>
                             </v-layout>
                         </v-container>
@@ -116,11 +116,13 @@
                 loading: true,
                 editedItem: {
                     title: '',
-                    date: ''
+                    date: '',
+                    orig_title: ''
                 },
                 defaultItem: {
                     title: '',
-                    date: ''
+                    date: '',
+                    orig_title: ''
                 },
                 checklists: [],
                 objects: [],
@@ -166,6 +168,7 @@
                             if (audit_tasks.hasOwnProperty(i)) {
                                 Object.defineProperty(audit_tasks[i], 'startDate', Object.getOwnPropertyDescriptor(audit_tasks[i], 'date'));
                             }
+                            Object.defineProperty(audit_tasks[i], 'orig_title', {value: audit_tasks[i].title});
                             audit_tasks[i].title = '<span class="cut-text">' +
                                                     audit_tasks[i].audit_object.audit_object_group.title +
                                                    '</span><br/><b>' + audit_tasks[i].audit_object.title + '</b>';
@@ -202,6 +205,7 @@
                     let item_index = this.editedIndex;
                     let editedItem = this.editedItem;
                     let item = this.editedItem;
+                    item.title = item['orig_title'];
                     delete item['audit_object'];
                     delete item['audit_result'];
                     delete item['checklist'];
@@ -210,6 +214,7 @@
                     delete item['end'];
                     delete item['cellIndex'];
                     delete item['isShow'];
+                    delete item['orig_title'];
                     axios.put('/audits_update/' + item.id, item)
                         .then(response => {
                             if (response.data === 1) {
@@ -241,7 +246,7 @@
                 this.dialog = true
             },
             onClickEvent(event) {
-                this.editedIndex = this.events.indexOf(event);
+                this.editedIndex = this.events.indexOf(event.originalEvent);
                 this.editedItem = Object.assign({}, event.originalEvent);
                 this.dialog = true
             },
