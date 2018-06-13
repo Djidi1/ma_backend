@@ -63,7 +63,7 @@
                     },
                     error: function () {this.error = true},
                     rememberMe: true,
-                    redirect: '/tasks_calendar',
+                    redirect: '/',
                     fetchUser: true,
                 });
             },

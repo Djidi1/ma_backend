@@ -21,7 +21,8 @@ import TasksList from './components/tasks/index.vue';
 
 
 export default [
-    // {title: 'home', name:'home',  icon: 'home', path: '/home', component: Dashboard, meta: { auth: false } },
+    {title: 'dashboard', name:'dashboard',  icon: 'dashboard', path: '/', component: Dashboard, meta: { auth: true } },
+    {divider: true, path: '/', meta: { auth: true, role_id: 1 }},
     {title: 'login', name:'login', icon: 'input', path: '/login', component: Login, meta: { auth: false } },
     {title: 'register', name:'register', icon: 'lock_open', path: '/register', component: Register, meta: { auth: false } },
     {title: 'users', name:'users', icon: 'supervisor_account', path: '/users', component: Users, meta: { auth: true, role_id: 1 } },

@@ -143,7 +143,7 @@
             <v-alert :value="true" outline color="info" icon="info">
                 <b class="blue--text">N</b> - аудит не проводился (запланирован)<br/>
                 <b class="orange--text">N</b> - выявлены несоответствия требованиям <br/>
-                <b class="green--text">N</b> - успешно пройденный аудит <br/>
+                <b class="green--text">N</b> - закрытый аудит <br/>
             </v-alert>
         </v-card>
     </div>
