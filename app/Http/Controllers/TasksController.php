@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Intervention\Image\Facades\Image;
 
 
 class TasksController extends Controller
@@ -33,6 +34,11 @@ class TasksController extends Controller
         return $result;
     }
 
+    public function getTaskComment (Request $request) 
+    {
+        return TaskComment::where('task_id', $request->id)->with('user','task_comment_attache')->get();
+    }
+
     public function saveTaskComment (Request $request)
     {
         $user = Auth::user();
@@ -46,7 +52,34 @@ class TasksController extends Controller
                 'updated_at' => Carbon::now()
             ]
         );
-        return TaskComment::where('id', $comment_id)->with('user')->get();
+        // Если есть вложения, то сохраняем их в БД
+        if (isset($data['files'])) {
+            foreach($data['files'] as $file){
+                $file_name = $file['name'];
+                $file_size = $file['size'];
+                $file_mime = $file['type'];
+                $extension = explode('/', $file_mime )[1];
+                $data = $file['base64data'];
+                $data = substr($data, strpos($data, ",")+1);
+                $file_url = "/img/task/file-".time().rand(100,999).".".$extension;
+                $file_path = public_path(). $file_url;
+                // Сохраняем фото
+                Image::make(base64_decode($data))->save($file_path);
+
+                DB::table('task_comments_attaches')->insert(
+                    [
+                        'task_comment_id' => $comment_id,
+                        'file_name' => $file_name,
+                        'file_path' => $file_url,
+                        'file_mime' => $file_mime,
+                        'file_size' => $file_size,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]
+                );
+            }
+        }
+        return TaskComment::where('id', $comment_id)->with('user','task_comment_attache')->get();
     }
 
     /**

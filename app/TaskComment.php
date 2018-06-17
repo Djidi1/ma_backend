@@ -18,7 +18,7 @@ class TaskComment extends Model
     ];
 
     public function task_comment_attache(){
-        return $this->hasMany('App\TaskCommentAttache', 'task_comment_id');
+        return $this->hasMany('App\TaskCommentAttache', 'task_comment_id', 'id');
     }
     public function user(){
         return $this->belongsTo('App\User', 'user_id', 'id');

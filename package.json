@@ -31,6 +31,7 @@
         "vue-fullcalendar": "^1.0.9",
         "vue-ls": "^2.4.1",
         "vue-simple-calendar": "^3.0.2",
+        "vue-upload-component": "^2.8.9",
         "vuetify": "^1.0.6",
         "vuetify-confirm": "0.0.3",
         "vuex": "^3.0.1",

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class TaskCommentAttache extends Model
 {
-    protected $table = 'task_comment_attaches';
+    protected $table = 'task_comments_attaches';
     protected $fillable = [
         'task_comment_id',
         'file_name',

@@ -98,7 +98,10 @@ Route::group(['middleware' => 'jwt.auth'], function(){
     Route::get('tasks', 'TasksController@index');
     Route::post('task_save', 'TasksController@store');
     Route::put('task_update/{id}', 'TasksController@update');
+
+    Route::get('responsible_tasks_comments/{id}', 'TasksController@getTaskComment');
     Route::post('send_task_comment', 'TasksController@saveTaskComment');
+    Route::post('send_task_comment_attache', 'TasksController@saveTaskCommentAttache');
 
 });
 /*

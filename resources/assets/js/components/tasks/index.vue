@@ -90,14 +90,12 @@
                                     </v-date-picker>
                                 </v-dialog>
                             </v-flex>
-                            <v-flex xs12>
-                                <v-divider></v-divider>
-                            </v-flex>
                             <v-card width="100%" tile v-if="editedItem.id > 0">
                                 <v-card-title primary-title>
                                     <h3>{{ $t('comments') }}</h3>
                                 </v-card-title>
                                 <v-divider></v-divider>
+                                <v-progress-linear class="ma-0" v-if="comments_loading" :indeterminate="true"></v-progress-linear>
                                 <v-list two-line>
                                     <template v-for="(item,index) in commentsItem">
                                         <v-list-tile avatar :key="index">
@@ -106,7 +104,13 @@
                                                 <v-list-tile-title>{{ item.message }}</v-list-tile-title>
                                             </v-list-tile-content>
                                             <v-list-tile-action>
-                                                <v-icon color="blue lighten-1">create</v-icon>
+                                                <v-icon 
+                                                    color="orange" 
+                                                    @click="result_attaches(item.task_comment_attache)" 
+                                                    v-if="item.task_comment_attache.length > 0"
+                                                    class="pointer"
+                                                    >photo</v-icon>
+                                                <!--<v-icon color="blue lighten-1" class="pointer">create</v-icon>-->
                                                 <v-list-tile-action-text>{{ item.created_at }}</v-list-tile-action-text>
                                             </v-list-tile-action>
                                         </v-list-tile>
@@ -125,13 +129,36 @@
                                 </v-flex>
                                 <v-divider></v-divider>
                                 <v-card-actions>
-                                    <v-btn icon>
+                                    <ul>
+                                        <li v-for="(file, index) in files" :key="index" class="tn-images">
+                                            <img :src="file.blob" style="height:50px" :title="file.name + '/' + file.size | formatSize">
+                                        </li>
+                                    </ul>
+                                    <file-upload
+                                        ref="upload"
+                                        v-model="files"
+                                        post-action="/api/send_task_comment_attache"
+                                        :headers="{'X-Requested-With': 'XMLHttpRequest',
+                                                    'Authorization': authToken,
+                                                    'X-CSRF-TOKEN': csrfToken,
+                                                    'X-XSRF-TOKEN': xsrfToken}"
+                                        :multiple="true"
+                                        @input-file="inputFile"
+                                        @input-filter="inputFilter"
+                                        class="btn btn--icon pointer"
+                                    >
+                                        <div class="btn__content">
                                         <v-icon>attach_file</v-icon>
-                                    </v-btn>
+                                        </div>
+                                    </file-upload>
+
                                     <v-spacer></v-spacer>
                                     <v-btn color="info" @click="send_comment()">{{$t('send')}} <v-icon right dark>send</v-icon></v-btn>
                                 </v-card-actions>
                             </v-card>
+                            <v-alert v-else :value="true" outline color="info" icon="info">
+                                Укажите дату начала, для возможности оставлять комментарии.
+                            </v-alert>
                         </v-layout>
                     </v-container>
                 </v-card-text>
@@ -195,13 +222,12 @@
 </template>
 
 <script>
-    import {AgGridVue} from "ag-grid-vue";
     import Vue from "vue";
+    import {AgGridVue} from "ag-grid-vue";
+    import FileUpload from 'vue-upload-component'
 
     const ActionButtons = Vue.extend({
-        template: `<span>
-                <v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="blue">work</v-icon></v-btn>
-        </span>`,
+        template: `<span><v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="blue">work</v-icon></v-btn></span>`,
         methods: {
             editItem() {
                 this.params.context.componentParent.editItem(this.params.data);
@@ -238,6 +264,7 @@
                 picker_end: false,
                 date: '',
                 loading: true,
+                comments_loading: true,
                 search: '',
                 title: '',
                 comment_message: '',
@@ -250,8 +277,8 @@
                 users: [],
                 statuses: [],
                 editedIndex: -1,
-                commentsItem: {},
-                defaultCommentsItem: {},
+                commentsItem: [],
+                defaultCommentsItem: [],
                 editedItem: {task_status_id: 1, id: 0},
                 defaultItem: {task_status_id: 1, id: 0},
                 valid: false,
@@ -261,13 +288,27 @@
                 columnDefs: null,
                 rowData: null,
                 params: null,
-                toggle_multiple: [0]
+                toggle_multiple: [0],
+                files: []
             }
         },
         components: {
-            'ag-grid-vue': AgGridVue
+            'ag-grid-vue': AgGridVue,
+            FileUpload
         },
         computed: {
+            csrfToken() {
+                return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            },
+            xsrfToken() {
+                let value = "; " + document.cookie;
+                let parts = value.split("; XSRF-TOKEN=");
+                let xsrf =  (parts.length == 2) ? decodeURI(parts.pop().split(";").shift()) : '';
+                return decodeURIComponent(xsrf);
+            },
+            authToken() {
+                return 'Bearer ' + localStorage.getItem('default_auth_token');
+            },
             formTitle() {
                 return this.new_task ? this.$t('new_item') : this.$t('edit_item')
             },
@@ -325,7 +366,34 @@
             }
         },
         methods: {
+            /**
+             * Pretreatment
+             * @param  Object|undefined   newFile   Read and write
+             * @param  Object|undefined   oldFile   Read only
+             * @param  Function           prevent   Prevent changing
+             * @return undefined
+             */
+            inputFilter: function (newFile, oldFile, prevent) {
+                if (newFile && !oldFile) {
+                    // Filter non-image file
+                    if (!/\.(jpeg|jpe|jpg|gif|png|webp)$/i.test(newFile.name)) {
+                    return prevent()
+                    }
+                }
 
+                // Create a blob field
+                newFile.blob = ''
+                let URL = window.URL || window.webkitURL
+                if (URL && URL.createObjectURL) {
+                    newFile.blob = URL.createObjectURL(newFile.file)
+                }
+                let reader = new FileReader();
+                reader.readAsDataURL(newFile.file); 
+                reader.onloadend = function() {
+                    let base64data = reader.result;   
+                    newFile.base64data = base64data;
+                }
+            },
             openResult(id) {
                 this.$router.push({path: '/audit_results/' + id });
             },
@@ -334,6 +402,14 @@
             },
             backEndDateFormat: function(date) {
                 return moment(date, 'DD.MM.YYYY').format('YYYY-MM-DD');
+            },
+            getComments(id) {
+                this.comments_loading = true;
+                axios.get('/responsible_tasks_comments/' + id)
+                    .then(response => {
+                        this.commentsItem = response.data;
+                        this.comments_loading = false;
+                    });
             },
             getItems() {
                 let self = this;
@@ -440,11 +516,11 @@
                 this.editedIndex = this.items.indexOf(item);
                 if (item.task !== null) {
                     this.editedItem = Object.assign({}, item.task);
-                    this.commentsItem = Object.assign({}, item.task_comments);
                     this.new_task = false;
                 }else{
                     this.new_task = true;
                 }
+                this.getComments(item.id);
                 this.dialog = true
             },
 
@@ -464,18 +540,19 @@
                 this.dialog = false;
                 setTimeout(() => {
                     this.editedItem = Object.assign({}, this.defaultItem);
-                    this.commentsItem = Object.assign({}, this.defaultCommentsItem);
+                    this.commentsItem = this.defaultCommentsItem;
                     this.editedIndex = -1
                 }, 300)
             },
             send_comment() {
                 let self = this;
-                axios.post(`/send_task_comment`, {task_id: this.editedItem.id, comment_message: self.comment_message})
+                axios.post(`/send_task_comment`, {task_id: this.editedItem.id, comment_message: self.comment_message, files: self.files})
                     .then(response => {
-                        let new_value = response.data.hasOwnProperty(0) ? response.data[0] : {};
-                        let new_key = Math.max(...Object.keys(self.commentsItem)) + 1;
-                        self.commentsItem = Object.assign({}, self.commentsItem, {[new_key]: new_value});
-                        self.comment_message = '';
+                        if (response.data.hasOwnProperty(0)) {
+                            self.commentsItem.push(response.data[0]);
+                            self.comment_message = '';
+                            self.files = [];
+                        }
                     })
                     .catch(e => {
                         this.errors.push(e)
@@ -539,5 +616,17 @@
         background-color: #fff!important;
         color: #2196f3;
         border: 1px solid #2196f3 !important;
+    }
+    li.tn-images {
+        float: left;
+        list-style: none;
+        margin: 0 2px;
+    }
+    li.tn-images img {
+        overflow: hidden;
+        border-radius: 2px;
+    }
+    .pointer {
+        cursor: pointer;
     }
 </style>
