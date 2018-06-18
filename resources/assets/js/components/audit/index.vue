@@ -90,7 +90,7 @@
             <v-card tile>
                 <v-toolbar card dark color="primary">
                     <v-btn icon dark @click.native="dialog_results = false">
-                        <v-icon>close</v-icon>
+                        <v-icon>arrow_back</v-icon>
                     </v-btn>
                     <v-toolbar-title>{{ $t('results') }}</v-toolbar-title>
                     <v-spacer></v-spacer>

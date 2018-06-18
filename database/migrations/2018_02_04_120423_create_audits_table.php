@@ -15,7 +15,7 @@ class CreateAuditsTable extends Migration
     {
         Schema::create('audits', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('title');
+            $table->string('title')->nullable();
             $table->dateTime('date_add');
             $table->integer('user_id');
             $table->integer('checklist_id');
