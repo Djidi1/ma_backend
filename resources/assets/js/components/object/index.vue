@@ -117,7 +117,7 @@
             },
             filteredItems() {
                 return this.items.filter(item => {
-                    return parseInt(item.audit_object_group_id) === this.object_group_selected
+                    return parseInt(item.audit_object_group_id) === this.object_group_selected || this.object_group_selected === 0
                 })
             }
         },
@@ -137,11 +137,11 @@
                 axios.get('/objects_all')
                     .then(response => {
                         this.items = response.data.objects;
-                        this.object_group_selected = this.items.hasOwnProperty(0) ? (this.items[0].audit_object_group_id || 0) : 0;
+                        this.object_group_selected = /*this.items.hasOwnProperty(0) ? (this.items[0].audit_object_group_id || 0) :*/ 0;
                         this.editedItem.audit_object_group_id = this.object_group_selected;
                         this.defaultItem.audit_object_group_id = this.object_group_selected;
                         this.object_group_select = parseInt(this.object_group_selected);
-                        this.groups = response.data.object_groups;
+                        this.groups = [{id: 0, title: this.$t('all')}].concat(response.data.object_groups);
                         this.responsible = response.data.responsible;
                         this.loading = false;
                         this.gridOptions.api.sizeColumnsToFit();

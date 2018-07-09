@@ -326,7 +326,7 @@
                         }
                     }
                     // фильтр по выбранной группе
-                    return filter_status && item.audit_object_group_id === this.object_selected
+                    return filter_status && (item.audit_object_group_id === this.object_selected || this.object_selected === 0)
                 })
             },
             responsibleUsers() {
@@ -416,11 +416,11 @@
                 axios.get('/responsible_tasks')
                     .then(response => {
                         this.items = response.data.responsible_tasks;
-                        this.object_selected = this.items.hasOwnProperty(0) ? (this.items[0].audit_object_group_id || 0) : 0;
+                        this.object_selected = /*this.items.hasOwnProperty(0) ? (this.items[0].audit_object_group_id || 0) :*/ 0;
                         this.object_select = this.object_selected;
                         this.requirements = response.data.requirements;
                         this.responsible = response.data.responsible;
-                        this.object_groups = response.data.object_groups;
+                        this.object_groups = [{id: 0, title: this.$t('all')}].concat(response.data.object_groups);
                         this.users = response.data.users;
                         this.statuses = response.data.statuses;
                         this.gridOptions.api.sizeColumnsToFit();

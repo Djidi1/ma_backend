@@ -242,7 +242,7 @@
                         }
                     }
                     // фильтр по выбранной группе
-                    return filter_status && parseInt(item.audit_object.audit_object_group_id) === this.object_selected
+                    return filter_status && (parseInt(item.audit_object.audit_object_group_id) === this.object_selected || this.object_selected === 0)
                 })
             }
         },
@@ -294,10 +294,10 @@
                 axios.get('/audits_all')
                     .then(response => {
                         this.items = response.data.audits;
-                        this.object_selected = this.items.hasOwnProperty(0) ? (this.items[0].audit_object.audit_object_group_id || 0) : 0;
+                        this.object_selected = /*this.items.hasOwnProperty(0) ? (this.items[0].audit_object.audit_object_group_id || 0) :*/ 0;
                         this.object_select = parseInt(this.object_selected);
                         this.checklists = response.data.checklists;
-                        this.object_groups = response.data.object_groups;
+                        this.object_groups = [{id: 0, title: this.$t('all')}].concat(response.data.object_groups);
                         this.objects = response.data.objects;
                         this.users = response.data.users;
                         this.loading = false;

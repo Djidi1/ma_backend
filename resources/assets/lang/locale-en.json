@@ -59,5 +59,6 @@
   "date_start": "Begin",
   "date_end": "Finish",
   "nonconformity": "Nonconformity",
-  "actions": "Actions"
+  "actions": "Actions",
+  "all": "All"
 }
