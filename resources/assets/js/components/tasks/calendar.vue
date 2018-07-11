@@ -82,11 +82,18 @@
             </v-dialog>
             <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
 
-                <select v-model="displayPeriodUom">
+                <v-select
+                        id="selectPeriodUom"
+                        v-model="displayPeriodUom"
+                        :items="periods"
+                        item-text = "title"
+                        item-value = "id"
+                        :label="$t('calendar_period')"
+                >
                     <option>month</option>
                     <option>week</option>
                     <option>year</option>
-                </select>
+                </v-select>
             <calendar-view
 				:events="events"
                 :show-date="showDate"
@@ -135,6 +142,7 @@
                 objects: [],
                 users: [],
 			    displayPeriodUom: "month",
+                periods: [{id: "month", title: "Месяц"},{id: "week", title: "Неделя"},{id: "year", title: "Год"}],
                 showDate: new Date(),
                 events: [],
             }
@@ -270,10 +278,9 @@
             this.chg_btns('currentPeriod', 'green', 'today')
             this.chg_btns('previousYear', 'orange', 'first_page')
             this.chg_btns('nextYear', 'orange', 'last_page') 
-            let d = document.getElementsByClassName('cv-header-nav');   
-            var newLi = document.createElement('li');
-            newLi.innerHTML = 'Привет, мир!';
-               d[0].appendChild(newLi);
+            let d = document.getElementsByClassName('cv-header');
+            let s = document.getElementById('selectPeriodUom');
+            d[0].appendChild(s);
             this.getItems();
         }
     }
