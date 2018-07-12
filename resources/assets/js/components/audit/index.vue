@@ -40,12 +40,13 @@
                                 ></v-select>
                             </v-flex>
                             <v-flex xs12>
-                                <v-dialog
+                                <v-menu
                                         ref="picker"
-                                        persistent
                                         v-model="picker"
+                                        :nudge-right="40"
                                         lazy
-                                        full-width
+                                        transition="scale-transition"
+                                        offset-y
                                         width="290px"
                                         :return-value.sync="editedItem.date"
                                 >
@@ -59,13 +60,13 @@
                                     <v-date-picker
                                             v-model="editedItem.date"
                                             first-day-of-week="1"
+                                            :min="today"
+                                            no-title 
                                             scrollable
+                                            @input="$refs.picker.save(editedItem.date)"
                                     >
-                                        <v-spacer></v-spacer>
-                                        <v-btn flat color="primary" @click="picker = false">{{$t('cancel')}}</v-btn>
-                                        <v-btn flat color="primary" @click="$refs.picker.save(editedItem.date)">OK</v-btn>
                                     </v-date-picker>
-                                </v-dialog>
+                                </v-menu>
                             </v-flex>
                             <v-flex xs12>
                                 <v-text-field :label="$t('comment')" v-model="editedItem.title"></v-text-field>
@@ -212,6 +213,9 @@
             'results': Results
         },
         computed: {
+            today() {
+                return moment(new Date()).format('YYYY-MM-DD');
+            },
             formTitle() {
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
             },

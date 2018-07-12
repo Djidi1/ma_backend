@@ -112,6 +112,20 @@
                 <b class="green--text"><v-icon>done_all</v-icon></b> - проведен (успешно пройденный аудит) <br/>
                 <b class="orange--text"><v-icon>clear</v-icon></b> - просрочен (выявлены несоответствия требованиям) <br/>
             </v-alert>
+            <v-snackbar
+                v-model="snackbar"
+                color="info"
+                timeout="3000"
+                >
+                {{ snackbar_text }}
+                <v-btn
+                    dark
+                    flat
+                    @click="snackbar = false"
+                >
+                    Close
+                </v-btn>
+            </v-snackbar>
         </v-card>
     </div>
 </template>
@@ -127,7 +141,9 @@
             return {
                 dialog: false,
                 picker: false,
+                snackbar: false,
                 loading: true,
+                editedIndex: -1,
                 editedItem: {
                     title: '',
                     date: '',
@@ -145,6 +161,7 @@
                 periods: [{id: "month", title: "Месяц"},{id: "week", title: "Неделя"},{id: "year", title: "Год"}],
                 showDate: new Date(),
                 events: [],
+                snackbar_text: "Нельзя создавать аудиты в прошлом."
             }
         },
 		components: {
@@ -162,7 +179,7 @@
                 let elms = document.getElementsByClassName('cv-event')
                 for (let i = 0; i < elms.length; i++) {
                     if (elms.hasOwnProperty(i)) {
-                        elms[i].setAttribute("title", elms[i].getAttribute("title").replace(regex, ""));
+                        elms[i].setAttribute("title", elms[i].getAttribute("title").replace(regex, " "));
                     }
                 }
             }
@@ -257,9 +274,14 @@
                 this.close()
             },
             onClickDay(day) {
-                this.editedIndex = -1;
-                Object.defineProperty(this.editedItem, 'date', {value: moment(day).format('YYYY-MM-DD')});
-                this.dialog = true
+                // Можно добавлять начиная с текущего дня
+                if (moment().diff(day, 'days') <= 0) {
+                    this.editedIndex = -1;
+                    Object.defineProperty(this.editedItem, 'date', {value: moment(day).format('YYYY-MM-DD')});
+                    this.dialog = true;
+                } else {
+                    this.snackbar = true
+                }
             },
             onClickEvent(event) {
                 this.editedIndex = this.events.indexOf(event.originalEvent);
