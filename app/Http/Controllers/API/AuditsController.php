@@ -22,7 +22,10 @@ class AuditsController extends Controller
     public function getAudits(Request $request)
     {
         $user = Auth::user();
-        $audits = Audit::with('checklist', 'user', 'audit_object.audit_object_group')->where('user_id', $user->id)->get();
+        $audits = Audit::with('checklist', 'user', 'audit_object.audit_object_group', 'audit_result')
+            ->whereNotNull('audit_result.audit_id')
+            ->where('user_id', $user->id)
+            ->get();
         return response()->json($audits);
     }
     public function putAudits(Request $request)
