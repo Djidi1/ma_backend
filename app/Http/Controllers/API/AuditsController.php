@@ -23,8 +23,13 @@ class AuditsController extends Controller
     {
         $user = Auth::user();
         $audits = Audit::with('checklist', 'user', 'audit_object.audit_object_group', 'audit_result')
-            ->whereNotNull('audit_result.audit_id')
             ->where('user_id', $user->id)
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                ->from('audit_results')
+                ->whereRaw('audits.id = audit_results.audit_id');
+            })
+           // ->toSql();
             ->get();
         return response()->json($audits);
     }
