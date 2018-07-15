@@ -16,6 +16,7 @@ class AuditResult extends Model
     protected $casts = [
         'audit_id' => 'integer',
         'requirement_id' => 'integer',
+        'result' => 'integer',
     ];
     public function audit(){
         return $this->belongsTo('App\Audit');
