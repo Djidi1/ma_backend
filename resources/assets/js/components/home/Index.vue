@@ -137,7 +137,7 @@
         mounted() {
             this.loading = false;
             // if (this.$auth.check()) {
-                this.update_tasks_badge();
+              //  this.update_tasks_badge();
             // }
         }
     }
