@@ -148,6 +148,11 @@
     background: #fff;
     border-radius: 4px;
 }
+.ag-bl-overlay {
+    background: #F1F8E9;
+    z-index: 10;
+    box-shadow: 0 2px 1px -1px rgba(0,0,0,.1), 0 1px 1px 0 rgba(0,0,0,.07), 0 1px 3px 0 rgba(0,0,0,.06);
+}
 .navigation-drawer>.list .list__tile--active .list__tile__title,
 .list__tile--active .list__tile__action:first-of-type .icon {
     color: #2196F3 !important;

@@ -221,7 +221,7 @@
             },
             filteredObjects() {
                 return this.objects.filter(object => {
-                    return parseInt(object.audit_object_group_id) === this.object_selected
+                    return parseInt(object.audit_object_group_id) === this.object_selected || this.object_selected === 0
                 })
             },
             filteredItems() {
