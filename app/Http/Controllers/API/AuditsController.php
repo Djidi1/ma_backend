@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\API;
 
 use App\Audit;
+use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TaskMail;
 
 class AuditsController extends Controller
 {
@@ -33,6 +36,8 @@ class AuditsController extends Controller
             ->get();
         return response()->json($audits);
     }
+
+
     public function putAudits(Request $request)
     {
         $user = Auth::user();
@@ -47,7 +52,7 @@ class AuditsController extends Controller
             foreach ($data['audit']['check_list'] as $check_list){
                 $check_list_id = $check_list['id'];
                 $audit_id = $check_list['audit_id'];
-                // Если нет ид аудита, то создаем его
+                // Если нет id аудита, то создаем его
                 if ( $audit_id == 0 ) {
                     $audit_id = DB::table('audits')->insertGetId(
                         [
@@ -106,6 +111,43 @@ class AuditsController extends Controller
                                     ]
                                 );
                             }
+                        }
+                        // Если результат неудовлетворительный:
+                        if ($status < 0) {
+                            // 1. Создаем задание на устранение
+                            $end_date = Carbon::now()->addWeeks(2);
+                            $task_id = DB::table('tasks')->insertGetId(
+                                [
+                                    'result_id' => $audit_result_id,
+                                    'task_status_id' => 1,
+                                    'done_percent' => 0,
+                                    'comment' => $comment_text,
+                                    'start' => Carbon::now(),
+                                    'end' => $end_date,
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now()
+                                ]
+                            );
+                            // 2. Отправляем ответственному лицу сообщение на почту
+                            if ($task_id > 0) {
+                                // Ищем ответственных по требованию
+                                $responsible = DB::table('responsible')
+                                    ->whereRaw("REPLACE(REPLACE(requirement_id, '[', ','), ']', ',') LIKE '%,$requirement_id,%'")->first();
+                                // Если не нашли, то ищем по оюъекту
+                                if ($responsible == null) {
+                                    $responsible = DB::table('responsible')
+                                        ->whereRaw("REPLACE(REPLACE(object_id, '[', ','), ']', ',') LIKE '%,$object_id,%'")->first();
+                                }
+                                // Отправляем письмо, если нашли ответственного
+                                if ($responsible !== null) {
+                                    $user = User::find($responsible->user_id);
+                                    Mail::to($user)->send(new TaskMail($user, $task_id, $comment_text, $end_date));
+                                } else {
+                                    $user = Auth::user();
+                                }
+                                // Система гарантий качества
+                                Mail::to('djidi@mail.ru')->send(new TaskMail($user, $task_id, $comment_text, $end_date));
+                            } 
                         }
                     }
                 }

@@ -12,7 +12,7 @@ class AuditResultsController extends Controller
 
     public function getResults(Request $request)
     {
-        
+
         $results = AuditResult::with('audit', 'requirement', 'audit_result_attache')
         ->whereHas('audit', function ($query) {
             $user = Auth::user();
