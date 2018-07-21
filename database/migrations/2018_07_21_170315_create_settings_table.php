@@ -15,12 +15,21 @@ class CreateSettingsTable extends Migration
     {
         Schema::create('settings', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('power_bi_url');
+            $table->string('power_bi_url', 500);
             $table->integer('task_finish_days');
-            $table->string('mail_subject');
-            $table->string('mail_body');
+            $table->string('mail_subject', 500);
+            $table->string('mail_body', 4000);
             $table->timestamps();
         });
+        $data = array(
+            array(
+                'power_bi_url'=>'Administrator',
+                'task_finish_days'=>'Administrator',
+                'mail_subject'=>'Administrator',
+                'mail_body'=>'Administrator',
+                )
+        );
+        DB::table('roles')->insert($data);
     }
 
     /**
