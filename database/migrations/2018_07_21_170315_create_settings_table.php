@@ -29,7 +29,7 @@ class CreateSettingsTable extends Migration
                 'mail_body'=>'У вас есть новая задача',
                 )
         );
-        DB::table('roles')->insert($data);
+        DB::table('settings')->insert($data);
     }
 
     /**
