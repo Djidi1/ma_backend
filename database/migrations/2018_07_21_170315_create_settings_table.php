@@ -23,10 +23,10 @@ class CreateSettingsTable extends Migration
         });
         $data = array(
             array(
-                'power_bi_url'=>'Administrator',
-                'task_finish_days'=>'Administrator',
-                'mail_subject'=>'Administrator',
-                'mail_body'=>'Administrator',
+                'power_bi_url'=>'https://app.powerbi.com/view?r=eyJrIjoiNDk4NzIxZjMtNjJiNy00MWFmLTkxNzUtYWIyMzg1NjYzNTBiIiwidCI6ImRlYzVkYTFjLTI5NWItNDk0YS05MTE3LWM3ZjZmYWUwZDQyYSIsImMiOjl9',
+                'task_finish_days'=>'14',
+                'mail_subject'=>'Система гарантий качества',
+                'mail_body'=>'У вас есть новая задача',
                 )
         );
         DB::table('roles')->insert($data);
