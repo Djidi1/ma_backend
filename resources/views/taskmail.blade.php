@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Система гарантий качества</title>
+    <title>{{ $subject }}</title>
 </head>
 <body>
-    <h2>У вас есть новая задача</h2>
+    <h2>{{ $body }}</h2>
     <br/>
     • Номер задачи: <b>{{ $task_id }}</b><br/>
     • Назначено: <b>{{ $user['name'] }}</b><br/>

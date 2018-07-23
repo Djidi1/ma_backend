@@ -1,6 +1,6 @@
 <template>
     <div style="width: 100%; height: 100%;">
-        <v-dialog v-model="dialog" persistent max-width="500px">
+        <v-dialog v-model="dialog" persistent scrollable max-width="800px">
             <v-card>
                 <v-card-title>
                     <span class="headline">{{ formTitle }}</span>
@@ -35,6 +35,32 @@
                                         v-model="editedItem.role_id"
                                         label="Select"
                                         required
+                                ></v-select>
+                            </v-flex>
+                            <v-flex xs12>
+                                <v-select
+                                        :items="objects_items"
+                                        item-text="title"
+                                        item-value="id"
+                                        v-model="editedItem.responsible.object_id"
+                                        label="Objects"
+                                        multiple
+                                        required
+                                        chips
+                                        autocomplete
+                                ></v-select>
+                            </v-flex>
+                            <v-flex xs12>
+                                <v-select
+                                        :items="requirements_items"
+                                        item-text="title"
+                                        item-value="id"
+                                        v-model="editedItem.responsible.requirement_id"
+                                        label="Requirements"
+                                        multiple
+                                        required
+                                        chips
+                                        autocomplete
                                 ></v-select>
                             </v-flex>
                         </v-layout>
@@ -97,12 +123,18 @@
                 editedIndex: -1,
                 editedItem: {
                     title: '',
-                    password: ''
+                    password: '',
+                    responsible: {object_id:[],requirement_id:[]}
                 },
                 defaultItem: {
                     title: '',
-                    password: ''
+                    password: '',
+                    responsible: {object_id:[],requirement_id:[]}
                 },
+                object_id: [],
+                requirement_id: [],
+                objects_items: [],
+                requirements_items: [],
                 valid: false,
                 name: '',
                 nameRules: [
@@ -119,7 +151,8 @@
                 gridOptions: {},
                 columnDefs: null,
                 rowData: null,
-                params: null
+                params: null,
+                errors: []
             }
         },
         components: {
@@ -141,18 +174,66 @@
                     .then(response => {
                         this.items = response.data.users;
                         this.roles_items = response.data.roles;
+                        this.objects_items = response.data.objects;
+                        this.requirements_items = response.data.requirements;
                         this.gridOptions.api.sizeColumnsToFit();
                         this.gridOptions.api.hideOverlay();
                         this.loading = false;
                     });
+                let self = this;
                 this.columnDefs = [
                     // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
                     {headerName: this.$t('name'), align: 'left', field: 'name'},
                     {headerName: this.$t('email'), align: 'left', field: 'email'},
                     {
-                        headerName: this.$t('group'), field: 'role',
-                        cellRenderer: function(params) {
-                            return params.value.title;
+                        headerName: this.$t('group'),
+                        valueGetter: function(params) {
+                            return params.data.role.title;
+                        }
+                    },
+                    {
+                        headerName: this.$t('objects'),
+                        valueGetter: function(params) {
+                            let value = '-';
+                            if (params.data.responsible !== null && params.data.responsible.object_id.length > 0) {
+                                let item_names = [];
+                                for (let index in self.objects_items) {
+                                    if (self.objects_items.hasOwnProperty(index)) {
+                                        let attr = self.objects_items[index];
+                                        if (params.data.responsible.object_id.indexOf(attr.id) > -1) {
+                                            item_names.push(self.objects_items[index].title);
+                                        }
+                                    }
+                                }
+                                value = Array.from(new Set(item_names)).join(', ');
+                            }
+                            return value;
+                        },
+                        cellRenderer: function (params) {
+                            return '<span title="'+params.value+'">'+params.value+'</span>';
+                        }
+
+                    },
+                    {
+                        headerName: this.$t('requirements'),
+                        valueGetter: function(params) {
+                            let value = '-';
+                            if (params.data.responsible !== null && params.data.responsible.requirement_id.length > 0) {
+                                let item_names = [];
+                                for(let index in self.requirements_items) {
+                                    if (self.requirements_items.hasOwnProperty(index)) {
+                                        let attr = self.requirements_items[index];
+                                        if (params.data.responsible.requirement_id.indexOf(attr.id) > -1){
+                                            item_names.push(self.requirements_items[index].title);
+                                        }
+                                    }
+                                }
+                                value = Array.from(new Set(item_names)).join(', ');
+                            }
+                            return value;
+                        },
+                        cellRenderer: function (params) {
+                            return '<span title="'+params.value+'">'+params.value+'</span>';
                         }
                     },
                     {
@@ -166,6 +247,10 @@
             },
             editItem(item) {
                 this.editedIndex = this.items.indexOf(item);
+                if (item.responsible === null) {
+                    item.responsible = {object_id:[],requirement_id:[]};
+                }
+                console.log(item);
                 this.editedItem = Object.assign({}, item);
                 this.dialog = true
             },
@@ -210,6 +295,7 @@
                     axios.post(`/users_save`, this.editedItem)
                         .then(response => {
                             this.items.push(response.data);
+                            console.log(this.items);
                             this.gridOptions.api.refreshCells();
                             this.loading = false;
                         })

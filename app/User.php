@@ -57,6 +57,15 @@ class User extends Authenticatable
         return $this->hasMany('App\AuditObject');
     }
 
+    public function responsible(){
+        return $this->belongsTo('App\Responsible', 'id', 'user_id');
+    }
+    public function object(){
+        return $this->belongsTo('App\AuditObject');
+    }
+    public function requirement(){
+        return $this->hasMany('App\Requirement');
+    }
 
     public function sendPasswordResetNotification($token)
     {

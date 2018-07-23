@@ -36,6 +36,10 @@ Route::post('auth/login', 'AuthController@login');
 Route::get('auth/refresh', 'AuthController@refresh');
 
 Route::group(['middleware' => 'jwt.auth'], function(){
+// Настройки
+    Route::get('get-settings', 'SettingsController@index');
+    Route::put('update-settings', 'SettingsController@update');
+
 // Авторизация
     Route::get('auth/user', 'AuthController@user');
     Route::post('auth/logout', 'AuthController@logout');

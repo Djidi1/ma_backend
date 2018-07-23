@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Role;
 use App\User;
+use App\Requirement;
+use App\AuditObject;
+use App\Responsible;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreUsersRequest;
-use App\Http\Requests\Admin\UpdateUsersRequest;
 use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
@@ -21,25 +21,48 @@ class UsersController extends Controller
     public function index()
     {
         $roles = Role::all();
-        $users = User::with('role')->get();
+        $objects = AuditObject::all();
+        $requirements = Requirement::all();
+        $users = User::with('role','responsible')->get();
 
-        return compact('users', 'roles');
+        return compact('users', 'roles', 'objects', 'requirements');
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return User[]|\Illuminate\Database\Eloquent\Collection
      */
     public function store(Request $request)
     {
         $requestData = $request->all();
+        $responsible = $requestData['responsible'];
+        // Удаляем лишнюю для таблицы пользователей информацию
+        unset ($requestData['responsible']);
+
+        // Если указан пароль
         if (trim($request->password) != '') {
             $requestData['password'] = Hash::make($request->password);
         }
-        $result = User::create($requestData);
-        return $result;
+        $user = User::create($requestData);
+
+        // Сохраняем привязку к ответственным
+        if (isset($responsible['id'])) {
+            $responsible_item = Responsible::find($responsible['id']);
+            $responsible_item->user_id = $user->id;
+            $responsible_item->object_id = $responsible['object_id'];
+            $responsible_item->requirement_id = $responsible['requirement_id'];
+            $responsible_item->save();
+        }else {
+            $responsible['user_id'] = $user->id;
+            Responsible::create($responsible);
+        }
+
+        //Получаем созданного пользователя со связями
+        $user_data = User::with('role','responsible')->find($user->id);
+
+        return $user_data;
     }
 
 
@@ -52,10 +75,26 @@ class UsersController extends Controller
     public function update(Request $request)
     {
         $requestData = $request->all();
+        $responsible = $requestData['responsible'];
+        // Обновляем пароль
         if (trim($request->password) != '') {
             $requestData['password'] = Hash::make($request->password);
         }
         unset ($requestData['id']);
+        // Сохраняем привязку к ответственным
+        // Если уже есть, то обновляем, иначе добавляем
+        if (isset($responsible['id'])) {
+            $responsible_item = Responsible::find($responsible['id']);
+            $responsible_item->user_id = $request->id;
+            $responsible_item->object_id = $responsible['object_id'];
+            $responsible_item->requirement_id = $responsible['requirement_id'];
+            $responsible_item->save();
+        }else {
+            $responsible['user_id'] = $request->id;
+            Responsible::create($responsible);
+        }
+        // Удаляем лишнюю для таблицы пользователей информацию
+        unset ($requestData['responsible']);
         $result = User::where('id', $request->id)->update($requestData);
         return $result;
     }

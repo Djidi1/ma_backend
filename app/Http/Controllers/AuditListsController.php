@@ -57,13 +57,13 @@ class AuditListsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request $request
-     * @return bool
+     * @return Audit
      */
     public function update(Request $request)
     {
         $requestData = $request->all();
         unset ($requestData['id']);
-        $result = Audit::where('id', $request->id)->update($requestData);
+        Audit::where('id', $request->id)->update($requestData);
         $audit = Audit::with('checklist', 'audit_object', 'audit_result', 'user')->where('id', $request->id)->first();
         return $audit;
     }

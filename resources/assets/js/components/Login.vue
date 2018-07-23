@@ -59,7 +59,7 @@
                         password: app.password
                     },
                     success: function () {
-                        this.update_tasks_badge ();
+                       // this.update_tasks_badge ();
                     },
                     error: function () {this.error = true},
                     rememberMe: true,

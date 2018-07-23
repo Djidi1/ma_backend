@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard.vue';
 
 import Users from './components/admin/users.vue';
 import Responsible from './components/admin/responsible.vue';
+import Settings from './components/admin/settings.vue';
 
 import Audit from './components/audit/index.vue';
 import AuditResults from './components/audit/index_results.vue';
@@ -25,8 +26,6 @@ export default [
     {divider: true, path: '/', meta: { auth: true, role_id: 1 }},
     {title: 'login', name:'login', icon: 'input', path: '/login', component: Login, meta: { auth: false } },
     {title: 'register', name:'register', icon: 'lock_open', path: '/register', component: Register, meta: { auth: false } },
-    {title: 'users', name:'users', icon: 'supervisor_account', path: '/users', component: Users, meta: { auth: true, role_id: 1 } },
-    {title: 'responsible', name:'responsible', icon: 'person', path: '/responsible', component: Responsible, meta: { auth: true, role_id: 1 } },
     {divider: true, path: '/', meta: { auth: true, role_id: 1 }},
     {title: 'object_groups', name:'object_groups', icon: 'location_city', path: '/objects_groups', component: ObjectGroups, meta: { auth: true, role_id: 1 }},
     {title: 'objects', name:'objects', icon: 'store', path: '/objects', component: Object, meta: { auth: true, role_id: 1 }},
@@ -41,4 +40,8 @@ export default [
     {title: 'audit_results', name:'audit_results', icon: 'folder_special', path: '/audit_results/:id', component: AuditResults, meta: { auth: true, no_show: true }},
     {title: 'audit_calendar', name:'audit_calendar', icon: 'event', path: '/tasks_calendar', component: TaskCalendar, meta: { auth: true}},
     {title: 'tasks_list', name:'tasks_list', icon: 'work', path: '/tasks_list', component: TasksList, meta: { auth: true /*, badge: 1 */}},
+    {divider: true, path: '/', meta: { auth: true, role_id: 1 }},
+    {title: 'users', name:'users', icon: 'supervisor_account', path: '/users', component: Users, meta: { auth: true, role_id: 1 } },
+    // {title: 'responsible', name:'responsible', icon: 'person', path: '/responsible', component: Responsible, meta: { auth: true, role_id: 1 } },
+    {title: 'settings', name:'settings', icon: 'settings', path: '/settings', component: Settings, meta: { auth: true, role_id: 1 } },
 ];

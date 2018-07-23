@@ -5,13 +5,15 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Contracts\Queue\ShouldQueue;
+//use Illuminate\Contracts\Queue\ShouldQueue;
 
 class TaskMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $user;
+    public $subject;
+    public $body;
     public $task_id;
     public $comment;
     public $end_date;
@@ -19,11 +21,18 @@ class TaskMail extends Mailable
     /**
      * Create a new message instance.
      *
-     * @return void
+     * @param $user
+     * @param $subject
+     * @param $body
+     * @param $task_id
+     * @param $comment
+     * @param $end_date
      */
-    public function __construct($user, $task_id, $comment, $end_date)
+    public function __construct($user, $subject, $body, $task_id, $comment, $end_date)
     {
         $this->user = $user;
+        $this->subject = $subject;
+        $this->body = $body;
         $this->task_id = $task_id;
         $this->comment = $comment;
         $this->end_date = $end_date;
@@ -36,6 +45,6 @@ class TaskMail extends Mailable
      */
     public function build()
     {
-        return $this->view('taskmail');
+        return $this->subject($this->subject)->view('taskmail');
     }
 }

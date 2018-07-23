@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use app\Settings;
+use App\Settings;
 use Illuminate\Http\Request;
 
 class SettingsController extends Controller
@@ -14,7 +14,7 @@ class SettingsController extends Controller
      */
     public function index(Request $request)
     {
-        $settings = Settings::get();
+        $settings = Settings::find(1);
         return compact('settings');
     }
 

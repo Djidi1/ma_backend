@@ -121,7 +121,7 @@
                                 <v-flex xs12>
                                     <v-text-field
                                             v-model="comment_message"
-                                            :label="$t('comment')"
+                                            :label="$t('comment_text')"
                                             multi-line
                                             :rules="[(v) => v.length <= 500 || 'Max 500 characters']"
                                             :counter="500"
@@ -134,7 +134,7 @@
                                             <img :src="file.blob" style="height:50px" :title="file.name + '/' + file.size | formatSize">
                                         </li>
                                     </ul>
-                                    <file-upload
+                                    <file-upload v-if="comment_message !== ''"
                                         ref="upload"
                                         v-model="files"
                                         post-action="/api/send_task_comment_attache"
@@ -151,7 +151,9 @@
                                         <v-icon>attach_file</v-icon>
                                         </div>
                                     </file-upload>
-
+                                    <i v-else class="grey--text">
+                                        Вложения доступны после ввода текста комментария
+                                    </i>
                                     <v-spacer></v-spacer>
                                     <v-btn color="info" @click="send_comment()">{{$t('send')}} <v-icon right dark>send</v-icon></v-btn>
                                 </v-card-actions>

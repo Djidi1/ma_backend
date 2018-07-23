@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Audit;
 use App\User;
+use App\Settings;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Carbon;
@@ -138,15 +139,17 @@ class AuditsController extends Controller
                                     $responsible = DB::table('responsible')
                                         ->whereRaw("REPLACE(REPLACE(object_id, '[', ','), ']', ',') LIKE '%,$object_id,%'")->first();
                                 }
+                                $settings = Settings::find(1);
                                 // Отправляем письмо, если нашли ответственного
                                 if ($responsible !== null) {
                                     $user = User::find($responsible->user_id);
-                                    Mail::to($user)->send(new TaskMail($user, $task_id, $comment_text, $end_date));
+                                    Mail::to($user)->send(new TaskMail($user, $settings->subject, $settings->body, $task_id, $comment_text, $end_date));
                                 } else {
                                     $user = Auth::user();
                                 }
                                 // Система гарантий качества
-                                Mail::to('djidi@mail.ru')->send(new TaskMail($user, $task_id, $comment_text, $end_date));
+                                Mail::to('djidi@mail.ru')
+                                    ->send(new TaskMail($user, $settings->subject, $settings->body, $task_id, $comment_text, $end_date));
                             } 
                         }
                     }

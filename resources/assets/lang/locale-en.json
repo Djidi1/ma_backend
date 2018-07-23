@@ -35,6 +35,7 @@
   "result": "Result",
   "results": "Results",
   "comment": "Comment",
+  "comment_text": "Message",
   "comments": "Comments",
   "date": "Date",
   "level": "Level",
@@ -61,5 +62,9 @@
   "nonconformity": "Nonconformity",
   "actions": "Actions",
   "calendar_period": "Period",
-  "all": "All"
+  "all": "All",
+  "mail_subject": "Subject",
+  "mail_body": "Mail notification",
+  "task_finish_days": "Days to finish tasks",
+  "settings": "Settings"
 }
