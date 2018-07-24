@@ -22,7 +22,12 @@ class Task extends Model
         'result_id' => 'integer',
         'task_status_id' => 'integer',
     ];
-
+    public function result(){
+        return $this->belongsTo('App\AuditResult', 'result_id', 'id');
+    }
+    public function audit_result_attache(){
+        return $this->hasMany('App\AuditResultAttache', 'audit_result_id', 'result_id');
+    }
     public function task_status(){
         return $this->belongsTo('App\TaskStatus');
     }

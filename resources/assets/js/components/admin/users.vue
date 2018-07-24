@@ -295,7 +295,6 @@
                     axios.post(`/users_save`, this.editedItem)
                         .then(response => {
                             this.items.push(response.data);
-                            console.log(this.items);
                             this.gridOptions.api.refreshCells();
                             this.loading = false;
                         })

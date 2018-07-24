@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Requirement;
+use App\Responsible;
+use App\TaskStatus;
 use App\User;
 use App\Task;
 use App\TaskComment;
@@ -18,8 +21,14 @@ class TasksController extends Controller
 
     public function index(Request $request)
     {
-        $tasks = Task::with('task_status')->get();
-        return compact('tasks');
+        $tasks = Task::with('task_status', 'result', 'audit_result_attache', 'result.requirement', 'result.audit.audit_object')->get();
+        $users = User::all();
+        $object_groups = AuditObjectGroup::all();
+        $requirements = Requirement::all();
+        $statuses = TaskStatus::all();
+        $responsible = Responsible::with('user')->get();
+
+        return compact('tasks', 'responsible', 'users', 'object_groups', 'requirements', 'statuses');
     }
     /**
      * Store a newly created resource in storage.

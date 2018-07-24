@@ -12,7 +12,7 @@
                     <v-btn icon dark @click.native="dialog = false">
                         <v-icon>arrow_back</v-icon>
                     </v-btn>
-                    <v-toolbar-title>{{ formTitle }}</v-toolbar-title>
+                    <v-toolbar-title> </v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
                         <v-btn dark flat @click.native="save">{{ $t('save') }}</v-btn>
@@ -27,8 +27,8 @@
                             <v-flex xs12>
                                 <v-select
                                         :items="statuses"
-                                        item-text = "title"
-                                        item-value = "id"
+                                        item-text="title"
+                                        item-value="id"
                                         v-model="editedItem.task_status_id"
                                         :label="$t('status')"
                                         required
@@ -104,12 +104,13 @@
                                                 <v-list-tile-title>{{ item.message }}</v-list-tile-title>
                                             </v-list-tile-content>
                                             <v-list-tile-action>
-                                                <v-icon 
-                                                    color="orange" 
-                                                    @click="result_attaches(item.task_comment_attache)" 
-                                                    v-if="item.task_comment_attache.length > 0"
-                                                    class="pointer"
-                                                    >photo</v-icon>
+                                                <v-icon
+                                                        color="orange"
+                                                        @click="result_attaches(item.task_comment_attache)"
+                                                        v-if="item.task_comment_attache.length > 0"
+                                                        class="pointer"
+                                                >photo
+                                                </v-icon>
                                                 <!--<v-icon color="blue lighten-1" class="pointer">create</v-icon>-->
                                                 <v-list-tile-action-text>{{ item.created_at }}</v-list-tile-action-text>
                                             </v-list-tile-action>
@@ -135,27 +136,29 @@
                                         </li>
                                     </ul>
                                     <file-upload v-if="comment_message !== ''"
-                                        ref="upload"
-                                        v-model="files"
-                                        post-action="/api/send_task_comment_attache"
-                                        :headers="{'X-Requested-With': 'XMLHttpRequest',
+                                                 ref="upload"
+                                                 v-model="files"
+                                                 post-action="/api/send_task_comment_attache"
+                                                 :headers="{'X-Requested-With': 'XMLHttpRequest',
                                                     'Authorization': authToken,
                                                     'X-CSRF-TOKEN': csrfToken,
                                                     'X-XSRF-TOKEN': xsrfToken}"
-                                        :multiple="true"
-                                        @input-file="inputFile"
-                                        @input-filter="inputFilter"
-                                        class="btn btn--icon pointer"
+                                                 :multiple="true"
+                                                 @input-file="inputFile"
+                                                 @input-filter="inputFilter"
+                                                 class="btn btn--icon pointer"
                                     >
                                         <div class="btn__content">
-                                        <v-icon>attach_file</v-icon>
+                                            <v-icon>attach_file</v-icon>
                                         </div>
                                     </file-upload>
                                     <i v-else class="grey--text">
                                         Вложения доступны после ввода текста комментария
                                     </i>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="info" @click="send_comment()">{{$t('send')}} <v-icon right dark>send</v-icon></v-btn>
+                                    <v-btn color="info" @click="send_comment()">{{$t('send')}}
+                                        <v-icon right dark>send</v-icon>
+                                    </v-btn>
                                 </v-card-actions>
                             </v-card>
                             <v-alert v-else :value="true" outline color="info" icon="info">
@@ -179,9 +182,9 @@
                 <v-select
                         :items="object_groups"
                         v-model="object_select"
-                        :label = "$t('object_groups')"
-                        item-text = "title"
-                        item-value = "id"
+                        :label="$t('object_groups')"
+                        item-text="title"
+                        item-value="id"
                         autocomplete
                 ></v-select>
                 <v-spacer></v-spacer>
@@ -206,10 +209,13 @@
                          :enableColResize="true"
             >
             </ag-grid-vue>
-            <v-alert :value="true"  color="info" icon="info">
-                <v-icon color="teal">done</v-icon> - выполнены<br/>
-                <v-icon color="blue">schedule</v-icon> - в процессе выполнения<br/>
-                <v-icon color="red">clear</v-icon> - просрочены<br/>
+            <v-alert :value="true" color="info" icon="info">
+                <v-icon color="teal">done</v-icon>
+                - выполнены<br/>
+                <v-icon color="blue">schedule</v-icon>
+                - в процессе выполнения<br/>
+                <v-icon color="red">clear</v-icon>
+                - просрочены<br/>
             </v-alert>
         </v-card>
     </v-flex>
@@ -272,11 +278,11 @@
                 statuses: [],
                 editedIndex: -1,
                 commentsItem: [],
+                attaches_array: [],
                 defaultCommentsItem: [],
                 editedItem: {task_status_id: 1, id: 0},
                 defaultItem: {task_status_id: 1, id: 0},
                 valid: false,
-                new_task: false,
                 errors: [],
                 gridOptions: {},
                 columnDefs: null,
@@ -297,14 +303,11 @@
             xsrfToken() {
                 let value = "; " + document.cookie;
                 let parts = value.split("; XSRF-TOKEN=");
-                let xsrf =  (parts.length == 2) ? decodeURI(parts.pop().split(";").shift()) : '';
+                let xsrf = (parts.length === 2) ? decodeURI(parts.pop().split(";").shift()) : '';
                 return decodeURIComponent(xsrf);
             },
             authToken() {
                 return 'Bearer ' + localStorage.getItem('default_auth_token');
-            },
-            formTitle() {
-                return this.new_task ? this.$t('new_item') : this.$t('edit_item')
             },
             filteredItems() {
                 return this.items.filter(item => {
@@ -313,16 +316,15 @@
                     if (item.task !== null) {
                         if (this.toggle_multiple.length === 1 && this.toggle_multiple.indexOf(0) === 0) {
                             filter_status = true;
-                        } else if (this.toggle_multiple.indexOf(item.task.task_status_id) > -1) {
-                            filter_status = true;
                         } else {
-                            filter_status = false;
+                            filter_status = this.toggle_multiple.indexOf(item.task.task_status_id) > -1;
                         }
                     }
                     // фильтр по выбранной группе
-                    return filter_status && (item.audit_object_group_id === this.object_selected || this.object_selected === 0)
+                    return filter_status && (item.result.audit.audit_object.audit_object_group_id === this.object_selected || this.object_selected === 0)
                 })
             },
+            /*
             responsibleUsers() {
                 let responsible_names = [];
                 for(let index in this.responsible) {
@@ -334,7 +336,7 @@
                     }
                 }
                 return [...new Set(responsible_names)];
-            }
+            }*/
         },
         watch: {
             dialog(val) {
@@ -345,56 +347,55 @@
             },
             toggle_multiple: function (new_value, old_value) {
                 // Если новое значение не равно старому и не установлено одно значение
-                if (new_value !== old_value && this.toggle_multiple.length !== 1 ) {
+                if (new_value !== old_value && this.toggle_multiple.length !== 1) {
                     if (new_value.length === 0) {
                         this.toggle_multiple = [0]
                     } else {
-                        if (old_value.length === 1 && old_value.indexOf(0) === 0 && new_value.length > 1){
+                        if (old_value.length === 1 && old_value.indexOf(0) === 0 && new_value.length > 1) {
                             let index = this.toggle_multiple.indexOf(0);
                             if (index !== -1) this.toggle_multiple.splice(index, 1);
-                        } else if (new_value.length > 1 && new_value.indexOf(0) > -1){
+                        } else if (new_value.length > 1 && new_value.indexOf(0) > -1) {
                             this.toggle_multiple = [0]
                         }
-                    }                 
+                    }
                 }
             }
         },
         methods: {
             /**
              * Pretreatment
-             * @param  Object|undefined   newFile   Read and write
-             * @param  Object|undefined   oldFile   Read only
-             * @param  Function           prevent   Prevent changing
-             * @return undefined
+             * @param prevent
+             * @param newFile
+             * @param oldFile
+             * @param prevent
              */
             inputFilter: function (newFile, oldFile, prevent) {
                 if (newFile && !oldFile) {
                     // Filter non-image file
                     if (!/\.(jpeg|jpe|jpg|gif|png|webp)$/i.test(newFile.name)) {
-                    return prevent()
+                        return prevent()
                     }
                 }
 
                 // Create a blob field
-                newFile.blob = ''
-                let URL = window.URL || window.webkitURL
+                newFile.blob = '';
+                let URL = window.URL || window.webkitURL;
                 if (URL && URL.createObjectURL) {
                     newFile.blob = URL.createObjectURL(newFile.file)
                 }
                 let reader = new FileReader();
-                reader.readAsDataURL(newFile.file); 
-                reader.onloadend = function() {
-                    let base64data = reader.result;   
-                    newFile.base64data = base64data;
+                reader.readAsDataURL(newFile.file);
+                reader.onloadend = function () {
+                    newFile.base64data = reader.result;
                 }
             },
             openResult(id) {
-                this.$router.push({path: '/audit_results/' + id });
+                this.$router.push({path: '/audit_results/' + id});
             },
-            frontEndDateFormat: function(date) {
+            frontEndDateFormat: function (date) {
                 return moment(date, 'YYYY-MM-DD').format('DD.MM.YYYY');
             },
-            backEndDateFormat: function(date) {
+            backEndDateFormat: function (date) {
                 return moment(date, 'DD.MM.YYYY').format('YYYY-MM-DD');
             },
             getComments(id) {
@@ -407,10 +408,10 @@
             },
             getItems() {
                 let self = this;
-                axios.get('/responsible_tasks')
+                axios.get('/tasks')
                     .then(response => {
-                        this.items = response.data.responsible_tasks;
-                        this.object_selected = /*this.items.hasOwnProperty(0) ? (this.items[0].audit_object_group_id || 0) :*/ 0;
+                        this.items = response.data.tasks;
+                        this.object_selected = 0;
                         this.object_select = this.object_selected;
                         this.requirements = response.data.requirements;
                         this.responsible = response.data.responsible;
@@ -423,38 +424,77 @@
                     });
                 this.columnDefs = [
                     // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
-                    {headerName: this.$t('object'), width: 120, suppressSizeToFit: true, align: 'left', field: 'object_title'},
-                    // {headerName: this.$t('audit'), align: 'left', field: 'audit_title', enableRowGroup: true},
-                    {headerName: this.$t('requirement'), align: 'left', field: 'requrement_title', enableRowGroup: true},
-                    {headerName: this.$t('date'), align: 'left', field: 'date_checking', enableRowGroup: true},
                     {
-                        headerName: this.$t('responsible'), field: 'requirement_id',
-                        valueGetter: function(params) {
+                        headerName: this.$t('object'), width: 120, suppressSizeToFit: true, align: 'left', field: 'result.audit.audit_object.title',
+                        cellRenderer: function (params) {
+                            return '<span title="' + params.value + '">' + params.value + '</span>';
+                        }
+                    },
+                    // {headerName: this.$t('audit'), align: 'left', field: 'audit_title', enableRowGroup: true},
+                    {
+                        headerName: this.$t('requirement'), align: 'left', field: 'result.requirement.title', enableRowGroup: true,
+                        cellRenderer: function (params) {
+                            return '<span title="' + params.value + '">' + params.value + '</span>';
+                        }
+                    },
+                    {
+                        headerName: this.$t('date'), align: 'left', field: 'result.created_at', enableRowGroup: true,
+                        cellRenderer: function (params) {
+                            return moment(params.value, 'YYYY-MM-DD').format('DD.MM.YYYY');
+                        }
+                    },
+                    {
+                        headerName: this.$t('responsible'), field: 'result.requirement_id',
+                        valueGetter: function (params) {
                             let responsible_names = [];
-                            for(let index in self.responsible) {
+                            // Ищем ответственных за требование
+                            for (let index in self.responsible) {
                                 if (self.responsible.hasOwnProperty(index)) {
                                     let attr = self.responsible[index];
-                                    if (attr.requirement_id.indexOf(params.data.requirement_id) > -1){
+                                    if (attr.requirement_id.indexOf(params.data.result.requirement_id) > -1) {
                                         responsible_names.push(self.responsible[index].user.name);
                                     }
                                 }
                             }
+                            // Если нет за требование, то ищем за объект
+                            if (responsible_names.length === 0) {
+                                for (let index in self.responsible) {
+                                    if (self.responsible.hasOwnProperty(index)) {
+                                        let attr = self.responsible[index];
+                                        if (attr.object_id.indexOf(params.data.result.audit.object_id) > -1) {
+                                            responsible_names.push(self.responsible[index].user.name);
+                                        }
+                                    }
+                                }
+                            }
                             return [...new Set(responsible_names)].join(', ');
+                        },
+                        cellRenderer: function (params) {
+                            let tag_type = 'b';
+                            // Ищем ответственных за требование
+                            for (let index in self.responsible) {
+                                if (self.responsible.hasOwnProperty(index)) {
+                                    let attr = self.responsible[index];
+                                    if (attr.requirement_id.indexOf(params.data.result.requirement_id) > -1) {
+                                        tag_type = 'span';
+                                    }
+                                }
+                            }
+                            return '<' + tag_type + ' title="' + params.value + '">' + params.value + '</' + tag_type + '>';
                         }
                     },
                     {
-                        headerName: this.$t('date_start'), align: 'left', field: 'task',
-                        valueGetter: function(params) {
-                            return params.data.task !== null ? params.data.task.start : '-';
-                        }
+                        headerName: this.$t('date_start'), align: 'left', field: 'start'
                     },
                     {
-                        headerName: this.$t('date_end'), align: 'left', field: 'task',
-                        valueGetter: function(params) {
-                            return params.data.task !== null ? params.data.task.end : '-';
+                        headerName: this.$t('date_end'), align: 'left', field: 'end'
+                    },
+                    {
+                        headerName: this.$t('comment'), align: 'left', field: 'comment', enableRowGroup: true,
+                        cellRenderer: function (params) {
+                            return '<span title="' + params.value + '">' + params.value + '</span>';
                         }
                     },
-                    {headerName: this.$t('comment'), align: 'left', field: 'comment', enableRowGroup: true},
                     {
                         headerName: this.$t('photo'), field: 'id', width: 120,
                         cellStyle: {textAlign: "center"},
@@ -468,8 +508,8 @@
                         headerName: this.$t('result'), cellStyle: {textAlign: "center"}, field: 'result', width: 120,
                         suppressFilter: true,
                         suppressSorting: true,
-                        cellRenderer: function(params) {
-                            return self.result_icon(params.value, params.data.task);
+                        cellRenderer: function (params) {
+                            return self.result_icon(params.value, params.data.task_status_id);
                         }
                     },
                     {
@@ -483,14 +523,14 @@
                     }
                 ];
             },
-            result_icon(result, task) {
+            result_icon(result, task_status_id) {
                 let icon;
                 // Если работы по устранению замечаний завершены
-                if (task !== null && task.task_status_id === 3) {
+                if (task_status_id === 3) {
                     icon = '<i class="icon teal--text material-icons">done</i>';
-                }else if (task !== null && task.task_status_id === 2) {
+                } else if (task_status_id === 2) {
                     icon = '<i class="icon blue--text material-icons">schedule</i>';
-                }else {
+                } else {
                     icon = '<i class="icon grey--text material-icons">remove</i>';
                     if (result === -1) {
                         icon = '<i class="icon pink--text material-icons">clear</i>';
@@ -508,12 +548,7 @@
             },
             editItem(item) {
                 this.editedIndex = this.items.indexOf(item);
-                if (item.task !== null) {
-                    this.editedItem = Object.assign({}, item.task);
-                    this.new_task = false;
-                }else{
-                    this.new_task = true;
-                }
+                this.editedItem = Object.assign({}, item);
                 this.getComments(item.id);
                 this.dialog = true
             },
@@ -555,7 +590,7 @@
             save() {
                 let self = this;
                 let item_index = this.editedIndex;
-                if (this.new_task) {
+            /*    if (this.new_task) {
                     let new_item = this.editedItem;
                     new_item.result_id = this.items[this.editedIndex].id;
                     new_item.done_percent = 0;
@@ -567,7 +602,7 @@
                         .catch(e => {
                             this.errors.push(e)
                         });
-                } else {
+                } else {*/
                     let editedItem = this.editedItem;
                     let item = this.editedItem;
                     item.done_percent = 0;
@@ -581,16 +616,16 @@
                         .catch(e => {
                             this.errors.push(e)
                         });
-                }
+              /*  }*/
                 this.close()
             }
         },
         beforeMount() {
             this.gridOptions = {
-                context: { componentParent: this },
+                context: {componentParent: this},
                 suppressDragLeaveHidesColumns: true,
                 suppressMakeColumnVisibleAfterUnGroup: true,
-                floatingFilter:true,
+                floatingFilter: true,
                 enableSorting: true,
                 suppressMenu: true,
                 domLayout: 'autoHeight',
@@ -606,20 +641,24 @@
     img.jumbotron__image {
         width: 100%;
     }
+
     .alert.info {
-        background-color: #fff!important;
+        background-color: #fff !important;
         color: #2196f3;
         border: 1px solid #2196f3 !important;
     }
+
     li.tn-images {
         float: left;
         list-style: none;
         margin: 0 2px;
     }
+
     li.tn-images img {
         overflow: hidden;
         border-radius: 2px;
     }
+
     .pointer {
         cursor: pointer;
     }
