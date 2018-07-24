@@ -175,7 +175,7 @@
         </v-dialog>
         <v-card fluid fill-height fill-width style="height: 100%">
             <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
-            <v-card-title>
+            <v-card-actions>
                 <v-select
                         :items="object_groups"
                         v-model="object_select"
@@ -184,12 +184,6 @@
                         item-value = "id"
                         autocomplete
                 ></v-select>
-                <v-spacer></v-spacer>
-                <v-alert :value="true" outline color="info">
-                    <b>{{ $t('responsible') }}:</b> <i v-for="(item,i) in responsibleUsers" :key="i">{{item}}; </i>
-                </v-alert>
-            </v-card-title>
-            <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn-toggle v-model="toggle_multiple" multiple>
                     <v-btn flat class="mx-0" :value="3">
@@ -201,9 +195,7 @@
                     <v-btn flat class="mx-0" :value="1">
                         <v-icon color="red">clear</v-icon>
                     </v-btn>
-                    <v-btn flat class="mx-0" :value="0">
-                        ALL
-                    </v-btn>
+                    <v-btn flat class="mx-0" :value="0">ALL</v-btn>
                 </v-btn-toggle>
             </v-card-actions>
             <ag-grid-vue style="width: 100%; min-width: 500px"
