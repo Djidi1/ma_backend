@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Role;
 use App\User;
 use App\Requirement;
+use App\Checklist;
 use App\AuditObject;
+use App\AuditObjectGroup;
 use App\Responsible;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -22,10 +24,12 @@ class UsersController extends Controller
     {
         $roles = Role::all();
         $objects = AuditObject::all();
+        $object_groups = AuditObjectGroup::all();
         $requirements = Requirement::all();
+        $checklists = Checklist::all();
         $users = User::with('role','responsible')->get();
 
-        return compact('users', 'roles', 'objects', 'requirements');
+        return compact('users', 'roles', 'objects', 'object_groups', 'requirements', 'checklists');
     }
 
     /**

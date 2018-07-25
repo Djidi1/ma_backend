@@ -33,17 +33,25 @@
                                         item-text = "title"
                                         item-value = "id"
                                         v-model="editedItem.role_id"
-                                        label="Select"
+                                        :label="$t('role')"
                                         required
                                 ></v-select>
                             </v-flex>
                             <v-flex xs12>
                                 <v-select
-                                        :items="objects_items"
+                                        :items="object_groups"
+                                        item-text="title"
+                                        item-value="id"
+                                        v-model="object_groups_select"
+                                        :label="$t('object_groups')"
+                                        autocomplete
+                                ></v-select>
+                                <v-select
+                                        :items="filteredObjectItems"
                                         item-text="title"
                                         item-value="id"
                                         v-model="editedItem.responsible.object_id"
-                                        label="Objects"
+                                        :label="$t('objects')"
                                         multiple
                                         required
                                         chips
@@ -52,11 +60,19 @@
                             </v-flex>
                             <v-flex xs12>
                                 <v-select
-                                        :items="requirements_items"
+                                        :items="checklists"
+                                        item-text="title"
+                                        item-value="id"
+                                        v-model="checklists_select"
+                                        :label="$t('checklist')"
+                                        autocomplete
+                                ></v-select>
+                                <v-select
+                                        :items="filteredRequirements"
                                         item-text="title"
                                         item-value="id"
                                         v-model="editedItem.responsible.requirement_id"
-                                        label="Requirements"
+                                        :label="$t('requirements')"
                                         multiple
                                         required
                                         chips
@@ -134,7 +150,13 @@
                 object_id: [],
                 requirement_id: [],
                 objects_items: [],
+                object_groups: [],
+                object_groups_select: 0,
+                object_groups_selected: 0,
                 requirements_items: [],
+                checklists: [],
+                checklists_select: 0,
+                checklists_selected: 0,
                 valid: false,
                 name: '',
                 nameRules: [
@@ -161,9 +183,27 @@
         computed: {
             formTitle() {
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
-            }
+            },
+            filteredObjectItems() {
+                return this.objects_items.filter(item => {
+                    // фильтр по выбранной группе
+                    return item.audit_object_group_id === this.object_groups_selected || this.object_groups_selected === 0
+                })
+            },
+            filteredRequirements() {
+                return this.requirements_items.filter(item => {
+                    // фильтр по выбранной группе
+                    return item.checklist_id === this.checklists_selected || this.checklists_selected === 0
+                })
+            },
         },
         watch: {
+            object_groups_select: function (newVal) {
+                this.object_groups_selected = newVal;
+            },
+            checklists_select: function (newVal) {
+                this.checklists_selected = newVal;
+            },
             dialog(val) {
                 val || this.close()
             }
@@ -176,6 +216,8 @@
                         this.roles_items = response.data.roles;
                         this.objects_items = response.data.objects;
                         this.requirements_items = response.data.requirements;
+                        this.checklists = response.data.checklists;
+                        this.object_groups = response.data.object_groups;
                         this.gridOptions.api.sizeColumnsToFit();
                         this.gridOptions.api.hideOverlay();
                         this.loading = false;
@@ -250,8 +292,12 @@
                 if (item.responsible === null) {
                     item.responsible = {object_id:[],requirement_id:[]};
                 }
-                console.log(item);
                 this.editedItem = Object.assign({}, item);
+                // Сброс значений в группах
+                this.object_groups_selected = 0;
+                this.object_groups_select = 0;
+                this.checklists_selected = 0;
+                this.checklists_select = 0;
                 this.dialog = true
             },
 
