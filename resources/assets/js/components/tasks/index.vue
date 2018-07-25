@@ -12,7 +12,10 @@
                     <v-btn icon dark @click.native="dialog = false">
                         <v-icon>arrow_back</v-icon>
                     </v-btn>
-                    <v-toolbar-title> </v-toolbar-title>
+                    <v-toolbar-title style="line-height: 1;">
+                        {{ editedItem.result.audit.audit_object.title }}<br />
+                        <span class="caption">{{ editedItem.result.requirement.title }}</span>
+                    </v-toolbar-title>
                     <v-spacer></v-spacer>
                     <v-toolbar-items>
                         <v-btn dark flat @click.native="save">{{ $t('save') }}</v-btn>
@@ -280,7 +283,7 @@
                 commentsItem: [],
                 attaches_array: [],
                 defaultCommentsItem: [],
-                editedItem: {task_status_id: 1, id: 0},
+                editedItem: {task_status_id: 1, id: 0, result: {audit: {audit_object: ''}, requirement: ''}},
                 defaultItem: {task_status_id: 1, id: 0},
                 valid: false,
                 errors: [],
