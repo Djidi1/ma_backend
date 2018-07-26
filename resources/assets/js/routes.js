@@ -39,7 +39,7 @@ export default [
     {title: 'audits', name:'audits', icon: 'folder', path: '/audits', component: Audit, meta: { auth: true }},
     {title: 'audit_results', name:'audit_results', icon: 'folder_special', path: '/audit_results/:id', component: AuditResults, meta: { auth: true, no_show: true }},
     {title: 'audit_calendar', name:'audit_calendar', icon: 'event', path: '/tasks_calendar', component: TaskCalendar, meta: { auth: true}},
-    {title: 'tasks_list', name:'tasks_list', icon: 'work', path: '/tasks_list', component: TasksList, meta: { auth: true /*, badge: 1 */}},
+    {title: 'tasks_list', name:'tasks_list', icon: 'work', path: '/tasks_list/:id', component: TasksList, meta: { auth: true /*, badge: 1 */}},
     {divider: true, path: '/', meta: { auth: true, role_id: 1 }},
     {title: 'users', name:'users', icon: 'supervisor_account', path: '/users', component: Users, meta: { auth: true, role_id: 1 } },
     // {title: 'responsible', name:'responsible', icon: 'person', path: '/responsible', component: Responsible, meta: { auth: true, role_id: 1 } },

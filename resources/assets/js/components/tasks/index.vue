@@ -1,185 +1,193 @@
 <template>
     <v-flex style="width: 100%; height: 100%">
-        <v-dialog
-                v-model="dialog"
-                fullscreen
-                hide-overlay
-                transition="dialog-bottom-transition"
-                scrollable
-                persistent>
-            <v-card tile>
-                <v-toolbar card dark color="primary">
-                    <v-btn icon dark @click.native="dialog = false">
-                        <v-icon>arrow_back</v-icon>
-                    </v-btn>
-                    <v-toolbar-title style="line-height: 1;">
-                        {{ editedItem.result.audit.audit_object.title }}<br />
-                        <span class="caption">{{ editedItem.result.requirement.title }}</span>
-                    </v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-toolbar-items>
-                        <v-btn dark flat @click.native="save">{{ $t('save') }}</v-btn>
-                    </v-toolbar-items>
-                </v-toolbar>
-                <v-card-text>
-                    <v-container grid-list-md>
-                        <v-layout wrap>
-                            <v-flex xs12>
-                                <v-text-field :label="$t('comment')" v-model="editedItem.comment" required></v-text-field>
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-select
-                                        :items="statuses"
-                                        item-text="title"
-                                        item-value="id"
-                                        v-model="editedItem.task_status_id"
-                                        :label="$t('status')"
-                                        required
-                                ></v-select>
-                            </v-flex>
-                            <v-flex xs6>
-                                <v-dialog
-                                        ref="picker_start"
-                                        persistent
-                                        v-model="picker_start"
-                                        lazy
-                                        full-width
-                                        width="290px"
-                                        :return-value.sync="editedItem.start"
-                                >
-                                    <v-text-field
-                                            slot="activator"
-                                            :label="$t('date_start')"
-                                            v-model="editedItem.start"
-                                            prepend-icon="event"
-                                            readonly
-                                    ></v-text-field>
-                                    <v-date-picker
-                                            v-model="editedItem.start"
-                                            first-day-of-week="1"
-                                            scrollable
-                                    >
-                                        <v-spacer></v-spacer>
-                                        <v-btn flat color="primary" @click="picker_start = false">{{$t('cancel')}}</v-btn>
-                                        <v-btn flat color="primary" @click="$refs.picker_start.save(editedItem.start)">OK</v-btn>
-                                    </v-date-picker>
-                                </v-dialog>
-                            </v-flex>
-                            <v-flex xs6>
-                                <v-dialog
-                                        ref="picker_end"
-                                        persistent
-                                        v-model="picker_end"
-                                        lazy
-                                        full-width
-                                        width="290px"
-                                        :return-value.sync="editedItem.end"
-                                >
-                                    <v-text-field
-                                            slot="activator"
-                                            :label="$t('date_end')"
-                                            v-model="editedItem.end"
-                                            prepend-icon="event"
-                                            readonly
-                                    ></v-text-field>
-                                    <v-date-picker
-                                            v-model="editedItem.end"
-                                            first-day-of-week="1"
-                                            scrollable
-                                    >
-                                        <v-spacer></v-spacer>
-                                        <v-btn flat color="primary" @click="picker_end = false">{{$t('cancel')}}</v-btn>
-                                        <v-btn flat color="primary" @click="$refs.picker_end.save(editedItem.end)">OK</v-btn>
-                                    </v-date-picker>
-                                </v-dialog>
-                            </v-flex>
-                            <v-card width="100%" tile v-if="editedItem.id > 0">
-                                <v-card-title primary-title>
-                                    <h3>{{ $t('comments') }}</h3>
-                                </v-card-title>
-                                <v-divider></v-divider>
-                                <v-progress-linear class="ma-0" v-if="comments_loading" :indeterminate="true"></v-progress-linear>
-                                <v-list two-line>
-                                    <template v-for="(item,index) in commentsItem">
-                                        <v-list-tile avatar :key="index">
-                                            <v-list-tile-content>
-                                                <v-list-tile-sub-title>{{ item.user.name }}</v-list-tile-sub-title>
-                                                <v-list-tile-title>{{ item.message }}</v-list-tile-title>
-                                            </v-list-tile-content>
-                                            <v-list-tile-action>
-                                                <v-icon
-                                                        color="orange"
-                                                        @click="result_attaches(item.task_comment_attache)"
-                                                        v-if="item.task_comment_attache.length > 0"
-                                                        class="pointer"
-                                                >photo
-                                                </v-icon>
-                                                <!--<v-icon color="blue lighten-1" class="pointer">create</v-icon>-->
-                                                <v-list-tile-action-text>{{ item.created_at }}</v-list-tile-action-text>
-                                            </v-list-tile-action>
-                                        </v-list-tile>
-                                        <v-divider v-if="index + 1 < commentsItem.length" :key="index"></v-divider>
-                                    </template>
-                                </v-list>
-                                <v-divider></v-divider>
+        <v-container fill-height v-if="fullscreen_loader">
+            <v-layout row wrap align-center>
+                <v-flex class="text-xs-center">
+                    <v-progress-circular indeterminate :size="100" color="primary"></v-progress-circular>
+                </v-flex>
+            </v-layout>
+        </v-container>
+        <div style="width: 100%; height: 100%" v-else>
+            <v-dialog
+                    v-model="dialog"
+                    fullscreen
+                    hide-overlay
+                    transition="dialog-bottom-transition"
+                    scrollable
+                    persistent>
+                <v-card tile>
+                    <v-toolbar card dark color="primary">
+                        <v-btn icon dark @click.native="dialog = false">
+                            <v-icon>arrow_back</v-icon>
+                        </v-btn>
+                        <v-toolbar-title style="line-height: 1;">
+                            {{ editedItem.result.audit.audit_object.title }}<br />
+                            <span class="caption">{{ editedItem.result.requirement.title }}</span>
+                        </v-toolbar-title>
+                        <v-spacer></v-spacer>
+                        <v-toolbar-items>
+                            <v-btn dark flat @click.native="save">{{ $t('save') }}</v-btn>
+                        </v-toolbar-items>
+                    </v-toolbar>
+                    <v-card-text>
+                        <v-container grid-list-md>
+                            <v-layout wrap>
                                 <v-flex xs12>
-                                    <v-text-field
-                                            v-model="comment_message"
-                                            :label="$t('comment_text')"
-                                            multi-line
-                                            :rules="[(v) => v.length <= 500 || 'Max 500 characters']"
-                                            :counter="500"
-                                    ></v-text-field>
+                                    <v-text-field :label="$t('comment')" v-model="editedItem.comment" required></v-text-field>
                                 </v-flex>
-                                <v-divider></v-divider>
-                                <v-card-actions>
-                                    <ul>
-                                        <li v-for="(file, index) in files" :key="index" class="tn-images">
-                                            <img :src="file.blob" style="height:50px" :title="file.name + '/' + file.size | formatSize">
-                                        </li>
-                                    </ul>
-                                    <file-upload v-if="comment_message !== ''"
-                                                 ref="upload"
-                                                 v-model="files"
-                                                 post-action="/api/send_task_comment_attache"
-                                                 :headers="{'X-Requested-With': 'XMLHttpRequest',
-                                                    'Authorization': authToken,
-                                                    'X-CSRF-TOKEN': csrfToken,
-                                                    'X-XSRF-TOKEN': xsrfToken}"
-                                                 :multiple="true"
-                                                 @input-file="inputFile"
-                                                 @input-filter="inputFilter"
-                                                 class="btn btn--icon pointer"
+                                <v-flex xs12>
+                                    <v-select
+                                            :items="statuses"
+                                            item-text="title"
+                                            item-value="id"
+                                            v-model="editedItem.task_status_id"
+                                            :label="$t('status')"
+                                            required
+                                    ></v-select>
+                                </v-flex>
+                                <v-flex xs6>
+                                    <v-dialog
+                                            ref="picker_start"
+                                            persistent
+                                            v-model="picker_start"
+                                            lazy
+                                            full-width
+                                            width="290px"
+                                            :return-value.sync="editedItem.start"
                                     >
-                                        <div class="btn__content">
-                                            <v-icon>attach_file</v-icon>
-                                        </div>
-                                    </file-upload>
-                                    <i v-else class="grey--text">
-                                        Вложения доступны после ввода текста комментария
-                                    </i>
-                                    <v-spacer></v-spacer>
-                                    <v-btn color="info" @click="send_comment()">{{$t('send')}}
-                                        <v-icon right dark>send</v-icon>
-                                    </v-btn>
-                                </v-card-actions>
-                            </v-card>
-                            <v-alert v-else :value="true" outline color="info" icon="info">
-                                Укажите дату начала, для возможности оставлять комментарии.
-                            </v-alert>
-                        </v-layout>
-                    </v-container>
-                </v-card-text>
-            </v-card>
-        </v-dialog>
-        <v-dialog v-model="dialog_photo" max-width="800px">
-            <v-card>
-                <v-carousel :cycle="false" :lazy="true" v-if="carousel">
-                    <v-carousel-item v-for="(item,i) in attaches_array" :src="item.file_path" :key="i"></v-carousel-item>
-                </v-carousel>
-            </v-card>
-        </v-dialog>
-        <v-card fluid fill-height fill-width style="height: 100%">
+                                        <v-text-field
+                                                slot="activator"
+                                                :label="$t('date_start')"
+                                                v-model="editedItem.start"
+                                                prepend-icon="event"
+                                                readonly
+                                        ></v-text-field>
+                                        <v-date-picker
+                                                v-model="editedItem.start"
+                                                first-day-of-week="1"
+                                                scrollable
+                                        >
+                                            <v-spacer></v-spacer>
+                                            <v-btn flat color="primary" @click="picker_start = false">{{$t('cancel')}}</v-btn>
+                                            <v-btn flat color="primary" @click="$refs.picker_start.save(editedItem.start)">OK</v-btn>
+                                        </v-date-picker>
+                                    </v-dialog>
+                                </v-flex>
+                                <v-flex xs6>
+                                    <v-dialog
+                                            ref="picker_end"
+                                            persistent
+                                            v-model="picker_end"
+                                            lazy
+                                            full-width
+                                            width="290px"
+                                            :return-value.sync="editedItem.end"
+                                    >
+                                        <v-text-field
+                                                slot="activator"
+                                                :label="$t('date_end')"
+                                                v-model="editedItem.end"
+                                                prepend-icon="event"
+                                                readonly
+                                        ></v-text-field>
+                                        <v-date-picker
+                                                v-model="editedItem.end"
+                                                first-day-of-week="1"
+                                                scrollable
+                                        >
+                                            <v-spacer></v-spacer>
+                                            <v-btn flat color="primary" @click="picker_end = false">{{$t('cancel')}}</v-btn>
+                                            <v-btn flat color="primary" @click="$refs.picker_end.save(editedItem.end)">OK</v-btn>
+                                        </v-date-picker>
+                                    </v-dialog>
+                                </v-flex>
+                                <v-card width="100%" tile v-if="editedItem.id > 0">
+                                    <v-card-title primary-title>
+                                        <h3>{{ $t('comments') }}</h3>
+                                    </v-card-title>
+                                    <v-divider></v-divider>
+                                    <v-progress-linear class="ma-0" v-if="comments_loading" :indeterminate="true"></v-progress-linear>
+                                    <v-list two-line>
+                                        <template v-for="(item,index) in commentsItem">
+                                            <v-list-tile avatar :key="index">
+                                                <v-list-tile-content>
+                                                    <v-list-tile-sub-title>{{ item.user.name }}</v-list-tile-sub-title>
+                                                    <v-list-tile-title>{{ item.message }}</v-list-tile-title>
+                                                </v-list-tile-content>
+                                                <v-list-tile-action>
+                                                    <v-icon
+                                                            color="orange"
+                                                            @click="result_attaches(item.task_comment_attache)"
+                                                            v-if="item.task_comment_attache.length > 0"
+                                                            class="pointer"
+                                                    >photo
+                                                    </v-icon>
+                                                    <!--<v-icon color="blue lighten-1" class="pointer">create</v-icon>-->
+                                                    <v-list-tile-action-text>{{ item.created_at }}</v-list-tile-action-text>
+                                                </v-list-tile-action>
+                                            </v-list-tile>
+                                            <v-divider v-if="index + 1 < commentsItem.length" :key="index"></v-divider>
+                                        </template>
+                                    </v-list>
+                                    <v-divider></v-divider>
+                                    <v-flex xs12>
+                                        <v-text-field
+                                                v-model="comment_message"
+                                                :label="$t('comment_text')"
+                                                multi-line
+                                                :rules="[(v) => v.length <= 500 || 'Max 500 characters']"
+                                                :counter="500"
+                                        ></v-text-field>
+                                    </v-flex>
+                                    <v-divider></v-divider>
+                                    <v-card-actions>
+                                        <ul>
+                                            <li v-for="(file, index) in files" :key="index" class="tn-images">
+                                                <img :src="file.blob" style="height:50px" :title="file.name + '/' + file.size | formatSize">
+                                            </li>
+                                        </ul>
+                                        <file-upload v-if="comment_message !== ''"
+                                                     ref="upload"
+                                                     v-model="files"
+                                                     post-action="/api/send_task_comment_attache"
+                                                     :headers="{'X-Requested-With': 'XMLHttpRequest',
+                                                        'Authorization': authToken,
+                                                        'X-CSRF-TOKEN': csrfToken,
+                                                        'X-XSRF-TOKEN': xsrfToken}"
+                                                     :multiple="true"
+                                                     @input-file="inputFile"
+                                                     @input-filter="inputFilter"
+                                                     class="btn btn--icon pointer"
+                                        >
+                                            <div class="btn__content">
+                                                <v-icon>attach_file</v-icon>
+                                            </div>
+                                        </file-upload>
+                                        <i v-else class="grey--text">
+                                            Вложения доступны после ввода текста комментария
+                                        </i>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="info" @click="send_comment()">{{$t('send')}}
+                                            <v-icon right dark>send</v-icon>
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                                <v-alert v-else :value="true" outline color="info" icon="info">
+                                    Укажите дату начала, для возможности оставлять комментарии.
+                                </v-alert>
+                            </v-layout>
+                        </v-container>
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="dialog_photo" max-width="800px">
+                <v-card>
+                    <v-carousel :cycle="false" :lazy="true" v-if="carousel">
+                        <v-carousel-item v-for="(item,i) in attaches_array" :src="item.file_path" :key="i"></v-carousel-item>
+                    </v-carousel>
+                </v-card>
+            </v-dialog>
+            <v-card fluid fill-height fill-width style="height: 100%">
             <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
             <v-card-actions>
                 <v-select
@@ -221,6 +229,7 @@
                 - просрочены<br/>
             </v-alert>
         </v-card>
+        </div>
     </v-flex>
 </template>
 
@@ -267,6 +276,7 @@
                 picker_end: false,
                 date: '',
                 loading: true,
+                fullscreen_loader: false,
                 comments_loading: true,
                 search: '',
                 title: '',
@@ -284,7 +294,7 @@
                 attaches_array: [],
                 defaultCommentsItem: [],
                 editedItem: {task_status_id: 1, id: 0, result: {audit: {audit_object: ''}, requirement: ''}},
-                defaultItem: {task_status_id: 1, id: 0},
+                defaultItem: {task_status_id: 1, id: 0, result: {audit: {audit_object: ''}, requirement: ''}},
                 valid: false,
                 errors: [],
                 gridOptions: {},
@@ -327,19 +337,6 @@
                     return filter_status && (item.result.audit.audit_object.audit_object_group_id === this.object_selected || this.object_selected === 0)
                 })
             },
-            /*
-            responsibleUsers() {
-                let responsible_names = [];
-                for(let index in this.responsible) {
-                    if (this.responsible.hasOwnProperty(index)) {
-                        let attr = this.responsible[index];
-                        if (attr.object_id.indexOf(this.object_selected) > -1){
-                            responsible_names.push(this.responsible[index].user.name);
-                        }
-                    }
-                }
-                return [...new Set(responsible_names)];
-            }*/
         },
         watch: {
             dialog(val) {
@@ -365,13 +362,6 @@
             }
         },
         methods: {
-            /**
-             * Pretreatment
-             * @param prevent
-             * @param newFile
-             * @param oldFile
-             * @param prevent
-             */
             inputFilter: function (newFile, oldFile, prevent) {
                 if (newFile && !oldFile) {
                     // Filter non-image file
@@ -409,7 +399,7 @@
                         this.comments_loading = false;
                     });
             },
-            getItems() {
+            getItems(task_id) {
                 let self = this;
                 axios.get('/tasks')
                     .then(response => {
@@ -421,8 +411,18 @@
                         this.object_groups = [{id: 0, title: this.$t('all')}].concat(response.data.object_groups);
                         this.users = response.data.users;
                         this.statuses = response.data.statuses;
-                        this.gridOptions.api.sizeColumnsToFit();
-                        this.gridOptions.api.hideOverlay();
+                        // this.gridOptions.api.sizeColumnsToFit();
+                        // this.gridOptions.api.hideOverlay();
+
+                        // Если указан номер Задания, то сразу открываем его
+                        if (task_id !== ':id' && task_id > 0) {
+                            let item = this.items.find(itm => { return itm.id === parseInt(task_id)});
+                            if (typeof item !== 'undefined') {
+                                this.editItem(item);
+                            }
+                            this.fullscreen_loader = false;
+                        }
+
                         this.loading = false;
                     });
                 this.columnDefs = [
@@ -433,15 +433,15 @@
                             return '<span title="' + params.value + '">' + params.value + '</span>';
                         }
                     },
-                    // {headerName: this.$t('audit'), align: 'left', field: 'audit_title', enableRowGroup: true},
+                    // {headerName: this.$t('audit'), align: 'left', field: 'audit_title'},
                     {
-                        headerName: this.$t('requirement'), align: 'left', field: 'result.requirement.title', enableRowGroup: true,
+                        headerName: this.$t('requirement'), align: 'left', field: 'result.requirement.title',
                         cellRenderer: function (params) {
                             return '<span title="' + params.value + '">' + params.value + '</span>';
                         }
                     },
                     {
-                        headerName: this.$t('date'), align: 'left', field: 'result.created_at', enableRowGroup: true,
+                        headerName: this.$t('date'), align: 'left', field: 'result.created_at',
                         cellRenderer: function (params) {
                             return moment(params.value, 'YYYY-MM-DD').format('DD.MM.YYYY');
                         }
@@ -493,7 +493,7 @@
                         headerName: this.$t('date_end'), align: 'left', field: 'end'
                     },
                     {
-                        headerName: this.$t('comment'), align: 'left', field: 'comment', enableRowGroup: true,
+                        headerName: this.$t('comment'), align: 'left', field: 'comment',
                         cellRenderer: function (params) {
                             return '<span title="' + params.value + '">' + params.value + '</span>';
                         }
@@ -573,7 +573,7 @@
                 setTimeout(() => {
                     this.editedItem = Object.assign({}, this.defaultItem);
                     this.commentsItem = this.defaultCommentsItem;
-                    this.editedIndex = -1
+                    this.editedIndex = -1;
                 }, 300)
             },
             send_comment() {
@@ -593,50 +593,55 @@
             save() {
                 let self = this;
                 let item_index = this.editedIndex;
-            /*    if (this.new_task) {
-                    let new_item = this.editedItem;
-                    new_item.result_id = this.items[this.editedIndex].id;
-                    new_item.done_percent = 0;
-                    axios.post(`/task_save`, new_item)
-                        .then(response => {
-                            Object.assign(self.items[item_index].task, response.data);
+                let editedItem = this.editedItem;
+                let item = this.editedItem;
+                item.done_percent = 0;
+                axios.put('/task_update/' + item.id, item)
+                    .then(response => {
+                        if (response.data === 1) {
+                            Object.assign(self.items[item_index].task, editedItem);
                             self.gridOptions.api.refreshCells({force: true});
-                        })
-                        .catch(e => {
-                            this.errors.push(e)
-                        });
-                } else {*/
-                    let editedItem = this.editedItem;
-                    let item = this.editedItem;
-                    item.done_percent = 0;
-                    axios.put('/task_update/' + item.id, item)
-                        .then(response => {
-                            if (response.data === 1) {
-                                Object.assign(self.items[item_index].task, editedItem);
-                                self.gridOptions.api.refreshCells({force: true});
-                            }
-                        })
-                        .catch(e => {
-                            this.errors.push(e)
-                        });
-              /*  }*/
+                        }
+                    })
+                    .catch(e => {
+                        this.errors.push(e)
+                    });
                 this.close()
+            },
+            handleResize() {
+                this.gridOptions.api.sizeColumnsToFit();
             }
+        },
+        // bind event handlers to the `handleResize` method (defined below)
+        ready: function () {
+            this.handleResize();
+            window.addEventListener('resize', this.handleResize);
+        },
+        beforeDestroy: function () {
+            window.removeEventListener('resize', this.handleResize)
         },
         beforeMount() {
             this.gridOptions = {
-                context: {componentParent: this},
-                suppressDragLeaveHidesColumns: true,
-                suppressMakeColumnVisibleAfterUnGroup: true,
                 floatingFilter: true,
                 enableSorting: true,
-                suppressMenu: true,
                 domLayout: 'autoHeight',
-                rowGroupPanelShow: 'always',
+                enableColResize: true,
+                suppressPropertyNamesCheck: true,
+                onGridReady: function(params) {
+                    params.api.sizeColumnsToFit();
+                },
+                context: {
+                    componentParent: this
+                }
             };
         },
         mounted() {
-            this.getItems();
+            let task_id = this.$route.params.id;
+            // Если указан номер Задания, то сразу открываем его
+            if (task_id !== ':id' && task_id > 0) {
+                this.fullscreen_loader = true;
+            }
+            this.getItems(task_id);
         }
     }
 </script>
