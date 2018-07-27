@@ -10,5 +10,6 @@
     • Назначено: <b>{{ $user['name'] }}</b><br/>
     • Дата выполнения: <b>{{ $end_date }}</b><br/>
     • Описание: <b>{{ $comment }}</b>
+    • Задача: <a href="{{ env('APP_URL') }} /#/tasks_list/{{ $task_id }}">устранение несоответствия №{{ $task_id }}</a>
 </body>
 </html>

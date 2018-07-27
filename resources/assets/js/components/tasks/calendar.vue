@@ -113,9 +113,9 @@
                 <b class="orange--text"><v-icon>clear</v-icon></b> - просрочен (выявлены несоответствия требованиям) <br/>
             </v-alert>
             <v-snackbar
-                v-model="snackbar"
-                color="info"
-                timeout="3000"
+                v-model = "snackbar"
+                color = "info"
+                :timeout = "3000"
                 >
                 {{ snackbar_text }}
                 <v-btn

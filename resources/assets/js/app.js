@@ -49,7 +49,21 @@ Vue.use(VueLocalStorage, { namespace: 'vuejs__' });
 Vue.component('home', require('./components/home/Index.vue'));
 import App from './components/home/Index.vue';
 
-const store = new Vuex.Store();
+// Хранение в сторе данных о странице входа
+const store = new Vuex.Store({
+    state: {enter_url: ''},
+    getters: {
+        enter_url: state => {
+            return state.enter_url;
+        }
+    },
+    mutations: {
+        set_url(state, val) {
+            state.enter_url = val
+        }
+    }
+});
+
 Vue.use(vuexI18n.plugin, store);
 
 import local_ru from '../lang/locale-ru.json';
@@ -80,6 +94,15 @@ const router = new VueRouter({
     linkActiveClass: 'list__tile--active'
 });
 
+// По какому УРЛ вошли
+router.beforeEach((to, from, next) => {
+    if (to.name !== 'login'){
+        store.commit('set_url', to.path);
+    }else{
+        store.commit('set_url', '/');
+    }
+    next()
+});
 
 Vue.router = router;
 

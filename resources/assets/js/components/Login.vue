@@ -63,7 +63,7 @@
                     },
                     error: function () {this.error = true},
                     rememberMe: true,
-                    redirect: '/',
+                    redirect: this.$store.state.enter_url,
                     fetchUser: true,
                 });
             },
