@@ -30,9 +30,8 @@
                 <v-list class="pt-3" dense>
                     <v-divider></v-divider>
                     <li
-                            v-for="(item, index) in routes"
+                            v-for="(item, index) in menuItems"
                             :key="index"
-                            v-if="show_menu(index, item, $auth)"
                     >
                         <router-link :to="item.path" class="list__tile" exact v-if="!item.divider">
                             <v-list-tile-action>
@@ -111,6 +110,25 @@
                 loading: true
             }
         },
+        computed: {
+            menuItems() {
+                let self = this;
+                return this.routes.filter(item => {
+                    let result = false;
+                    // Если этот пункт меню необходимо отобразить
+                    if (typeof item !== 'undefined' && !item.meta.no_show) {
+                        // Если пользователь не авторизован и пункт для неавторизованных
+                        if ((!self.$auth.check() && !item.meta.auth)) {
+                            result = true;
+                            // Если авторизован и указан перечень групп
+                        } else if ((self.$auth.check() && item.meta.auth && (item.meta.role_id.indexOf(parseInt(self.$auth.user().role_id)) > -1))) {
+                            result = true;
+                        }
+                    }
+                    return result;
+                })
+            },
+        },
         methods: {
             set_local(code) {
                 Vue.i18n.set(code);
@@ -130,20 +148,6 @@
                     }
                 }
                 // console.log(this.$router.options.routes[name='tasks_list'].meta.badge);
-            },
-            show_menu(index, item, auth) {
-                let result = false;
-                // Если этот пункт меню необходимо отобразить
-                if (typeof item !== 'undefined' && !item.meta.no_show) {
-                    // Если пользователь не авторизован и пункт для неавторизованных
-                    if ((!auth.check() && !item.meta.auth)) {
-                        result = true;
-                        // Если авторизован и указан перечень групп
-                    } else if ((auth.check() && item.meta.auth && (item.meta.role_id.indexOf(parseInt(auth.user().role_id)) > 0))) {
-                        result = true;
-                    }
-                }
-                return result;
             }
         },
         mounted() {
