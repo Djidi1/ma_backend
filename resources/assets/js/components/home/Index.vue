@@ -12,12 +12,13 @@
                                 <v-spacer></v-spacer>
                                 <v-list subheader>
                                     <v-list-tile avatar>
-                                        <v-list-tile-avatar>
-                                            <img src="/images/user.png">
-                                        </v-list-tile-avatar>
+                                        <!--<v-list-tile-avatar>-->
+                                            <!--<img src="/images/user.png">-->
+                                        <!--</v-list-tile-avatar>-->
                                         <v-list-tile-content>
                                             <v-list-tile-title class="white--text">{{ $auth.user().name }}</v-list-tile-title>
                                             <v-list-tile-sub-title class="white--text">{{ $auth.user().email }}</v-list-tile-sub-title>
+                                            <v-list-tile-sub-title class="white--text align-right">{{ typeof $auth.user().role !== 'undefined' ? $auth.user().role.title : '' }}</v-list-tile-sub-title>
                                         </v-list-tile-content>
                                     </v-list-tile>
                                 </v-list>
@@ -31,10 +32,7 @@
                     <li
                             v-for="(item, index) in routes"
                             :key="index"
-                            v-if="
-                            (($auth.check() && item.meta.auth && (item.meta.role_id === parseInt($auth.user().role_id) || !item.meta.role_id))
-                            || (!$auth.check() && !item.meta.auth))
-                             && !item.meta.no_show"
+                            v-if="show_menu(index, item, $auth)"
                     >
                         <router-link :to="item.path" class="list__tile" exact v-if="!item.divider">
                             <v-list-tile-action>
@@ -53,7 +51,7 @@
                     </li>
                     <v-divider></v-divider>
                     <li v-if="$auth.check()">
-                        <a href="#" class="list__tile" @click.prevent="$auth.logout()">
+                        <a href="/" class="list__tile" @click.prevent="$auth.logout()">
                             <div class="list__tile__action"><i aria-hidden="true" class="icon material-icons">exit_to_app</i></div>
                             <div class="list__tile__content">
                                 <div class="list__tile__title">{{ $t('logout') }}</div>
@@ -132,10 +130,27 @@
                     }
                 }
                 // console.log(this.$router.options.routes[name='tasks_list'].meta.badge);
+            },
+            show_menu(index, item, auth) {
+                let result = false;
+                // Если этот пункт меню необходимо отобразить
+                if (typeof item !== 'undefined' && !item.meta.no_show) {
+                    // Если пользователь не авторизован и пункт для неавторизованных
+                    if ((!auth.check() && !item.meta.auth)) {
+                        result = true;
+                        // Если авторизован и указан перечень групп
+                    } else if ((auth.check() && item.meta.auth && (item.meta.role_id.indexOf(parseInt(auth.user().role_id)) > 0))) {
+                        result = true;
+                    }
+                }
+                return result;
             }
         },
         mounted() {
             this.loading = false;
+            if (this.$auth.check()) {
+                this.$store.commit('set_user', this.$auth.user());
+            }
             // if (this.$auth.check()) {
               //  this.update_tasks_badge();
             // }
@@ -144,17 +159,23 @@
 </script>
 
 <style>
-.ag-floating-filter-input {
-    background: #fff;
-    border-radius: 4px;
-}
-.ag-bl-overlay {
-    background: #F1F8E9;
-    z-index: 4;
-    box-shadow: 0 2px 1px -1px rgba(0,0,0,.1), 0 1px 1px 0 rgba(0,0,0,.07), 0 1px 3px 0 rgba(0,0,0,.06);
-}
-.navigation-drawer>.list .list__tile--active .list__tile__title,
-.list__tile--active .list__tile__action:first-of-type .icon {
-    color: #2196F3 !important;
-}
+    .ag-floating-filter-input {
+        background: #fff;
+        border-radius: 4px;
+    }
+
+    .ag-bl-overlay {
+        background: #F1F8E9;
+        z-index: 4;
+        box-shadow: 0 2px 1px -1px rgba(0, 0, 0, .1), 0 1px 1px 0 rgba(0, 0, 0, .07), 0 1px 3px 0 rgba(0, 0, 0, .06);
+    }
+
+    .navigation-drawer > .list .list__tile--active .list__tile__title,
+    .list__tile--active .list__tile__action:first-of-type .icon {
+        color: #2196F3 !important;
+    }
+
+    .align-right {
+        text-align: right;
+    }
 </style>

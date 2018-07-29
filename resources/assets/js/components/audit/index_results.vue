@@ -155,38 +155,40 @@
                 this.loading = true;
                 let audit_id_value = audit_id;
                 let self = this;
-                axios.get('/audit_results_all/'+audit_id)
-                    .then(response => {
-                        this.items = response.data.audit_results;
-                        this.audits = response.data.audits;
-                        this.audit_select = parseInt(audit_id_value);
-                        this.gridOptions.api.sizeColumnsToFit();
-                        this.gridOptions.api.hideOverlay();
-                        this.loading = false;
-                    });
-                this.columnDefs = [
-                    // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
-                    {headerName: this.$t('requirement'), align: 'left', field: 'requirement.title', tooltipField: 'requirement.title'},
-                    {headerName: this.$t('comment'), align: 'left', field: 'comment'},
-                    {headerName: this.$t('date'), align: 'left', field: 'created_at'},
-                    {
-                        headerName: this.$t('result'), cellStyle: {textAlign: "center"}, field: 'result',
-                        suppressFilter: true,
-                        suppressSorting: true,
-                        cellRenderer: function(params) {
-                            return self.result_icon(parseInt(params.value), params.data.task);
+                if (audit_id > 0) {
+                    axios.get('/audit_results_all/' + audit_id)
+                        .then(response => {
+                            this.items = response.data.audit_results;
+                            this.audits = response.data.audits;
+                            this.audit_select = parseInt(audit_id_value);
+                            this.gridOptions.api.sizeColumnsToFit();
+                            this.gridOptions.api.hideOverlay();
+                            this.loading = false;
+                        });
+                    this.columnDefs = [
+                        // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
+                        {headerName: this.$t('requirement'), align: 'left', field: 'requirement.title', tooltipField: 'requirement.title'},
+                        {headerName: this.$t('comment'), align: 'left', field: 'comment'},
+                        {headerName: this.$t('date'), align: 'left', field: 'created_at'},
+                        {
+                            headerName: this.$t('result'), cellStyle: {textAlign: "center"}, field: 'result',
+                            suppressFilter: true,
+                            suppressSorting: true,
+                            cellRenderer: function (params) {
+                                return self.result_icon(parseInt(params.value), params.data.task);
+                            }
+                        },
+                        {
+                            headerName: this.$t('photo'), field: 'id',
+                            cellStyle: {textAlign: "center"},
+                            cellRendererFramework: Attaches,
+                            suppressFilter: true,
+                            suppressSorting: true,
+                            colId: "params",
+                            suppressCellSelection: true
                         }
-                    },
-                    {
-                        headerName: this.$t('photo'), field: 'id',
-                        cellStyle: {textAlign: "center"},
-                        cellRendererFramework: Attaches,
-                        suppressFilter: true,
-                        suppressSorting: true,
-                        colId: "params",
-                        suppressCellSelection: true
-                    }
-                ];
+                    ];
+                }
             },
             result_icon(result) {
                 let icon = '<i class="icon grey--text material-icons">remove</i>';
@@ -217,12 +219,9 @@
         beforeMount() {
             this.gridOptions = {
                 context: { componentParent: this },
-                suppressDragLeaveHidesColumns: true,
-                suppressMakeColumnVisibleAfterUnGroup: true,
                 floatingFilter:true,
                 enableFilter: true,
                 enableSorting: true,
-                suppressMenu: true,
                 domLayout: 'autoHeight',
                 rowGroupPanelShow: 'always',
             };

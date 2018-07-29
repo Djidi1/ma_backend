@@ -323,6 +323,7 @@
                 return 'Bearer ' + localStorage.getItem('default_auth_token');
             },
             filteredItems() {
+                let self = this;
                 return this.items.filter(item => {
                     // фильтр по статусу
                     let filter_status = true;
@@ -334,7 +335,34 @@
                         }
                     }
                     // фильтр по выбранной группе
-                    return filter_status && (item.result.audit.audit_object.audit_object_group_id === this.object_selected || this.object_selected === 0)
+                    let filter_group = (item.result.audit.audit_object.audit_object_group_id === this.object_selected || this.object_selected === 0);
+                    // фильтр по ответственному
+                    let filter_responsible = false;
+                    // Ищем ответственных за требование
+                    for (let index in self.responsible) {
+                        if (self.responsible.hasOwnProperty(index)) {
+                            let attr = self.responsible[index];
+                            if (attr.requirement_id.indexOf(item.result.requirement_id) > -1) {
+                                if (self.responsible[index].user.id === self.$auth.user().id){
+                                    filter_responsible = true;
+                                }
+                            }
+                        }
+                    }
+                    // Если нет за требование, то ищем за объект
+                    if (!filter_responsible) {
+                        for (let index in self.responsible) {
+                            if (self.responsible.hasOwnProperty(index)) {
+                                let attr = self.responsible[index];
+                                if (attr.object_id.indexOf(item.result.audit.object_id) > -1) {
+                                    if (self.responsible[index].user.id === self.$auth.user().id){
+                                        filter_responsible = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return filter_status && filter_group && filter_responsible;
                 })
             },
         },
@@ -401,6 +429,7 @@
             },
             getItems(task_id) {
                 let self = this;
+                this.gridOptions.api.showLoadingOverlay();
                 axios.get('/tasks')
                     .then(response => {
                         this.items = response.data.tasks;
@@ -412,7 +441,7 @@
                         this.users = response.data.users;
                         this.statuses = response.data.statuses;
                         // this.gridOptions.api.sizeColumnsToFit();
-                        // this.gridOptions.api.hideOverlay();
+                        this.gridOptions.api.hideOverlay();
 
                         // Если указан номер Задания, то сразу открываем его
                         if (task_id !== ':id' && task_id > 0) {

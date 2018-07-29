@@ -8,6 +8,7 @@
                 <v-flex xs12>
                     <v-text-field
                             name="email"
+                            type="email"
                             label="E-mail"
                             :counter="50"
                             :rules="emailRules"
@@ -59,6 +60,7 @@
                         password: app.password
                     },
                     success: function () {
+                        this.$store.commit('set_user', this.$auth.user());
                        // this.update_tasks_badge ();
                     },
                     error: function () {this.error = true},

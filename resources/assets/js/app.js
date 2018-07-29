@@ -51,15 +51,21 @@ import App from './components/home/Index.vue';
 
 // Хранение в сторе данных о странице входа
 const store = new Vuex.Store({
-    state: {enter_url: ''},
+    state: {enter_url: '', user: null},
     getters: {
         enter_url: state => {
             return state.enter_url;
-        }
+        },
+        get_user: state => {
+            return state.user;
+        },
     },
     mutations: {
         set_url(state, val) {
             state.enter_url = val
+        },
+        set_user(state, val) {
+            state.user = val
         }
     }
 });
@@ -90,6 +96,7 @@ Vue.use(VuetifyConfirm, {
 import routes from './routes.js'
 
 const router = new VueRouter({
+    // mode: 'history',
     routes: routes,
     linkActiveClass: 'list__tile--active'
 });
@@ -101,7 +108,17 @@ router.beforeEach((to, from, next) => {
     }else{
         store.commit('set_url', '/');
     }
-    next()
+    if (to.path === '/'){
+        if (store.state.user !== null && store.state.user.role_id === 2) {
+            next('/tasks_list/:id');
+        } else {
+            next();
+        }
+    }else{
+        next()
+    }
+
+
 });
 
 Vue.router = router;
@@ -111,7 +128,6 @@ Vue.use(require('@websanova/vue-auth'), {
     http: require('@websanova/vue-auth/drivers/http/axios.1.x.js'),
     router: require('@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
 });
-
 
 /*
 router.beforeEach(function(to, from, next) {
@@ -135,6 +151,17 @@ const app = new Vue({
         return {
             routes: routes
         }
+    },
+    methods: {
+      get_user() {
+          axios.get('/auth/user')
+              .then(response => {
+                  store.commit('set_user', response.data.data);
+              });
+      }
+    },
+    beforeMount: function() {
+        this.get_user();
     },
     mounted: function(){
         let lang = Vue.ls.get('lang', 'en');

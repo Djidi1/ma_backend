@@ -94,7 +94,7 @@
                     <option>week</option>
                     <option>year</option>
                 </v-select>
-            <calendar-view
+            <calendar-view v-if="$auth.user().role_id === 1"
 				:events="events"
                 :show-date="showDate"
 				:starting-day-of-week="1"
@@ -105,6 +105,16 @@
                 
 				@click-date="onClickDay"
 				@click-event="onClickEvent"
+            >
+            </calendar-view>
+            <calendar-view v-if="$auth.user().role_id === 2"
+				:events="events"
+                :show-date="showDate"
+				:starting-day-of-week="1"
+				:display-period-uom="displayPeriodUom"
+                eventContentHeight="2.4em"
+                @show-date-change="setShowDate"
+                class="theme-default wrap-event-title-on-hover"
             >
             </calendar-view>
             <v-alert :value="true" outline color="info" icon="info">

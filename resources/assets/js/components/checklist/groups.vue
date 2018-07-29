@@ -25,7 +25,7 @@
             <v-progress-linear class="ma-0" v-if="loading" :indeterminate="true"></v-progress-linear>
             <v-card-title>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
+                <v-btn v-if="$auth.user().role_id !== 2" color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
             </v-card-title>
 
             <ag-grid-vue style="width: 100%;"
@@ -121,13 +121,13 @@
                             return params.value.length;
                         }
                     },
-                    {
+                    (this.$auth.user().role_id !== 2) ? {
                         headerName: this.$t('actions'), field: 'id',
                         cellStyle: {textAlign: "center"},
                         cellRendererFramework: ActionButtons,
                         colId: "params",
                         suppressCellSelection: true
-                    }
+                    } : {}
                 ];
             },
             editItem(item) {

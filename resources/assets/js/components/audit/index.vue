@@ -117,7 +117,7 @@
                         autocomplete
                 ></v-select>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
+                <v-btn v-if="$auth.user().role_id !== 2" color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
             </v-card-title>
             <v-card-actions>
                 <v-spacer></v-spacer>
@@ -412,7 +412,6 @@
                 floatingFilter:true,
                 enableSorting: true,
                 domLayout: 'autoHeight',
-                rowGroupPanelShow: 'always',
             };
         },
         mounted() {

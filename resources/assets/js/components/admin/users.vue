@@ -210,6 +210,7 @@
         },
         methods: {
             getItems() {
+                this.gridOptions.api.showLoadingOverlay();
                 axios.get('/users_all')
                     .then(response => {
                         this.items = response.data.users;
