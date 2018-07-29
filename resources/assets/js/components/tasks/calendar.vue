@@ -144,7 +144,7 @@
     import CalendarView from "vue-simple-calendar"
     import CalendarMathMixin from "vue-simple-calendar/dist/calendar-math-mixin.js"
     
-	require("vue-simple-calendar/dist/static/css/default.css")
+	require("vue-simple-calendar/dist/static/css/default.css");
 
     export default {
         data () {
@@ -186,7 +186,7 @@
         updated() {
             if (this.events.length > 0) {
                 let regex = /(<([^>]+)>)/ig;
-                let elms = document.getElementsByClassName('cv-event')
+                let elms = document.getElementsByClassName('cv-event');
                 for (let i = 0; i < elms.length; i++) {
                     if (elms.hasOwnProperty(i)) {
                         elms[i].setAttribute("title", elms[i].getAttribute("title").replace(regex, " "));
@@ -196,7 +196,7 @@
         },
         methods: {
             thisMonth(d, h, m) {
-                const t = new Date()
+                const t = new Date();
                 return new Date(t.getFullYear(), t.getMonth(), d, h || 0, m || 0)
             },
             getItems() {
@@ -216,6 +216,10 @@
                                                     audit_tasks[i].audit_object.audit_object_group.title +
                                                    '</span><br/><b>' + audit_tasks[i].audit_object.title + '</b>';
                             let cssClass = 'new-item';
+                            // Если просрочен, то красим в желтый
+                            if (moment(audit_tasks[i]['date_add']) < moment()) {
+                                cssClass = 'in-work-item';
+                            }
                             // Если все результаты положительные, то аудит успешный
                             if (audit_tasks[i]['audit_result'].length > 0) {
                                 cssClass = 'done-item';
@@ -305,11 +309,11 @@
             }
         },
         mounted () {
-            this.chg_btns('previousPeriod', 'blue', 'keyboard_arrow_left')
-            this.chg_btns('nextPeriod', 'blue', 'keyboard_arrow_right')
-            this.chg_btns('currentPeriod', 'green', 'today')
-            this.chg_btns('previousYear', 'orange', 'first_page')
-            this.chg_btns('nextYear', 'orange', 'last_page') 
+            this.chg_btns('previousPeriod', 'blue', 'keyboard_arrow_left');
+            this.chg_btns('nextPeriod', 'blue', 'keyboard_arrow_right');
+            this.chg_btns('currentPeriod', 'green', 'today');
+            this.chg_btns('previousYear', 'orange', 'first_page');
+            this.chg_btns('nextYear', 'orange', 'last_page') ;
             let d = document.getElementsByClassName('cv-header');
             let s = document.getElementById('selectPeriodUom');
             d[0].appendChild(s);
@@ -327,6 +331,9 @@
     }
     .done-item {
         background-color: #bbe3ab !important;
+    }
+    .new-item {
+        background-color: #90CAF9 !important;
     }
     .cv-event {
         cursor: pointer;
