@@ -118,9 +118,9 @@
             >
             </calendar-view>
             <v-alert :value="true" outline color="info" icon="info">
-                <b class="blue--text"><v-icon>today</v-icon></b> - запланирован (аудит не проводился)<br/>
-                <b class="green--text"><v-icon>done_all</v-icon></b> - проведен (успешно пройденный аудит) <br/>
-                <b class="orange--text"><v-icon>clear</v-icon></b> - просрочен (выявлены несоответствия требованиям) <br/>
+                <b class="blue--text"><v-icon>today</v-icon></b> - запланирован <br/>
+                <b class="green--text"><v-icon>done_all</v-icon></b> - проведен  <br/>
+                <b class="orange--text"><v-icon>clear</v-icon></b> - просрочен  <br/>
             </v-alert>
             <v-snackbar
                 v-model = "snackbar"
@@ -215,21 +215,16 @@
                             audit_tasks[i].title = '<span class="cut-text">' +
                                                     audit_tasks[i].audit_object.audit_object_group.title +
                                                    '</span><br/><b>' + audit_tasks[i].audit_object.title + '</b>';
+                            // Запланированные в синий
                             let cssClass = 'new-item';
-                            // Если просрочен, то красим в желтый
-                            if (moment(audit_tasks[i]['date_add']) < moment()) {
-                                cssClass = 'in-work-item';
-                            }
-                            // Если все результаты положительные, то аудит успешный
                             if (audit_tasks[i]['audit_result'].length > 0) {
-                                cssClass = 'done-item';
-                                let k;
-                                for(k = 0; k < audit_tasks[i]['audit_result'].length; k++){
-                                    // Если есть неудовлетворительный результат, то считаем аудит в работе
-                                    if (audit_tasks[i]['audit_result'][k]['result'] !== 1) {
-                                        cssClass = 'in-work-item';
-                                    }
-                                }
+                                // Если пройден во время, то красим в зеленый, иначе в желтый
+                                cssClass = (moment(audit_tasks[i]['date_add']).add(1, 'days') > moment(audit_tasks[i]['audit_result'][0]['created_at']))
+                                    ? 'done-item'
+                                    : 'in-work-item';
+                            } else if (moment(audit_tasks[i]['date_add']) < moment()) {
+                                // Если просрочен, то красим в желтый
+                                cssClass = 'in-work-item';
                             }
                             Object.defineProperty(audit_tasks[i], 'classes', {value: cssClass});
                         }
