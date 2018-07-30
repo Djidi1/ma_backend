@@ -432,27 +432,29 @@
                 this.gridOptions.api.showLoadingOverlay();
                 axios.get('/tasks')
                     .then(response => {
-                        this.items = response.data.tasks;
-                        this.object_selected = 0;
-                        this.object_select = this.object_selected;
-                        this.requirements = response.data.requirements;
-                        this.responsible = response.data.responsible;
-                        this.object_groups = [{id: 0, title: this.$t('all')}].concat(response.data.object_groups);
-                        this.users = response.data.users;
-                        this.statuses = response.data.statuses;
+                        self.items = response.data.tasks;
+                        self.object_selected = 0;
+                        self.object_select = this.object_selected;
+                        self.requirements = response.data.requirements;
+                        self.responsible = response.data.responsible;
+                        self.object_groups = [{id: 0, title: this.$t('all')}].concat(response.data.object_groups);
+                        self.users = response.data.users;
+                        self.statuses = response.data.statuses;
                         // this.gridOptions.api.sizeColumnsToFit();
-                        this.gridOptions.api.hideOverlay();
+                        if (self.gridOptions.api !== null) {
+                            self.gridOptions.api.hideOverlay();
+                        }
 
                         // Если указан номер Задания, то сразу открываем его
                         if (task_id !== ':id' && task_id > 0) {
-                            let item = this.items.find(itm => { return itm.id === parseInt(task_id)});
+                            let item = self.items.find(itm => { return itm.id === parseInt(task_id)});
                             if (typeof item !== 'undefined') {
-                                this.editItem(item);
+                                self.editItem(item);
                             }
-                            this.fullscreen_loader = false;
+                            self.fullscreen_loader = false;
                         }
 
-                        this.loading = false;
+                        self.loading = false;
                     });
                 this.columnDefs = [
                     // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},

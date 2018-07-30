@@ -12,9 +12,9 @@ window.Vue = require('vue');
 /**
  * Uncomment below when compiling to production
  */
-Vue.config.devtools = false;
-Vue.config.debug = false;
-Vue.config.silent = true;
+// Vue.config.devtools = false;
+// Vue.config.debug = false;
+// Vue.config.silent = true;
 
 window.moment = require('moment');
 import 'moment/locale/ru'
@@ -105,8 +105,6 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
     if (to.name !== 'login'){
         store.commit('set_url', to.path);
-    }else{
-        store.commit('set_url', '/');
     }
     if (to.path === '/'){
         if (store.state.user !== null && store.state.user.role_id === 2) {
