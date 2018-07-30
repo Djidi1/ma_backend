@@ -630,7 +630,7 @@
                 axios.put('/task_update/' + item.id, item)
                     .then(response => {
                         if (response.data === 1) {
-                            Object.assign(self.items[item_index].task, editedItem);
+                            Object.assign(self.items[item_index], editedItem);
                             self.gridOptions.api.refreshCells({force: true});
                         }
                     })
