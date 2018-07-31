@@ -33,9 +33,6 @@
                         <v-container grid-list-md>
                             <v-layout wrap>
                                 <v-flex xs12>
-                                    <v-text-field :label="$t('comment')" v-model="editedItem.comment" required></v-text-field>
-                                </v-flex>
-                                <v-flex xs12>
                                     <v-select
                                             :items="statuses"
                                             item-text="title"
@@ -101,6 +98,13 @@
                                         </v-date-picker>
                                     </v-dialog>
                                 </v-flex>
+                                <v-alert
+                                        v-if="editedItem.comment !== '' && editedItem.comment !== '-'"
+                                        :value="true"
+                                        outline color="info"
+                                        icon="info"
+                                        style="width: 100%"
+                                >{{ editedItem.comment }}</v-alert>
                                 <v-card width="100%" tile v-if="editedItem.id > 0">
                                     <v-card-title primary-title>
                                         <h3>{{ $t('comments') }}</h3>
@@ -108,8 +112,8 @@
                                     <v-divider></v-divider>
                                     <v-progress-linear class="ma-0" v-if="comments_loading" :indeterminate="true"></v-progress-linear>
                                     <v-list two-line>
-                                        <template v-for="(item,index) in commentsItem">
-                                            <v-list-tile avatar :key="index">
+                                        <template v-for="(item, index) in commentsItem">
+                                            <v-list-tile avatar>
                                                 <v-list-tile-content>
                                                     <v-list-tile-sub-title>{{ item.user.name }}</v-list-tile-sub-title>
                                                     <v-list-tile-title>{{ item.message }}</v-list-tile-title>
@@ -143,7 +147,7 @@
                                     <v-card-actions>
                                         <ul>
                                             <li v-for="(file, index) in files" :key="index" class="tn-images">
-                                                <img :src="file.blob" style="height:50px" :title="file.name + '/' + file.size | formatSize">
+                                                <img :src="file.blob" style="height:50px" :title="file.name + ' (' + file.size + ')'">
                                             </li>
                                         </ul>
                                         <file-upload v-if="comment_message !== ''"
@@ -155,7 +159,6 @@
                                                         'X-CSRF-TOKEN': csrfToken,
                                                         'X-XSRF-TOKEN': xsrfToken}"
                                                      :multiple="true"
-                                                     @input-file="inputFile"
                                                      @input-filter="inputFilter"
                                                      class="btn btn--icon pointer"
                                         >
@@ -167,7 +170,11 @@
                                             Вложения доступны после ввода текста комментария
                                         </i>
                                         <v-spacer></v-spacer>
-                                        <v-btn color="info" @click="send_comment()">{{$t('send')}}
+                                        <v-btn
+                                                color="info"
+                                                @click="send_comment()"
+                                                :disabled="comment_message === ''"
+                                        >{{$t('send')}}
                                             <v-icon right dark>send</v-icon>
                                         </v-btn>
                                     </v-card-actions>
@@ -327,12 +334,10 @@
                 return this.items.filter(item => {
                     // фильтр по статусу
                     let filter_status = true;
-                    if (item.task !== null) {
-                        if (this.toggle_multiple.length === 1 && this.toggle_multiple.indexOf(0) === 0) {
-                            filter_status = true;
-                        } else {
-                            filter_status = this.toggle_multiple.indexOf(item.task.task_status_id) > -1;
-                        }
+                    if (this.toggle_multiple.length === 1 && this.toggle_multiple.indexOf(0) === 0) {
+                        filter_status = true;
+                    } else {
+                        filter_status = this.toggle_multiple.indexOf(item.task_status_id) > -1;
                     }
                     // фильтр по выбранной группе
                     let filter_group = (item.result.audit.audit_object.audit_object_group_id === this.object_selected || this.object_selected === 0);
@@ -632,6 +637,7 @@
                 let editedItem = this.editedItem;
                 let item = this.editedItem;
                 item.done_percent = 0;
+                item.comment = this.editedItem.comment || '-';
                 axios.put('/task_update/' + item.id, item)
                     .then(response => {
                         if (response.data === 1) {
