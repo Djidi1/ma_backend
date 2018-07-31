@@ -338,25 +338,30 @@
                     let filter_group = (item.result.audit.audit_object.audit_object_group_id === this.object_selected || this.object_selected === 0);
                     // фильтр по ответственному
                     let filter_responsible = false;
-                    // Ищем ответственных за требование
-                    for (let index in self.responsible) {
-                        if (self.responsible.hasOwnProperty(index)) {
-                            let attr = self.responsible[index];
-                            if (attr.requirement_id.indexOf(item.result.requirement_id) > -1) {
-                                if (self.responsible[index].user.id === self.$auth.user().id){
-                                    filter_responsible = true;
-                                }
-                            }
-                        }
-                    }
-                    // Если нет за требование, то ищем за объект
-                    if (!filter_responsible) {
+                    // Ограничение списка для ответственных
+                    if (self.$store.state.user.role_id === 1) {
+                        filter_responsible = true;
+                    }else{
+                        // Ищем ответственных за требование
                         for (let index in self.responsible) {
                             if (self.responsible.hasOwnProperty(index)) {
                                 let attr = self.responsible[index];
-                                if (attr.object_id.indexOf(item.result.audit.object_id) > -1) {
-                                    if (self.responsible[index].user.id === self.$auth.user().id){
+                                if (attr.requirement_id.indexOf(item.result.requirement_id) > -1) {
+                                    if (self.responsible[index].user.id === self.$auth.user().id) {
                                         filter_responsible = true;
+                                    }
+                                }
+                            }
+                        }
+                        // Если нет за требование, то ищем за объект
+                        if (!filter_responsible) {
+                            for (let index in self.responsible) {
+                                if (self.responsible.hasOwnProperty(index)) {
+                                    let attr = self.responsible[index];
+                                    if (attr.object_id.indexOf(item.result.audit.object_id) > -1) {
+                                        if (self.responsible[index].user.id === self.$auth.user().id) {
+                                            filter_responsible = true;
+                                        }
                                     }
                                 }
                             }
