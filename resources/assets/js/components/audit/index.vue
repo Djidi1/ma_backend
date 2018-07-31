@@ -327,7 +327,7 @@
                             let good_results = 0;
                             let results = params.value;
                             for (let result in results) {
-                                if (results.hasOwnProperty(result) && parseInt(results[result].result) === 1) {
+                                if (results.hasOwnProperty(result) && parseInt(results[result].result) > 0) {
                                     good_results++;
                                 }
                             }
