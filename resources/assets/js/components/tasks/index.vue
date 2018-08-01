@@ -32,15 +32,18 @@
                     <v-card-text>
                         <v-container grid-list-md>
                             <v-layout wrap>
-                                <v-flex xs12>
-                                    <v-select
-                                            :items="statuses"
-                                            item-text="title"
-                                            item-value="id"
-                                            v-model="editedItem.task_status_id"
-                                            :label="$t('status')"
-                                            required
-                                    ></v-select>
+                                <v-flex xs6>
+                                    <v-list two-line>
+                                        <v-list-tile avatar>
+                                            <v-list-tile-avatar>
+                                                <v-icon color="info">contact_mail</v-icon>
+                                            </v-list-tile-avatar>
+                                            <v-list-tile-content>
+                                                <v-list-tile-title>{{ editedItem.responsible_user.name }}</v-list-tile-title>
+                                                <v-list-tile-sub-title>{{ editedItem.responsible_user.email }}</v-list-tile-sub-title>
+                                            </v-list-tile-content>
+                                        </v-list-tile>
+                                    </v-list>
                                 </v-flex>
                                 <v-flex xs6>
                                     <v-dialog
@@ -69,8 +72,6 @@
                                             <v-btn flat color="primary" @click="$refs.picker_start.save(editedItem.start)">OK</v-btn>
                                         </v-date-picker>
                                     </v-dialog>
-                                </v-flex>
-                                <v-flex xs6>
                                     <v-dialog
                                             ref="picker_end"
                                             persistent
@@ -97,6 +98,15 @@
                                             <v-btn flat color="primary" @click="$refs.picker_end.save(editedItem.end)">OK</v-btn>
                                         </v-date-picker>
                                     </v-dialog>
+                                    <v-select
+                                            prepend-icon="restore"
+                                            :items="statuses"
+                                            item-text="title"
+                                            item-value="id"
+                                            v-model="editedItem.task_status_id"
+                                            :label="$t('status')"
+                                            required
+                                    ></v-select>
                                 </v-flex>
                                 <v-alert
                                         v-if="editedItem.comment !== '' && editedItem.comment !== '-'"
@@ -300,8 +310,8 @@
                 commentsItem: [],
                 attaches_array: [],
                 defaultCommentsItem: [],
-                editedItem: {task_status_id: 1, id: 0, result: {audit: {audit_object: ''}, requirement: ''}},
-                defaultItem: {task_status_id: 1, id: 0, result: {audit: {audit_object: ''}, requirement: ''}},
+                editedItem: {task_status_id: 1, id: 0, responsible_user: {}, result: {audit: {audit_object: ''}, requirement: ''}},
+                defaultItem: {task_status_id: 1, id: 0, responsible_user: {}, result: {audit: {audit_object: ''}, requirement: ''}},
                 valid: false,
                 errors: [],
                 gridOptions: {},
@@ -592,6 +602,7 @@
             },
             editItem(item) {
                 this.editedIndex = this.items.indexOf(item);
+                item['responsible_user'] = this.responsible_user(item.result.audit.object_id, item.result.requirement_id);
                 this.editedItem = Object.assign({}, item);
                 this.getComments(item.id);
                 this.dialog = true
@@ -652,8 +663,34 @@
             },
             handleResize() {
                 this.gridOptions.api.sizeColumnsToFit();
+            },
+            responsible_user(object_id, requirement_id) {
+                let self = this;
+                let responsible = {name: null};
+                // Ищем ответственных за требование
+                for (let index in self.responsible) {
+                    if (self.responsible.hasOwnProperty(index)) {
+                        let attr = self.responsible[index];
+                        if (attr.requirement_id.indexOf(requirement_id) > -1) {
+                            responsible = self.responsible[index].user;
+                        }
+                    }
+                }
+                // Если нет за требование, то ищем за объект
+                if (responsible.name === null) {
+                    for (let index in self.responsible) {
+                        if (self.responsible.hasOwnProperty(index)) {
+                            let attr = self.responsible[index];
+                            if (attr.object_id.indexOf(object_id) > -1) {
+                                responsible = self.responsible[index].user;
+                            }
+                        }
+                    }
+                }
+                return responsible;
             }
         },
+
         // bind event handlers to the `handleResize` method (defined below)
         ready: function () {
             this.handleResize();

@@ -58,6 +58,16 @@
                         </a>
                     </li>
                 </v-list>
+                <v-footer v-if="detectmob" class="pa-3">
+                    <div>Ver. 1.0.0.0</div>
+                    <v-spacer></v-spacer>
+                    <div>&copy; {{ new Date().getFullYear() }}</div>
+                </v-footer>
+                <v-footer v-else class="pa-3" absolute>
+                    <div>Ver. 1.0.0.0</div>
+                    <v-spacer></v-spacer>
+                    <div>&copy; {{ new Date().getFullYear() }}</div>
+                </v-footer>
             </v-navigation-drawer>
             <v-toolbar color="blue"
                        dark
@@ -128,6 +138,15 @@
                     return result;
                 })
             },
+            detectmob() {
+                return !!(navigator.userAgent.match(/Android/i)
+                    || navigator.userAgent.match(/webOS/i)
+                    || navigator.userAgent.match(/iPhone/i)
+                    || navigator.userAgent.match(/iPad/i)
+                    || navigator.userAgent.match(/iPod/i)
+                    || navigator.userAgent.match(/BlackBerry/i)
+                    || navigator.userAgent.match(/Windows Phone/i));
+            }
         },
         methods: {
             set_local(code) {
