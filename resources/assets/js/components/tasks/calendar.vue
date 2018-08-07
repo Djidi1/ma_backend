@@ -59,6 +59,7 @@
                                         <v-date-picker
                                                 v-model="editedItem.date"
                                                 first-day-of-week="1"
+                                                :min="today()"
                                                 scrollable
                                         >
                                             <v-spacer></v-spacer>
@@ -195,9 +196,13 @@
             }
         },
         methods: {
-            thisMonth(d, h, m) {
+            /*thisMonth(d, h, m) {
                 const t = new Date();
                 return new Date(t.getFullYear(), t.getMonth(), d, h || 0, m || 0)
+            },*/
+
+            today() {
+                return moment().format('YYYY-MM-DD');
             },
             getItems() {
                 axios.get('/audit_tasks_all')
@@ -222,7 +227,7 @@
                                 cssClass = (moment(audit_tasks[i]['date_add']).add(1, 'days') > moment(audit_tasks[i]['audit_result'][0]['created_at']))
                                     ? 'done-item'
                                     : 'in-work-item';
-                            } else if (moment(audit_tasks[i]['date_add']) < moment()) {
+                            } else if (moment(audit_tasks[i]['date_add']).diff(moment(),'days') < 0) {
                                 // Если просрочен, то красим в желтый
                                 cssClass = 'in-work-item';
                             }
@@ -286,7 +291,7 @@
                 // Можно добавлять начиная с текущего дня
                 if (moment().diff(day, 'days') <= 0) {
                     this.editedIndex = -1;
-                    Object.defineProperty(this.editedItem, 'date', {value: moment(day).format('YYYY-MM-DD')});
+                    this.editedItem.date = moment(day).format('YYYY-MM-DD');
                     this.dialog = true;
                 } else {
                     this.snackbar = true
