@@ -103,6 +103,7 @@ class TasksController extends Controller
         unset ($requestData['id']);
         unset ($requestData['result']);
         unset ($requestData['task_status']);
+        unset ($requestData['responsible_user']);
         unset ($requestData['audit_result_attache']);
         $result = Task::where('id', $request->id)->update($requestData);
         return $result;
