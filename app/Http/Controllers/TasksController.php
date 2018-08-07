@@ -21,7 +21,7 @@ class TasksController extends Controller
 
     public function index(Request $request)
     {
-        $tasks = Task::with('task_status', 'result', 'audit_result_attache', 'result.requirement', 'result.audit.audit_object')->get();
+        $tasks = Task::with('task_status', 'result', 'audit_result_attache', 'result.requirement', 'result.audit.audit_object')->orderBy('id', 'desc')->get();
         $users = User::all();
         $object_groups = AuditObjectGroup::all();
         $requirements = Requirement::all();
