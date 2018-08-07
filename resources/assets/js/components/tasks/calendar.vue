@@ -216,7 +216,7 @@
                             if (audit_tasks.hasOwnProperty(i)) {
                                 Object.defineProperty(audit_tasks[i], 'startDate', Object.getOwnPropertyDescriptor(audit_tasks[i], 'date'));
                             }
-                            Object.defineProperty(audit_tasks[i], 'orig_title', {value: audit_tasks[i].title});
+                            audit_tasks[i].orig_title = audit_tasks[i].title;
                             audit_tasks[i].title = '<span class="cut-text">' +
                                                     audit_tasks[i].audit_object.audit_object_group.title +
                                                    '</span><br/><b>' + audit_tasks[i].audit_object.title + '</b>';
