@@ -50,7 +50,7 @@
                     </li>
                     <v-divider></v-divider>
                     <li v-if="$auth.check()">
-                        <a href="/" class="list__tile" @click.prevent="$auth.logout()">
+                        <a href="/#/login" class="list__tile" @click="$auth.logout()">
                             <div class="list__tile__action"><i aria-hidden="true" class="icon material-icons">exit_to_app</i></div>
                             <div class="list__tile__content">
                                 <div class="list__tile__title">{{ $t('logout') }}</div>

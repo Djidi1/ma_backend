@@ -105,8 +105,20 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
     if (to.name !== 'login'){
         store.commit('set_url', to.path);
+    }else{
+        // Защита от рекурсии
+        if (from.name === null) {
+            next();
+        }else{
+            next('/');
+        }
+    }
+    // Если путь неизвестный, то вместо 404 показываем главную страницу
+    if (to.name === null){
+        next('/');
     }
     if (to.path === '/'){
+        // Если пользователь не админ, то отправляем в задачи
         if (store.state.user !== null && store.state.user.role_id === 2) {
             next('/tasks_list/:id');
         } else {
