@@ -350,7 +350,11 @@
                         filter_status = this.toggle_multiple.indexOf(item.task_status_id) > -1;
                     }
                     // фильтр по выбранной группе
-                    let filter_group = (item.result.audit.audit_object.audit_object_group_id === this.object_selected || this.object_selected === 0);
+                    let filter_group;
+                    // Проверка, что аудит существует
+                    if (item.result.audit !== null) {
+                        filter_group = (item.result.audit.audit_object.audit_object_group_id === this.object_selected || this.object_selected === 0);
+                    }
                     // фильтр по ответственному
                     let filter_responsible = false;
                     // Ограничение списка для ответственных
