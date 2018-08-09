@@ -10,10 +10,10 @@
                         <v-card-media src="/images/office.jpg">
                             <v-layout column class="media">
                                 <v-spacer></v-spacer>
-                                <v-list subheader>
+                                <v-list subheader class="mt-1">
                                     <v-list-tile avatar>
                                         <!--<v-list-tile-avatar>-->
-                                            <!--<img src="/images/user.png">-->
+                                        <!--<img src="/images/user.png">-->
                                         <!--</v-list-tile-avatar>-->
                                         <v-list-tile-content>
                                             <v-list-tile-title class="white--text">{{ $auth.user().name }}</v-list-tile-title>
@@ -58,13 +58,13 @@
                         </a>
                     </li>
                 </v-list>
-                <v-footer v-if="detectmob" class="pa-3">
-                    <div>Ver. 1.0.0.0</div>
+                <v-footer v-if="is_scroll" class="pa-3 scroll_down">
+                    <div>Ver. {{ this.version }}</div>
                     <v-spacer></v-spacer>
                     <div>&copy; {{ new Date().getFullYear() }}</div>
                 </v-footer>
                 <v-footer v-else class="pa-3" absolute>
-                    <div>Ver. 1.0.0.0</div>
+                    <div>Ver. {{ this.version }}</div>
                     <v-spacer></v-spacer>
                     <div>&copy; {{ new Date().getFullYear() }}</div>
                 </v-footer>
@@ -73,9 +73,9 @@
                        dark
                        fixed
                        app>
-                <v-toolbar-side-icon @click.native.stop="drawer = !drawer"></v-toolbar-side-icon>
+                <v-toolbar-side-icon @click.native.stop="draw_navigation"></v-toolbar-side-icon>
                 <!--<v-btn icon @click.stop="mini = !mini">-->
-                    <!--<v-icon v-html="mini ? 'chevron_right' : 'chevron_left'"></v-icon>-->
+                <!--<v-icon v-html="mini ? 'chevron_right' : 'chevron_left'"></v-icon>-->
                 <!--</v-btn>-->
                 <v-toolbar-title>{{ $t(this.$route.name) }}</v-toolbar-title>
                 <v-spacer></v-spacer>
@@ -112,12 +112,14 @@
     export default {
         data() {
             return {
+                version: '1.0.1.0',
                 drawer: false,
                 mini: false,
                 languages: languages,
                 routes: this.$router.options.routes,
                 title: this.title,
-                loading: true
+                loading: true,
+                is_scroll: false
             }
         },
         computed: {
@@ -138,25 +140,26 @@
                     return result;
                 })
             },
-            detectmob() {
-                return !!(navigator.userAgent.match(/Android/i)
-                    || navigator.userAgent.match(/webOS/i)
-                    || navigator.userAgent.match(/iPhone/i)
-                    || navigator.userAgent.match(/iPad/i)
-                    || navigator.userAgent.match(/iPod/i)
-                    || navigator.userAgent.match(/BlackBerry/i)
-                    || navigator.userAgent.match(/Windows Phone/i));
-            }
         },
         methods: {
             set_local(code) {
                 Vue.i18n.set(code);
                 Vue.ls.set('lang', code);
             },
-            update_tasks_badge (){
+            draw_navigation() {
+                this.detect_scroll();
+                this.drawer = !this.drawer;
+            },
+            detect_scroll() {
+                let root = document.getElementsByTagName("aside")[0];
+                if (typeof root !== 'undefined') {
+                    this.is_scroll = root.scrollHeight > root.clientHeight;
+                }
+            },
+            update_tasks_badge() {
                 // Пробегаемся по всем маршрутам
                 for (let index in this.$router.options.routes) {
-                    if( this.$router.options.routes.hasOwnProperty( index ) ) {
+                    if (this.$router.options.routes.hasOwnProperty(index)) {
                         // Если это меню с задачами, то проставялем количество задач
                         if (this.$router.options.routes[index].name === 'tasks_list') {
                             axios.get('/responsible_tasks')
@@ -169,13 +172,22 @@
                 // console.log(this.$router.options.routes[name='tasks_list'].meta.badge);
             }
         },
+        beforeDestroy: function () {
+            window.removeEventListener('resize', this.detect_scroll)
+        },
+
         mounted() {
+            let self = this;
             this.loading = false;
             if (this.$auth.check()) {
                 this.$store.commit('set_user', this.$auth.user());
             }
+            this.$nextTick(function () {
+                self.detect_scroll();
+                window.addEventListener('resize', self.detect_scroll);
+            });
             // if (this.$auth.check()) {
-              //  this.update_tasks_badge();
+            //  this.update_tasks_badge();
             // }
         }
     }
@@ -200,5 +212,9 @@
 
     .align-right {
         text-align: right;
+    }
+    .scroll_down {
+        bottom: -100px;
+        position: relative;
     }
 </style>
