@@ -51,7 +51,7 @@ import App from './components/home/Index.vue';
 
 // Хранение в сторе данных о странице входа
 const store = new Vuex.Store({
-    state: {enter_url: '', user: null},
+    state: {enter_url: '/', user: null},
     getters: {
         enter_url: state => {
             return state.enter_url;
@@ -103,15 +103,9 @@ const router = new VueRouter({
 
 // По какому УРЛ вошли
 router.beforeEach((to, from, next) => {
-    if (to.name !== 'login'){
+    // Если не авторизован, то фиксируем в сторе путь куда шел пользователь
+    if ( store.state.user === null && to.name !== 'login'){
         store.commit('set_url', to.path);
-    }else{
-        // Защита от рекурсии
-        if (from.name === null) {
-            next();
-        }else{
-            next('/');
-        }
     }
     // Если путь неизвестный, то вместо 404 показываем главную страницу
     if (to.name === null){
@@ -127,8 +121,6 @@ router.beforeEach((to, from, next) => {
     }else{
         next()
     }
-
-
 });
 
 Vue.router = router;

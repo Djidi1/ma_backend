@@ -23,6 +23,6 @@
     </home>
 </div>
 
-<script src="{{ asset('js/app.js') }}"></script>
+<script src="{{ asset('js/app.js') }}?ver_1.0.1.0"></script>
 </body>
 </html>

@@ -132,8 +132,10 @@
             }
         },
         methods: {
+            resize() {
+                this.gridOptions.api.sizeColumnsToFit();
+            },
             getItems() {
-                let self = this;
                 axios.get('/objects_all')
                     .then(response => {
                         this.items = response.data.objects;
@@ -146,7 +148,9 @@
                         this.loading = false;
                         this.gridOptions.api.sizeColumnsToFit();
                         this.gridOptions.api.hideOverlay();
+                        window.addEventListener('resize', this.resize);
                     });
+                let self = this;
                 this.columnDefs = [
                     // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
                     // {
@@ -242,6 +246,9 @@
                 }
                 this.close()
             }
+        },
+        beforeDestroy: function () {
+            window.getElementsByClassName("content")[0].removeEventListener('resize', this.resize);
         },
         beforeMount() {
             this.gridOptions = {
