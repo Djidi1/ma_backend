@@ -43,6 +43,7 @@
   "checklists": "CheckLists",
   "checklist_categories": "CheckList categories",
   "responsible": "Responsible",
+  "responsible_for": "Responsible for",
   "responsibles": "Responsible",
   "requirements": "Requirements",
   "requirement": "Requirement",
@@ -67,5 +68,7 @@
   "mail_subject": "Subject",
   "mail_body": "Mail notification",
   "task_finish_days": "Days to finish tasks",
-  "settings": "Settings"
+  "settings": "Settings",
+  "filter": "Filter",
+  "work_in": "Work in"
 }
