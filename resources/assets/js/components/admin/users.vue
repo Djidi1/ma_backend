@@ -9,12 +9,24 @@
                     <v-container grid-list-md>
                         <v-layout wrap>
                             <v-flex xs12 sm6>
-                                <v-text-field label="Name" v-model="editedItem.name" :rules="nameRules" required></v-text-field>
+                                <v-text-field label="Name" v-model="editedItem.name" :rules="nameRules"
+                                              required></v-text-field>
                             </v-flex>
                             <v-flex xs12 sm6>
-                                <v-text-field label="Email" v-model="editedItem.email" :rules="emailRules" required></v-text-field>
+                                <v-text-field label="Email" v-model="editedItem.email" :rules="emailRules"
+                                              required></v-text-field>
                             </v-flex>
-                            <v-flex xs12>
+                            <v-flex xs12 sm6>
+                                <v-select
+                                        :items="roles_items"
+                                        item-text="title"
+                                        item-value="id"
+                                        v-model="editedItem.role_id"
+                                        :label="$t('role')"
+                                        required
+                                ></v-select>
+                            </v-flex>
+                            <v-flex xs12 sm6>
                                 <v-text-field
                                         label="Password"
                                         hint="At least 8 characters"
@@ -27,27 +39,48 @@
                                         counter
                                 ></v-text-field>
                             </v-flex>
-                            <v-flex xs12>
+                            <!-- Ответственные -->
+                            <v-flex xs4>
+                                <p class="title">{{ $t('work_in') }}</p>
                                 <v-select
-                                        :items="roles_items"
-                                        item-text = "title"
-                                        item-value = "id"
-                                        v-model="editedItem.role_id"
-                                        :label="$t('role')"
-                                        required
-                                ></v-select>
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-select
-                                        :items="object_groups"
+                                        :items="grouped_objects"
                                         item-text="title"
                                         item-value="id"
-                                        v-model="object_groups_select"
-                                        :label="$t('object_groups')"
+                                        v-model="editedItem.object_id"
+                                        :label="$t('object')"
+
+                                        required
+                                        chips
                                         autocomplete
-                                ></v-select>
+                                >
+                                    <template slot="selection" slot-scope="data">
+                                        <v-chip
+                                                :selected="data.selected"
+                                                :key="JSON.stringify(data.item)"
+                                                close
+                                                small
+                                                class="chip--select-multi"
+                                                @input="data.parent.selectItem(data.item)"
+                                        >{{ data.item.title }}
+                                        </v-chip>
+                                    </template>
+                                    <template slot="item" slot-scope="data">
+                                        <template v-if="typeof data.item !== 'object'">
+                                            <v-list-tile-content v-text="data.item"></v-list-tile-content>
+                                        </template>
+                                        <template v-else>
+                                            <v-list-tile-content>
+                                                <v-list-tile-title v-html="data.item.title"></v-list-tile-title>
+                                                <v-list-tile-sub-title v-html="data.item.group"></v-list-tile-sub-title>
+                                            </v-list-tile-content>
+                                        </template>
+                                    </template>
+                                </v-select>
+                            </v-flex>
+                            <v-flex xs8>
+                                <p class="title">{{ $t('responsible_for') }}</p>
                                 <v-select
-                                        :items="filteredObjectItems"
+                                        :items="grouped_objects"
                                         item-text="title"
                                         item-value="id"
                                         v-model="editedItem.responsible.object_id"
@@ -56,19 +89,32 @@
                                         required
                                         chips
                                         autocomplete
-                                ></v-select>
-                            </v-flex>
-                            <v-flex xs12>
+                                >
+                                    <template slot="selection" slot-scope="data">
+                                        <v-chip
+                                                :selected="data.selected"
+                                                :key="JSON.stringify(data.item)"
+                                                close
+                                                small
+                                                class="chip--select-multi"
+                                                @input="data.parent.selectItem(data.item)"
+                                        >{{ data.item.title }}
+                                        </v-chip>
+                                    </template>
+                                    <template slot="item" slot-scope="data">
+                                        <template v-if="typeof data.item !== 'object'">
+                                            <v-list-tile-content v-text="data.item"></v-list-tile-content>
+                                        </template>
+                                        <template v-else>
+                                            <v-list-tile-content>
+                                                <v-list-tile-title v-html="data.item.title"></v-list-tile-title>
+                                                <v-list-tile-sub-title v-html="data.item.group"></v-list-tile-sub-title>
+                                            </v-list-tile-content>
+                                        </template>
+                                    </template>
+                                </v-select>
                                 <v-select
-                                        :items="checklists"
-                                        item-text="title"
-                                        item-value="id"
-                                        v-model="checklists_select"
-                                        :label="$t('checklist')"
-                                        autocomplete
-                                ></v-select>
-                                <v-select
-                                        :items="filteredRequirements"
+                                        :items="grouped_requirements"
                                         item-text="title"
                                         item-value="id"
                                         v-model="editedItem.responsible.requirement_id"
@@ -77,7 +123,30 @@
                                         required
                                         chips
                                         autocomplete
-                                ></v-select>
+                                >
+                                    <template slot="selection" slot-scope="data">
+                                        <v-chip
+                                                :selected="data.selected"
+                                                :key="JSON.stringify(data.item)"
+                                                close
+                                                small
+                                                class="chip--select-multi"
+                                                @input="data.parent.selectItem(data.item)"
+                                        >{{ data.item.title }}
+                                        </v-chip>
+                                    </template>
+                                    <template slot="item" slot-scope="data">
+                                        <template v-if="typeof data.item !== 'object'">
+                                            <v-list-tile-content v-text="data.item"></v-list-tile-content>
+                                        </template>
+                                        <template v-else>
+                                            <v-list-tile-content>
+                                                <v-list-tile-title v-html="data.item.title"></v-list-tile-title>
+                                                <v-list-tile-sub-title v-html="data.item.group"></v-list-tile-sub-title>
+                                            </v-list-tile-content>
+                                        </template>
+                                    </template>
+                                </v-select>
                             </v-flex>
                         </v-layout>
                     </v-container>
@@ -95,7 +164,8 @@
                 <!-- fix autocomplete bug -->
                 <input title="" name="hidden" type="text" style="width: 0; height: 0; margin: 0; padding: 0"/>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
+                <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}
+                </v-btn>
             </v-card-title>
             <ag-grid-vue style="width: 100%;"
                          class="ag-theme-balham"
@@ -140,12 +210,14 @@
                 editedItem: {
                     title: '',
                     password: '',
-                    responsible: {object_id:[],requirement_id:[]}
+                    object_id: 0,
+                    role_id: 2,
+                    responsible: {object_id: [], requirement_id: []}
                 },
                 defaultItem: {
                     title: '',
                     password: '',
-                    responsible: {object_id:[],requirement_id:[]}
+                    responsible: {object_id: [], requirement_id: []}
                 },
                 object_id: [],
                 requirement_id: [],
@@ -184,18 +256,58 @@
             formTitle() {
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
             },
+            /*
             filteredObjectItems() {
                 return this.objects_items.filter(item => {
                     // фильтр по выбранной группе
                     return item.audit_object_group_id === this.object_groups_selected || this.object_groups_selected === 0
                 })
             },
-            filteredRequirements() {
-                return this.requirements_items.filter(item => {
-                    // фильтр по выбранной группе
-                    return item.checklist_id === this.checklists_selected || this.checklists_selected === 0
-                })
+            */
+            /*  filteredRequirements() {
+                  return this.requirements_items.filter(item => {
+                      // фильтр по выбранной группе
+                      return item.checklist_id === this.checklists_selected || this.checklists_selected === 0
+                  })
+              },*/
+            grouped_objects() {
+                let grouped_items = [];
+                for (let index in this.object_groups) {
+                    let obj_group = this.object_groups[index];
+                    // Если в группе есть элементы
+                    if (this.objects_items.findIndex(x => x.audit_object_group_id === obj_group.id) > -1) {
+                        grouped_items.push({header: obj_group.title});
+                    }
+                    for (let index in this.objects_items) {
+                        // Добавляем элементы в массив
+                        if (this.objects_items[index].audit_object_group_id === obj_group.id) {
+                            this.objects_items[index]['group'] = obj_group.title;
+                            grouped_items.push(this.objects_items[index]);
+                        }
+                    }
+                    grouped_items.push({divider: true});
+                }
+                return grouped_items;
             },
+            grouped_requirements() {
+                let grouped_items = [];
+                for (let index in this.checklists) {
+                    let item_group = this.checklists[index];
+                    // Если в группе есть элементы
+                    if (this.requirements_items.findIndex(x => x.checklist_id === item_group.id) > -1) {
+                        grouped_items.push({header: item_group.title});
+                    }
+                    for (let index in this.requirements_items) {
+                        // Добавляем элементы в массив
+                        if (this.requirements_items[index].checklist_id === item_group.id) {
+                            this.requirements_items[index]['group'] = item_group.title;
+                            grouped_items.push(this.requirements_items[index]);
+                        }
+                    }
+                    grouped_items.push({divider: true});
+                }
+                return grouped_items;
+            }
         },
         watch: {
             object_groups_select: function (newVal) {
@@ -230,13 +342,19 @@
                     {headerName: this.$t('email'), align: 'left', field: 'email'},
                     {
                         headerName: this.$t('group'),
-                        valueGetter: function(params) {
-                            return params.data.role.title;
+                        valueGetter: function (params) {
+                            return self.roles_items.find(x => x.id === params.data.role_id).title;
+                        }
+                    },
+                    {
+                        headerName: this.$t('work_in'),
+                        valueGetter: function (params) {
+                            return (params.data.object_id > 0) ? self.objects_items.find(x => x.id === params.data.object_id).title : '';
                         }
                     },
                     {
                         headerName: this.$t('objects'),
-                        valueGetter: function(params) {
+                        valueGetter: function (params) {
                             let value = '-';
                             if (params.data.responsible !== null && params.data.responsible.object_id.length > 0) {
                                 let item_names = [];
@@ -253,20 +371,20 @@
                             return value;
                         },
                         cellRenderer: function (params) {
-                            return '<span title="'+params.value+'">'+params.value+'</span>';
+                            return '<span title="' + params.value + '">' + params.value + '</span>';
                         }
 
                     },
                     {
                         headerName: this.$t('requirements'),
-                        valueGetter: function(params) {
+                        valueGetter: function (params) {
                             let value = '-';
                             if (params.data.responsible !== null && params.data.responsible.requirement_id.length > 0) {
                                 let item_names = [];
-                                for(let index in self.requirements_items) {
+                                for (let index in self.requirements_items) {
                                     if (self.requirements_items.hasOwnProperty(index)) {
                                         let attr = self.requirements_items[index];
-                                        if (params.data.responsible.requirement_id.indexOf(attr.id) > -1){
+                                        if (params.data.responsible.requirement_id.indexOf(attr.id) > -1) {
                                             item_names.push(self.requirements_items[index].title);
                                         }
                                     }
@@ -276,7 +394,7 @@
                             return value;
                         },
                         cellRenderer: function (params) {
-                            return '<span title="'+params.value+'">'+params.value+'</span>';
+                            return '<span title="' + params.value + '">' + params.value + '</span>';
                         }
                     },
                     {
@@ -291,7 +409,7 @@
             editItem(item) {
                 this.editedIndex = this.items.indexOf(item);
                 if (item.responsible === null) {
-                    item.responsible = {object_id:[],requirement_id:[]};
+                    item.responsible = {object_id: [], requirement_id: []};
                 }
                 this.editedItem = Object.assign({}, item);
                 // Сброс значений в группах
@@ -322,6 +440,7 @@
             },
             save() {
                 this.loading = true;
+                let self = this;
                 if (this.editedIndex > -1) {
                     let item_index = this.editedIndex;
                     let item = this.editedItem;
@@ -330,34 +449,35 @@
                     axios.put('/users_update/' + item.id, this.editedItem)
                         .then(response => {
                             if (response.data === 1) {
-                                Object.assign(this.items[item_index], item);
-                                this.gridOptions.api.refreshCells();
+                                Object.assign(this.items[item_index], self.editedItem);
+                                self.gridOptions.api.refreshCells();
+                                this.close()
                             }
-                            this.loading = false;
+                            self.loading = false;
                         })
                         .catch(e => {
-                            this.errors.push(e)
+                            self.errors.push(e)
                         });
                 } else {
-                    axios.post(`/users_save`, this.editedItem)
+                    axios.post(`/users_save`, self.editedItem)
                         .then(response => {
-                            this.items.push(response.data);
-                            this.gridOptions.api.refreshCells();
-                            this.loading = false;
+                            self.items.push(response.data);
+                            self.gridOptions.api.refreshCells();
+                            self.loading = false;
+                            this.close()
                         })
                         .catch(e => {
-                            this.errors.push(e)
+                            self.errors.push(e)
                         });
                 }
-                this.close()
             }
         },
         beforeMount() {
             this.gridOptions = {
-                context: { componentParent: this },
+                context: {componentParent: this},
                 suppressDragLeaveHidesColumns: true,
                 suppressMakeColumnVisibleAfterUnGroup: true,
-                floatingFilter:true,
+                floatingFilter: true,
                 suppressMenu: true,
                 domLayout: 'autoHeight',
                 rowGroupPanelShow: 'always',

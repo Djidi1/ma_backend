@@ -24,6 +24,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'role_id' => 'integer',
+        'object_id' => 'integer',
     ];
 
     /**

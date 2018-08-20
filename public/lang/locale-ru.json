@@ -43,6 +43,7 @@
   "checklists": "Чек-листы",
   "checklist_categories": "Категории чек-листов",
   "responsible": "Ответственный",
+  "responsible_for": "Ответственный за",
   "responsibles": "Ответственные",
   "requirement": "Требование",
   "requirements": "Требования",
@@ -67,5 +68,7 @@
   "mail_subject": "Тема письма",
   "mail_body": "Текст оповещения",
   "task_finish_days": "Срок закрытия несоответствий",
-  "settings": "Настройки"
+  "settings": "Настройки",
+  "filter": "Фильтр",
+  "work_in": "Работает в"
 }
