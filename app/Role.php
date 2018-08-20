@@ -12,6 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 class Role extends Model
 {
     protected $fillable = ['title'];
-    protected $dateFormat = 'Y-m-d H:i:s';
+//    protected $dateFormat = 'Y-m-d H:i:s';
 
 }

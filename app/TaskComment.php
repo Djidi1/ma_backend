@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class TaskComment extends Model
 {
     protected $table = 'task_comments';
-    protected $dateFormat = 'Y-m-d H:i:s';
+//    protected $dateFormat = 'Y-m-d H:i:s';
 
     protected $fillable = [
         'task_id',

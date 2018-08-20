@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ResponsibleTasks extends Model
 {
     protected $table = 'responsible_tasks';
-    protected $dateFormat = 'Y-m-d H:i:s';
+//    protected $dateFormat = 'Y-m-d H:i:s';
 
     protected $fillable = [
         'user_id',

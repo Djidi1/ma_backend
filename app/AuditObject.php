@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AuditObject extends Model
 {
     protected $table = 'audit_objects';
-    protected $dateFormat = 'Y-m-d H:i:s';
+//    protected $dateFormat = 'Y-m-d H:i:s';
 
     protected $fillable = [
         'title',

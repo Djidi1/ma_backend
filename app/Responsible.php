@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Responsible extends Model
 {
     protected $table = 'responsible';
-    protected $dateFormat = 'Y-m-d H:i:s';
+//    protected $dateFormat = 'Y-m-d H:i:s';
 
     protected $fillable = [
         'user_id',
