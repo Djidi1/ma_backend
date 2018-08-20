@@ -8,6 +8,8 @@ class Task extends Model
 {
     //
     protected $table = 'tasks';
+    protected $dateFormat = 'Y-m-d H:i:s';
+
     protected $fillable = [
         'task_status_id',
         'result_id',

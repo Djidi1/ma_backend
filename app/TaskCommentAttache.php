@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class TaskCommentAttache extends Model
 {
     protected $table = 'task_comments_attaches';
+    protected $dateFormat = 'Y-m-d H:i:s';
+
     protected $fillable = [
         'task_comment_id',
         'file_name',

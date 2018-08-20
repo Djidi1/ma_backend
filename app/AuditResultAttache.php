@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class AuditResultAttache extends Model
 {
     protected $table = 'audit_result_attaches';
+    protected $dateFormat = 'Y-m-d H:i:s';
+
     protected $fillable = [
         'audit_result_id',
         'file_name',
