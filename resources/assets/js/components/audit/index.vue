@@ -11,8 +11,8 @@
                             <v-flex xs12>
                                 <v-select
                                         :items="filteredObjects"
-                                        item-text = "title"
-                                        item-value = "id"
+                                        item-text="title"
+                                        item-value="id"
                                         v-model="editedItem.object_id"
                                         :label="$t('object')"
                                         required
@@ -22,8 +22,8 @@
                             <v-flex xs12>
                                 <v-select
                                         :items="checklists"
-                                        item-text = "title"
-                                        item-value = "id"
+                                        item-text="title"
+                                        item-value="id"
                                         v-model="editedItem.checklist_id"
                                         :label="$t('checklist')"
                                         required
@@ -32,8 +32,8 @@
                             <v-flex xs12>
                                 <v-select
                                         :items="users"
-                                        item-text = "name"
-                                        item-value = "id"
+                                        item-text="name"
+                                        item-value="id"
                                         v-model="editedItem.user_id"
                                         :label="$t('auditor')"
                                         required
@@ -61,7 +61,7 @@
                                             v-model="editedItem.date"
                                             first-day-of-week="1"
                                             :min="today"
-                                            no-title 
+                                            no-title
                                             scrollable
                                             @input="$refs.picker.save(editedItem.date)"
                                     >
@@ -111,13 +111,15 @@
                 <v-select
                         :items="object_groups"
                         v-model="object_select"
-                        :label = "$t('object_groups')"
-                        item-text = "title"
-                        item-value = "id"
+                        :label="$t('object_groups')"
+                        item-text="title"
+                        item-value="id"
                         autocomplete
                 ></v-select>
                 <v-spacer></v-spacer>
-                <v-btn v-if="$auth.user().role_id !== 2" color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}</v-btn>
+                <v-btn v-if="$auth.user().role_id !== 2" color="primary" dark slot="activator" @click="dialog = true"
+                       class="mb-2">{{$t('new_item')}}
+                </v-btn>
             </v-card-title>
             <v-card-actions>
                 <v-spacer></v-spacer>
@@ -259,17 +261,17 @@
             },
             toggle_multiple: function (new_value, old_value) {
                 // Если новое значение не равно старому и не установлено одно значение
-                if (new_value !== old_value && this.toggle_multiple.length !== 1 ) {
+                if (new_value !== old_value && this.toggle_multiple.length !== 1) {
                     if (new_value.length === 0) {
                         this.toggle_multiple = [0]
                     } else {
-                        if (old_value.length === 1 && old_value.indexOf(0) === 0 && new_value.length > 1){
+                        if (old_value.length === 1 && old_value.indexOf(0) === 0 && new_value.length > 1) {
                             let index = this.toggle_multiple.indexOf(0);
                             if (index !== -1) this.toggle_multiple.splice(index, 1);
-                        } else if (new_value.length > 1 && new_value.indexOf(0) > -1){
+                        } else if (new_value.length > 1 && new_value.indexOf(0) > -1) {
                             this.toggle_multiple = [0]
                         }
-                    }                 
+                    }
                 }
             }
         },
@@ -287,10 +289,10 @@
                 this.$refs.results.getItems(id);
                 this.dialog_results = true;
             },
-            frontEndDateFormat: function(date) {
+            frontEndDateFormat: function (date) {
                 return moment(date, 'YYYY-MM-DD').format('DD.MM.YYYY');
             },
-            backEndDateFormat: function(date) {
+            backEndDateFormat: function (date) {
                 return moment(date, 'DD.MM.YYYY').format('YYYY-MM-DD');
             },
             getItems() {
@@ -310,9 +312,15 @@
                     });
                 this.columnDefs = [
                     {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
-                    {headerName: this.$t('title'), width: 90, suppressSizeToFit: true, align: 'left', field: 'audit_object.title'},
                     {
-                        headerName: this.$t('checklist'), align: 'left', field: 'checklist.title', 
+                        headerName: this.$t('title'),
+                        width: 90,
+                        suppressSizeToFit: true,
+                        align: 'left',
+                        field: 'audit_object.title'
+                    },
+                    {
+                        headerName: this.$t('checklist'), align: 'left', field: 'checklist.title',
                         tooltipField: 'checklist.title', enableRowGroup: true
                     },
                     {
@@ -321,20 +329,20 @@
                         },
                         enableRowGroup: true
                     },
-                    {
-                        headerName: this.$t('nonconformity'), cellStyle: {textAlign: "center"}, field: 'audit_result',
-                        cellRenderer: function(params) {
-                            let good_results = 0;
-                            let results = params.value;
-                            for (let result in results) {
-                                if (results.hasOwnProperty(result) && parseInt(results[result].result) > 0) {
-                                    good_results++;
-                                }
-                            }
-                            let color = params.value.length === 0 ? 'blue' : (good_results === params.value.length ? 'green' : 'orange');
-                            return '<b class="' + color + '--text">' + (params.value.length - good_results) +'</b>';
-                        }
-                    },
+                     {
+                         headerName: this.$t('nonconformity'), cellStyle: {textAlign: "center"}, field: 'audit_result',
+                         cellRenderer: function(params) {
+                             let good_results = 0;
+                             let results = params.value;
+                             for (let result in results) {
+                                 if (results.hasOwnProperty(result) && parseInt(results[result].result) > 0) {
+                                     good_results++;
+                                 }
+                             }
+                             let color = params.value.length === 0 ? 'blue' : (good_results === params.value.length ? 'green' : 'orange');
+                             return '<b class="' + color + '--text">' + (params.value.length - good_results) +'</b>';
+                         }
+                     },
                     {headerName: this.$t('comment'), align: 'left', field: 'comment'},
                     {headerName: this.$t('date'), align: 'left', field: 'date', enableRowGroup: true},
                     {
@@ -406,10 +414,11 @@
         },
         beforeMount() {
             this.gridOptions = {
-                context: { componentParent: this },
+                context: {componentParent: this},
                 suppressDragLeaveHidesColumns: true,
                 suppressMakeColumnVisibleAfterUnGroup: true,
-                floatingFilter:true,
+                floatingFilter: true,
+                pagination: true,
                 enableSorting: true,
                 domLayout: 'autoHeight',
             };
