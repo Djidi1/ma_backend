@@ -19,7 +19,7 @@
 3. Запускаем команду php artisan migrate
 
 -------
-# TimeWeb
+## TimeWeb
 
 Для запуска скрипотв из консоли TimeWeb:
     `alias php='/opt/php71/bin/php'`
@@ -40,3 +40,6 @@ http://timeweb.com/ru/help//pages/viewpage.action?pageId=8781927
 alias node='/home/c/cx39083/nodejs/bin/node'
 alias npm='/home/c/cx39083/nodejs/bin/npm'
 export PATH=$PATH:/home/c/cx39083/nodejs/bin/
+
+## Ошибки
+1. Ошибка преобразования времени исправляется в файле `/web/ma_backend/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/HasAttributes.php` строка `748` удаляем `.u` из `str_replace('.v', '', $this->getDateFormat())`
