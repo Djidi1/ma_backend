@@ -99,6 +99,7 @@ class UsersController extends Controller
         }
         // Удаляем лишнюю для таблицы пользователей информацию
         unset ($requestData['responsible']);
+        $requestData['object_id'] = json_encode($requestData['object_id']);
         $result = User::where('id', $request->id)->update($requestData);
         return $result;
     }

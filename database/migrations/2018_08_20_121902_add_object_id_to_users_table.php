@@ -14,7 +14,7 @@ class AddObjectIdToUsersTable extends Migration
     public function up()
     {
 	    Schema::table('users', function($table) {
-		    $table->integer('object_id')->default(0)->after('name');
+		    $table->string('object_id')->after('name');
 	    });
     }
 

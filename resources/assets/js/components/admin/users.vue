@@ -40,45 +40,9 @@
                                 ></v-text-field>
                             </v-flex>
                             <!-- Ответственные -->
-                            <v-flex xs4>
-                                <p class="title">{{ $t('work_in') }}</p>
-                                <v-select
-                                        :items="grouped_objects"
-                                        item-text="title"
-                                        item-value="id"
-                                        v-model="editedItem.object_id"
-                                        :label="$t('object')"
 
-                                        required
-                                        chips
-                                        autocomplete
-                                >
-                                    <template slot="selection" slot-scope="data">
-                                        <v-chip
-                                                :selected="data.selected"
-                                                :key="JSON.stringify(data.item)"
-                                                close
-                                                small
-                                                class="chip--select-multi"
-                                                @input="data.parent.selectItem(data.item)"
-                                        >{{ data.item.title }}
-                                        </v-chip>
-                                    </template>
-                                    <template slot="item" slot-scope="data">
-                                        <template v-if="typeof data.item !== 'object'">
-                                            <v-list-tile-content v-text="data.item"></v-list-tile-content>
-                                        </template>
-                                        <template v-else>
-                                            <v-list-tile-content>
-                                                <v-list-tile-title v-html="data.item.title"></v-list-tile-title>
-                                                <v-list-tile-sub-title v-html="data.item.group"></v-list-tile-sub-title>
-                                            </v-list-tile-content>
-                                        </template>
-                                    </template>
-                                </v-select>
-                            </v-flex>
-                            <v-flex xs8>
-                                <p class="title">{{ $t('responsible_for') }}</p>
+                            <v-flex xs12>
+                                <p class="title">{{ $t('responsible_for') }} {{ $t('objects') }}</p>
                                 <v-select
                                         :items="grouped_objects"
                                         item-text="title"
@@ -113,6 +77,48 @@
                                         </template>
                                     </template>
                                 </v-select>
+                            </v-flex>
+                            <v-flex xs12>
+                                <p class="title">{{ $t('responsible_for') }} {{ $t('requirements') }}</p>
+                            </v-flex>
+                            <v-flex xs4>
+                                <v-select
+                                        :items="grouped_objects"
+                                        item-text="title"
+                                        item-value="id"
+                                        v-model="editedItem.object_id"
+                                        :label="$t('object')"
+                                        multiple
+                                        required
+                                        chips
+                                        autocomplete
+                                >
+                                    <template slot="selection" slot-scope="data">
+                                        <v-chip
+                                                :selected="data.selected"
+                                                :key="JSON.stringify(data.item)"
+                                                close
+                                                small
+                                                class="chip--select-multi"
+                                                @input="data.parent.selectItem(data.item)"
+                                        >{{ data.item.title }}
+                                        </v-chip>
+                                    </template>
+                                    <template slot="item" slot-scope="data">
+                                        <template v-if="typeof data.item !== 'object'">
+                                            <v-list-tile-content v-text="data.item"></v-list-tile-content>
+                                        </template>
+                                        <template v-else>
+                                            <v-list-tile-content>
+                                                <v-list-tile-title v-html="data.item.title"></v-list-tile-title>
+                                                <v-list-tile-sub-title
+                                                        v-html="data.item.group"></v-list-tile-sub-title>
+                                            </v-list-tile-content>
+                                        </template>
+                                    </template>
+                                </v-select>
+                            </v-flex>
+                            <v-flex xs8>
                                 <v-select
                                         :items="grouped_requirements"
                                         item-text="title"
@@ -142,7 +148,8 @@
                                         <template v-else>
                                             <v-list-tile-content>
                                                 <v-list-tile-title v-html="data.item.title"></v-list-tile-title>
-                                                <v-list-tile-sub-title v-html="data.item.group"></v-list-tile-sub-title>
+                                                <v-list-tile-sub-title
+                                                        v-html="data.item.group"></v-list-tile-sub-title>
                                             </v-list-tile-content>
                                         </template>
                                     </template>
@@ -210,13 +217,15 @@
                 editedItem: {
                     title: '',
                     password: '',
-                    object_id: 0,
+                    object_id: [],
                     role_id: 2,
                     responsible: {object_id: [], requirement_id: []}
                 },
                 defaultItem: {
                     title: '',
                     password: '',
+                    object_id: [],
+                    role_id: 2,
                     responsible: {object_id: [], requirement_id: []}
                 },
                 object_id: [],
@@ -349,7 +358,20 @@
                     {
                         headerName: this.$t('work_in'),
                         valueGetter: function (params) {
-                            return (params.data.object_id > 0) ? self.objects_items.find(x => x.id === params.data.object_id).title : '';
+                            let value = '-';
+                            if (params.data.object_id !== null && params.data.object_id.length > 0) {
+                                let item_names = [];
+                                for (let index in self.objects_items) {
+                                    if (self.objects_items.hasOwnProperty(index)) {
+                                        let attr = self.objects_items[index];
+                                        if (params.data.object_id.indexOf(attr.id) > -1) {
+                                            item_names.push(self.objects_items[index].title);
+                                        }
+                                    }
+                                }
+                                value = Array.from(new Set(item_names)).join(', ');
+                            }
+                            return value;
                         }
                     },
                     {
