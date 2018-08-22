@@ -25,7 +25,7 @@ class AuditListsController extends Controller
         $results = AuditResult::all();
         $users = User::all();
 
-        $audits = Audit::with('checklist', 'audit_object', 'audit_result', 'user')->orderBy('id', 'desc')->get();
+        $audits = Audit::with('checklist', 'audit_object', 'user')->orderBy('id', 'desc')->get();
         return compact('audits', 'checklists', 'object_groups', 'objects', 'results', 'users');
     }
 

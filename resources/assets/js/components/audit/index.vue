@@ -193,6 +193,7 @@
                 object_selected: 0,
                 object_groups: [],
                 objects: [],
+                results: [],
                 users: [],
                 editedIndex: -1,
                 editedItem: {
@@ -296,16 +297,26 @@
                 return moment(date, 'DD.MM.YYYY').format('YYYY-MM-DD');
             },
             getItems() {
+                let self = this;
                 this.gridOptions.api.showLoadingOverlay();
                 axios.get('/audits_all')
                     .then(response => {
-                        this.items = response.data.audits;
+                        let items = response.data.audits;
+                        let results = response.data.results;
                         this.object_selected = /*this.items.hasOwnProperty(0) ? (this.items[0].audit_object.audit_object_group_id || 0) :*/ 0;
                         this.object_select = parseInt(this.object_selected);
                         this.checklists = response.data.checklists;
                         this.object_groups = [{id: 0, title: this.$t('all')}].concat(response.data.object_groups);
                         this.objects = response.data.objects;
                         this.users = response.data.users;
+
+                        //  Добавляем результаты в массив аудитов
+                        items.forEach(function (item, index) {
+                           item['audit_result'] = results.filter(x => x.audit_id === item.id);
+                        });
+
+                        this.items = items;
+
                         this.loading = false;
                         this.gridOptions.api.sizeColumnsToFit();
                         this.gridOptions.api.hideOverlay();
@@ -386,7 +397,6 @@
                     let editedItem = this.editedItem;
                     let item = this.editedItem;
                     delete item['audit_object'];
-                    delete item['audit_result'];
                     delete item['checklist'];
                     delete item['user'];
                     axios.put('/audits_update/' + item.id, item)
