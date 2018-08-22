@@ -355,7 +355,7 @@
                             return self.roles_items.find(x => x.id === params.data.role_id).title;
                         }
                     },
-                    {
+                   /* {
                         headerName: this.$t('work_in'),
                         valueGetter: function (params) {
                             let value = '-';
@@ -373,7 +373,7 @@
                             }
                             return value;
                         }
-                    },
+                    },*/
                     {
                         headerName: this.$t('objects'),
                         valueGetter: function (params) {
