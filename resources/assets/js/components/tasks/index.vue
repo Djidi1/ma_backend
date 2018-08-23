@@ -365,7 +365,12 @@
                         for (let index in self.responsible) {
                             if (self.responsible.hasOwnProperty(index)) {
                                 let attr = self.responsible[index];
-                                if (attr.requirement_id.indexOf(item.result.requirement_id) > -1) {
+                                // Проверка на наличие парметра
+                                let object_group = (attr.user.object_group_id !== null) ? attr.user.object_group_id : [];
+                                // Проверка на наличие аудита
+                                let audit_object = (item.result.audit !== null) ? item.result.audit.audit_object : [];
+                                if (attr.requirement_id.indexOf(item.result.requirement_id) > -1
+                                    && object_group.indexOf(audit_object.audit_object_group_id) > -1) {
                                     if (self.responsible[index].user.id === self.$auth.user().id) {
                                         filter_responsible = true;
                                     }
@@ -377,7 +382,9 @@
                             for (let index in self.responsible) {
                                 if (self.responsible.hasOwnProperty(index)) {
                                     let attr = self.responsible[index];
-                                    if (attr.object_id.indexOf(item.result.audit.object_id) > -1) {
+                                    // Проверка на наличие аудита
+                                    let audit = (item.result.audit !== null) ? item.result.audit : [];
+                                    if (attr.object_id.indexOf(audit.object_id) > -1) {
                                         if (self.responsible[index].user.id === self.$auth.user().id) {
                                             filter_responsible = true;
                                         }
@@ -509,7 +516,9 @@
                             for (let index in self.responsible) {
                                 if (self.responsible.hasOwnProperty(index)) {
                                     let attr = self.responsible[index];
-                                    if (attr.requirement_id.indexOf(params.data.result.requirement_id) > -1) {
+                                    let object_group = (attr.user.object_group_id !== null) ? attr.user.object_group_id : [];
+                                    if (attr.requirement_id.indexOf(params.data.result.requirement_id) > -1
+                                        && object_group.indexOf(params.data.result.audit.audit_object.audit_object_group_id) > -1) {
                                         responsible_names.push(self.responsible[index].user.name);
                                     }
                                 }

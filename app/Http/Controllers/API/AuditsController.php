@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Audit;
+use App\AuditObject;
 use App\User;
 use App\Settings;
 use Illuminate\Http\Request;
@@ -131,10 +132,14 @@ class AuditsController extends Controller
                             );
                             // 2. Отправляем ответственному лицу сообщение на почту
                             if ($task_id > 0) {
+                                // Ищем группу объектов
+                                $object = AuditObject::where('id','=',$object_id)->find(1);
                                 // Ищем ответственных по требованию
                                 $responsible = DB::table('responsible')
-                                    ->whereRaw("REPLACE(REPLACE(requirement_id, '[', ','), ']', ',') LIKE '%,$requirement_id,%'")->first();
-                                // Если не нашли, то ищем по оюъекту
+                                    ->join('users', 'responsible.user_id', '=', 'users.id')
+                                    ->whereRaw("REPLACE(REPLACE(users.object_group_id, '[', ','), ']', ',') LIKE '%,{$object['audit_object_group_id']},%'")
+                                    ->whereRaw("REPLACE(REPLACE(responsible.requirement_id, '[', ','), ']', ',') LIKE '%,$requirement_id,%'")->first();
+                                // Если не нашли, то ищем по объекту
                                 if ($responsible == null) {
                                     $responsible = DB::table('responsible')
                                         ->whereRaw("REPLACE(REPLACE(object_id, '[', ','), ']', ',') LIKE '%,$object_id,%'")->first();

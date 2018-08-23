@@ -83,11 +83,11 @@
                             </v-flex>
                             <v-flex xs4>
                                 <v-select
-                                        :items="grouped_objects"
+                                        :items="object_groups"
                                         item-text="title"
                                         item-value="id"
-                                        v-model="editedItem.object_id"
-                                        :label="$t('object')"
+                                        v-model="editedItem.object_group_id"
+                                        :label="$t('object_groups')"
                                         multiple
                                         required
                                         chips
@@ -217,14 +217,14 @@
                 editedItem: {
                     title: '',
                     password: '',
-                    object_id: [],
+                    object_group_id: [],
                     role_id: 2,
                     responsible: {object_id: [], requirement_id: []}
                 },
                 defaultItem: {
                     title: '',
                     password: '',
-                    object_id: [],
+                    object_group_id: [],
                     role_id: 2,
                     responsible: {object_id: [], requirement_id: []}
                 },
@@ -432,6 +432,9 @@
                 this.editedIndex = this.items.indexOf(item);
                 if (item.responsible === null) {
                     item.responsible = {object_id: [], requirement_id: []};
+                }
+                if (item.object_group_id === null) {
+                    item.object_group_id = [];
                 }
                 this.editedItem = Object.assign({}, item);
                 // Сброс значений в группах
