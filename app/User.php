@@ -19,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'role_id',
+        'name', 'email', 'password', 'role_id', 'object_group_id'
     ];
 
     protected $casts = [
@@ -45,13 +45,11 @@ class User extends Authenticatable
             $this->attributes['password'] = app('hash')->needsRehash($input) ? Hash::make($input) : $input;
     }
 
-    public function setRoleIdAttribute($input)
-    {
+    public function setRoleIdAttribute($input){
         $this->attributes['role_id'] = $input ? $input : null;
     }
 
-    public function role()
-    {
+    public function role(){
         return $this->belongsTo(Role::class, 'role_id');
     }
 
@@ -62,15 +60,16 @@ class User extends Authenticatable
     public function responsible(){
         return $this->belongsTo('App\Responsible', 'id', 'user_id');
     }
+
     public function object(){
         return $this->belongsTo('App\AuditObject');
     }
+
     public function requirement(){
         return $this->hasMany('App\Requirement');
     }
 
-    public function sendPasswordResetNotification($token)
-    {
+    public function sendPasswordResetNotification($token){
         $this->notify(new ResetPassword($token));
     }
 }
