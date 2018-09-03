@@ -618,6 +618,7 @@
                 item['responsible_user'] = this.responsible_user(item.result.audit.object_id, item.result.requirement_id);
                 this.editedItem = Object.assign({}, item);
                 this.getComments(item.id);
+                this.comment_message = '';
                 this.dialog = true
             },
 
