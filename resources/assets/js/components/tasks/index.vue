@@ -113,6 +113,7 @@
                                 <v-alert
                                         v-if="editedItem.comment !== '' && editedItem.comment !== '-'"
                                         :value="true"
+                                        outline
                                         color="warning"
                                         icon="priority_high"
                                         style="width: 100%"
