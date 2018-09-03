@@ -245,8 +245,8 @@
                 ],
                 email: '',
                 emailRules: [
-                    v => !!v || this.$t('email_required'),
-                    v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || this.$t('email_not_valid')
+                    v => !!v || 'E-mail is required',
+                    v => /.+@.+/.test(v) || 'E-mail must be valid'
                 ],
                 password: '',
                 e1: true,
