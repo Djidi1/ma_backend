@@ -21,8 +21,9 @@
                             <v-icon>arrow_back</v-icon>
                         </v-btn>
                         <v-toolbar-title style="line-height: 1;">
-                            {{ editedItem.result.audit.audit_object.title }}<br />
-                            <span class="caption">{{ editedItem.result.requirement.title }}</span>
+                            {{ editedItem.result.audit.audit_object.title }}
+                            <!--<br />-->
+                            <!--<span class="caption">{{ editedItem.result.requirement.title }}</span>-->
                         </v-toolbar-title>
                         <v-spacer></v-spacer>
                         <v-toolbar-items>
@@ -44,6 +45,7 @@
                                             </v-list-tile-content>
                                         </v-list-tile>
                                     </v-list>
+                                    <v-alert :value="true" outline color="info" icon="info">{{ editedItem.result.requirement.title }}</v-alert>
                                 </v-flex>
                                 <v-flex xs6>
                                     <v-dialog
@@ -615,6 +617,7 @@
             },
             editItem(item) {
                 this.editedIndex = this.items.indexOf(item);
+                window.location.href = '/#/tasks_list/' + item.id;
                 item['responsible_user'] = this.responsible_user(item.result.audit.object_id, item.result.requirement_id);
                 this.editedItem = Object.assign({}, item);
                 this.getComments(item.id);
@@ -640,6 +643,7 @@
                     this.editedItem = Object.assign({}, this.defaultItem);
                     this.commentsItem = this.defaultCommentsItem;
                     this.editedIndex = -1;
+                    window.location.href = '/#/tasks_list/:id';
                 }, 300)
             },
             send_comment() {

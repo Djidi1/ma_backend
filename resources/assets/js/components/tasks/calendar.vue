@@ -217,9 +217,13 @@
                                 Object.defineProperty(audit_tasks[i], 'startDate', Object.getOwnPropertyDescriptor(audit_tasks[i], 'date'));
                             }
                             audit_tasks[i].orig_title = audit_tasks[i].title;
-                            audit_tasks[i].title = '<span class="cut-text">' +
-                                                    audit_tasks[i].audit_object.audit_object_group.title +
-                                                   '</span><br/><b>' + audit_tasks[i].audit_object.title + '</b>';
+                            // let audit_object = (audit_tasks[i].audit_object !== null) ? audit_tasks[i].audit_object : [];
+                            // let object_group = (audit_object.audit_object_group !== null) ? audit_object.audit_object_group : [];
+
+                            // console.log(object_group);
+
+                            // audit_tasks[i].title = '<span class="cut-text">' + object_group.title +
+                            //                        '</span><br/><b>' + audit_object.title + '</b>';
                             // Запланированные в синий
                             let cssClass = 'new-item';
                             if (audit_tasks[i]['audit_result'].length > 0) {
