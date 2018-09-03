@@ -113,8 +113,8 @@
                                 <v-alert
                                         v-if="editedItem.comment !== '' && editedItem.comment !== '-'"
                                         :value="true"
-                                        outline color="info"
-                                        icon="info"
+                                        color="warning"
+                                        icon="priority_high"
                                         style="width: 100%"
                                 >{{ editedItem.comment }}</v-alert>
                                 <v-card width="100%" tile v-if="editedItem.id > 0">
