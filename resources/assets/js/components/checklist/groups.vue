@@ -123,8 +123,8 @@
                     {
                         headerName: this.$t('checklists'), field: 'checklists',
                         width: 90,
-                        cellRenderer: function(params) {
-                            return params.value.length;
+                        valueGetter: function(params) {
+                            return params.data.checklists.length;
                         }
                     },
                     (this.$auth.user().role_id !== 2) ? {

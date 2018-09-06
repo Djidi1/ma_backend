@@ -121,8 +121,8 @@
                     {
                         headerName: this.$t('objects'), field: 'audit_objects',
                         width: 90,
-                        cellRenderer: function(params) {
-                            return params.value.length;
+                        valueGetter: function(params) {
+                            return params.data.audit_objects.length;
                         }
                     },
                     {
