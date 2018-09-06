@@ -183,6 +183,7 @@
                          :enableColResize="true"
             >
             </ag-grid-vue>
+            <resize-observer @notify="handleResize" />
         </v-card>
     </div>
 </template>
@@ -330,6 +331,11 @@
             }
         },
         methods: {
+            handleResize () {
+                setTimeout(() => {
+                    this.gridOptions.api.sizeColumnsToFit();
+                }, 500)
+            },
             getItems() {
                 this.gridOptions.api.showLoadingOverlay();
                 axios.get('/users_all')

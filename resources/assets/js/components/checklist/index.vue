@@ -45,6 +45,7 @@
                          :enableColResize="true"
             >
             </ag-grid-vue>
+            <resize-observer @notify="handleResize" />
         </v-card>
     </div>
 </template>
@@ -106,6 +107,11 @@
             }
         },
         methods: {
+            handleResize () {
+                setTimeout(() => {
+                    this.gridOptions.api.sizeColumnsToFit();
+                }, 500)
+            },
             getItems() {
                 axios.get('/checklists_all')
                     .then(response => {

@@ -34,6 +34,8 @@ import VueAxios from 'vue-axios';
 import VueLocalStorage from 'vue-ls';
 import VuetifyConfirm from 'vuetify-confirm'
 import 'vuetify/dist/vuetify.min.css'
+import { ResizeObserver } from 'vue-resize';
+
 
 import "ag-grid/dist/styles/ag-grid.css";
 import "ag-grid/dist/styles/ag-theme-balham.css";
@@ -47,6 +49,8 @@ axios.defaults.baseURL = '/api';
 Vue.use(VueLocalStorage, { namespace: 'vuejs__' });
 
 Vue.component('home', require('./components/home/Index.vue'));
+Vue.component('resize-observer', ResizeObserver);
+
 import App from './components/home/Index.vue';
 
 // Хранение в сторе данных о странице входа

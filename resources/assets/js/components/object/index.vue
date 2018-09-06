@@ -56,6 +56,7 @@
                          :enableFilter="true"
             >
             </ag-grid-vue>
+            <resize-observer @notify="handleResize" />
         </v-card>
     </div>
 </template>
@@ -132,8 +133,10 @@
             }
         },
         methods: {
-            resize() {
-                this.gridOptions.api.sizeColumnsToFit();
+            handleResize () {
+                setTimeout(() => {
+                    this.gridOptions.api.sizeColumnsToFit();
+                }, 500)
             },
             getItems() {
                 axios.get('/objects_all')
@@ -148,7 +151,6 @@
                         this.loading = false;
                         this.gridOptions.api.sizeColumnsToFit();
                         this.gridOptions.api.hideOverlay();
-                        window.addEventListener('resize', this.resize);
                     });
                 let self = this;
                 this.columnDefs = [
@@ -246,9 +248,6 @@
                 }
                 this.close()
             }
-        },
-        beforeDestroy: function () {
-            window.getElementsByClassName("content")[0].removeEventListener('resize', this.resize);
         },
         beforeMount() {
             this.gridOptions = {

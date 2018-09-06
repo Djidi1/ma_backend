@@ -76,6 +76,7 @@
                 <b class="orange--text">5..7</b> - средний уровень опасности <br/>
                 <b class="red--text">8..10</b> - высокий уровень опасности <br/>
             </v-alert>
+            <resize-observer @notify="handleResize" />
         </v-card>
     </div>
 </template>
@@ -151,6 +152,11 @@
             }
         },
         methods: {
+            handleResize () {
+                setTimeout(() => {
+                    this.gridOptions.api.sizeColumnsToFit();
+                }, 500)
+            },
             getItems() {
                 let self = this;
                 axios.get('/requirements_all')

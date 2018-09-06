@@ -58,6 +58,7 @@
                     Your search for "{{ search }}" found no results.
                 </v-alert>
             </v-data-table>
+            <resize-observer @notify="handleResize" />
         </v-card>
     </div>
 </template>
@@ -102,6 +103,11 @@
             }
         },
         methods: {
+            handleResize () {
+                setTimeout(() => {
+                    this.gridOptions.api.sizeColumnsToFit();
+                }, 500)
+            },
             getItems() {
                 axios.get('/requirement_groups_all')
                     .then(response => {

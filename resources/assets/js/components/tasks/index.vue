@@ -248,6 +248,7 @@
                 <v-icon color="red">clear</v-icon>
                 - просрочены<br/>
             </v-alert>
+            <resize-observer @notify="handleResize" />
         </v-card>
         </div>
     </v-flex>
@@ -256,7 +257,7 @@
 <script>
     import Vue from "vue";
     import {AgGridVue} from "ag-grid-vue";
-    import FileUpload from 'vue-upload-component'
+    import FileUpload from 'vue-upload-component';
 
     const ActionButtons = Vue.extend({
         template: `<span><v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="blue">work</v-icon></v-btn></span>`,
@@ -424,6 +425,11 @@
             }
         },
         methods: {
+            handleResize () {
+                setTimeout(() => {
+                    this.gridOptions.api.sizeColumnsToFit();
+                }, 500)
+            },
             inputFilter: function (newFile, oldFile, prevent) {
                 if (newFile && !oldFile) {
                     // Filter non-image file
@@ -507,8 +513,8 @@
                     },
                     {
                         headerName: this.$t('date'), align: 'left', field: 'result.created_at',
-                        cellRenderer: function (params) {
-                            return moment(params.value, 'YYYY-MM-DD').format('DD.MM.YYYY');
+                        valueGetter: function (params) {
+                            return moment(params.data.result.created_at, 'YYYY-MM-DD').format('DD.MM.YYYY');
                         }
                     },
                     {
@@ -554,10 +560,16 @@
                         }
                     },
                     {
-                        headerName: this.$t('date_start'), align: 'left', field: 'start'
+                        headerName: this.$t('date_start'), align: 'left', field: 'start',
+                        valueGetter: function (params) {
+                            return moment(params.data.start).format('DD.MM.YYYY');
+                        }
                     },
                     {
-                        headerName: this.$t('date_end'), align: 'left', field: 'end'
+                        headerName: this.$t('date_end'), align: 'left', field: 'end',
+                        valueGetter: function (params) {
+                            return moment(params.data.end).format('DD.MM.YYYY');
+                        }
                     },
                     {
                         headerName: this.$t('comment'), align: 'left', field: 'comment',
@@ -680,9 +692,6 @@
                     });
                 this.close()
             },
-            handleResize() {
-                this.gridOptions.api.sizeColumnsToFit();
-            },
             responsible_user(object_id, requirement_id) {
                 let self = this;
                 let responsible = {name: null};
@@ -708,15 +717,6 @@
                 }
                 return responsible;
             }
-        },
-
-        // bind event handlers to the `handleResize` method (defined below)
-        ready: function () {
-            this.handleResize();
-            window.addEventListener('resize', this.handleResize);
-        },
-        beforeDestroy: function () {
-            window.removeEventListener('resize', this.handleResize)
         },
         beforeMount() {
             this.gridOptions = {

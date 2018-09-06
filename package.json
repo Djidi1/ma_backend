@@ -30,6 +30,7 @@
         "moment": "^2.21.0",
         "vue-fullcalendar": "^1.0.9",
         "vue-ls": "^2.4.1",
+        "vue-resize": "^0.4.4",
         "vue-simple-calendar": "^3.0.2",
         "vue-upload-component": "^2.8.9",
         "vuetify": "^1.0.6",

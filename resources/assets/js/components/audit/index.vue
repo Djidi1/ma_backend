@@ -148,6 +148,7 @@
                 <b class="orange--text">N</b> - выявлены несоответствия требованиям <br/>
                 <b class="green--text">N</b> - закрытый аудит <br/>
             </v-alert>
+            <resize-observer @notify="handleResize" />
         </v-card>
     </div>
 </template>
@@ -277,6 +278,11 @@
             }
         },
         methods: {
+            handleResize () {
+                setTimeout(() => {
+                    this.gridOptions.api.sizeColumnsToFit();
+                }, 500)
+            },
             countResults(results) {
                 let good_results = 0;
                 for (let result in results) {
