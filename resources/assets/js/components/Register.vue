@@ -44,24 +44,6 @@
                     ></v-text-field>
                 </v-flex>
                 <v-btn type="submit" color="success">Submit</v-btn>
-    <!--
-                <div class="form-group" v-bind:class="{ 'has-error': error && errors.name }">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" class="form-control" v-model="name" required>
-                    <span class="help-block" v-if="error && errors.name">{{ errors.name }}</span>
-                </div>
-                <div class="form-group" v-bind:class="{ 'has-error': error && errors.email }">
-                    <label for="email">E-mail</label>
-                    <input type="email" id="email" class="form-control" placeholder="user@example.com" v-model="email" required>
-                    <span class="help-block" v-if="error && errors.email">{{ errors.email }}</span>
-                </div>
-                <div class="form-group" v-bind:class="{ 'has-error': error && errors.password }">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" class="form-control" v-model="password" required>
-                    <span class="help-block" v-if="error && errors.password">{{ errors.password }}</span>
-                </div>
-                <button type="submit" class="btn btn-default">Submit</button>
-                -->
             </form>
         </v-card>
     </div>
@@ -79,7 +61,7 @@
                 success: false,
                 nameRules: [
                     v => !!v || 'Name is required',
-                    v => typeof v !== 'undefined' ? (v.length  <= 10 || 'Name must be less than 10 characters') : ''
+                    v => typeof v !== 'undefined' ? (v.length  <= 50 || 'Name must be less than 50 characters') : ''
                 ],
                 emailRules: [
                     v => !!v || 'E-mail is required',
