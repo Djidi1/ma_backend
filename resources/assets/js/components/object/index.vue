@@ -164,12 +164,12 @@
                     {headerName: this.$t('title'), align: 'left', field: 'title'},
                     {
                         headerName: this.$t('responsible'), field: 'id',
-                        cellRenderer: function(params) {
+                        valueGetter: function(params) {
                             let responsible_names = [];
                             for(let index in self.responsible) {
                                 if (self.responsible.hasOwnProperty(index)) {
                                     let attr = self.responsible[index];
-                                    if (attr.object_id.indexOf(params.value) > -1){
+                                    if (attr.object_id.indexOf(params.data.id) > -1){
                                         responsible_names.push(self.responsible[index].user.name);
                                     }
                                 }
@@ -179,8 +179,8 @@
                     },
                     {
                         headerName: this.$t('audits'), width: 90, cellStyle: {textAlign: "center"}, field: 'audit',
-                        cellRenderer: function(params) {
-                            return params.value.length;
+                        valueGetter: function(params) {
+                            return params.data.audit.length;
                         }
                     },
                     {

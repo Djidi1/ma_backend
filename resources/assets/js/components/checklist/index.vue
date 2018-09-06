@@ -126,15 +126,15 @@
                     {headerName: this.$t('title'), align: 'left', field: 'title'},
                     {
                         headerName: this.$t('checklist_categories'), field: 'cl_category',
-                        cellRenderer: function(params) {
-                            return params.value.title;
+                        valueGetter: function(params) {
+                            return params.data.cl_category.title;
                         }
                     },
                     {
                         headerName: this.$t('requirements'), field: 'requirement',
                         width: 90,
-                        cellRenderer: function(params) {
-                            return params.value.length;
+                        valueGetter: function(params) {
+                            return params.data.requirement.length;
                         }
                     },
                     (this.$auth.user().role_id !== 2) ? {
