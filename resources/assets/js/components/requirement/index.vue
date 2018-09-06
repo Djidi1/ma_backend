@@ -186,12 +186,12 @@
                     },
                     {
                         headerName: this.$t('responsible'), field: 'id',
-                        cellRenderer: function(params) {
+                        valueGetter: function(params) {
                             let responsible_names = [];
                             for(let index in self.responsible) {
                                 if (self.responsible.hasOwnProperty(index)) {
                                     let attr = self.responsible[index];
-                                    if (attr.requirement_id.indexOf(params.value) > -1){
+                                    if (attr.requirement_id.indexOf(params.data.id) > -1){
                                         responsible_names.push(self.responsible[index].user.name);
                                     }
                                 }
