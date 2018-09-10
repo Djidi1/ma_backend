@@ -24,6 +24,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::post('get-checklists', 'ChecklistController@getChecklists');
     Route::post('get-results', 'AuditResultsController@getResults');
     Route::post('get-attache', 'AuditResultsController@getImage');
+	Route::post('get-users', 'Admin\UsersController@index');
 
     Route::post('put-audits', 'API\AuditsController@putAudits');
 });
