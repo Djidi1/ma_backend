@@ -76,6 +76,7 @@ class AuditsController extends Controller
                         $requirement_id = $requirement['id'];
                         $status = $requirement['status'];
                         $comments = $requirement['comments'];
+                        $responsible_id = $requirement['responsible_id'];
                         $comment_text = isset($comments[0]['text']) ? $comments[0]['text'] : '';
                         $audit_result_id = DB::table('audit_results')->insertGetId(
                             [
@@ -116,22 +117,9 @@ class AuditsController extends Controller
                         }
                         // Если результат неудовлетворительный:
                         if ($status < 0) {
-                            // 1. Создаем задание на устранение
-                            $end_date = Carbon::now()->addWeeks(2);
-                            $task_id = DB::table('tasks')->insertGetId(
-                                [
-                                    'result_id' => $audit_result_id,
-                                    'task_status_id' => 1,
-                                    'done_percent' => 0,
-                                    'comment' => $comment_text,
-                                    'start' => Carbon::now(),
-                                    'end' => $end_date,
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now()
-                                ]
-                            );
-                            // 2. Отправляем ответственному лицу сообщение на почту
-                            if ($task_id > 0) {
+                            // 0. Указываем ответственного
+                            // Если не указан берем с портала
+                            if ($responsible_id == 0) {
                                 // Ищем группу объектов
                                 $object = AuditObject::where('id','=',$object_id)->find(1);
                                 // Ищем ответственных по требованию
@@ -144,10 +132,33 @@ class AuditsController extends Controller
                                     $responsible = DB::table('responsible')
                                         ->whereRaw("REPLACE(REPLACE(object_id, '[', ','), ']', ',') LIKE '%,$object_id,%'")->first();
                                 }
-                                $settings = Settings::find(1);
-                                // Отправляем письмо, если нашли ответственного
+                                //Если нашли на портале, то устанавливаем его ID
                                 if ($responsible !== null) {
-                                    $user = User::find($responsible->user_id);
+                                    $responsible_id = $responsible->user_id;
+                                }
+                            }
+
+                            // 1. Создаем задание на устранение
+                            $end_date = Carbon::now()->addWeeks(2);
+                            $task_id = DB::table('tasks')->insertGetId(
+                                [
+                                    'result_id' => $audit_result_id,
+                                    'responsible_id' => $responsible_id,
+                                    'task_status_id' => 1,
+                                    'done_percent' => 0,
+                                    'comment' => $comment_text,
+                                    'start' => Carbon::now(),
+                                    'end' => $end_date,
+                                    'created_at' => Carbon::now(),
+                                    'updated_at' => Carbon::now()
+                                ]
+                            );
+                            // 2. Отправляем ответственному лицу сообщение на почту
+                            if ($task_id > 0) {
+                                $settings = Settings::find(1);
+                                // Отправляем письмо, если указан ответственный
+                                if ($responsible_id > 0) {
+                                    $user = User::find($responsible_id);
                                     Mail::to($user)->send(new TaskMail($user, $settings->subject, $settings->body, $task_id, $comment_text, $end_date));
                                 } else {
                                     $user = Auth::user();

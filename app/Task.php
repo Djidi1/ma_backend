@@ -12,6 +12,7 @@ class Task extends Model
 
     protected $fillable = [
         'task_status_id',
+        'responsible_id',
         'result_id',
         'done_percent',
         'comment',
@@ -22,6 +23,7 @@ class Task extends Model
 
     protected $casts = [
         'result_id' => 'integer',
+        'responsible_id' => 'integer',
         'task_status_id' => 'integer',
     ];
     public function result(){

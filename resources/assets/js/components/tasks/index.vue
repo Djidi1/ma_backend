@@ -520,30 +520,34 @@
                     {
                         headerName: this.$t('responsible'), field: 'result.requirement_id',
                         valueGetter: function (params) {
-                            let responsible_names = [];
-                            // Ищем ответственных за требование
-                            for (let index in self.responsible) {
-                                if (self.responsible.hasOwnProperty(index)) {
-                                    let attr = self.responsible[index];
-                                    let object_group = (attr.user.object_group_id !== null) ? attr.user.object_group_id : [];
-                                    if (attr.requirement_id.indexOf(params.data.result.requirement_id) > -1
-                                        && object_group.indexOf(params.data.result.audit.audit_object.audit_object_group_id) > -1) {
-                                        responsible_names.push(self.responsible[index].user.name);
-                                    }
-                                }
-                            }
-                            // Если нет за требование, то ищем за объект
-                            if (responsible_names.length === 0) {
+                            if (params.data.responsible_id > 0) {
+                                return self.users.find(x => x.id === params.data.resposible_id).name;
+                            }else {
+                                let responsible_names = [];
+                                // Ищем ответственных за требование
                                 for (let index in self.responsible) {
                                     if (self.responsible.hasOwnProperty(index)) {
                                         let attr = self.responsible[index];
-                                        if (attr.object_id.indexOf(params.data.result.audit.object_id) > -1) {
+                                        let object_group = (attr.user.object_group_id !== null) ? attr.user.object_group_id : [];
+                                        if (attr.requirement_id.indexOf(params.data.result.requirement_id) > -1
+                                            && object_group.indexOf(params.data.result.audit.audit_object.audit_object_group_id) > -1) {
                                             responsible_names.push(self.responsible[index].user.name);
                                         }
                                     }
                                 }
+                                // Если нет за требование, то ищем за объект
+                                if (responsible_names.length === 0) {
+                                    for (let index in self.responsible) {
+                                        if (self.responsible.hasOwnProperty(index)) {
+                                            let attr = self.responsible[index];
+                                            if (attr.object_id.indexOf(params.data.result.audit.object_id) > -1) {
+                                                responsible_names.push(self.responsible[index].user.name);
+                                            }
+                                        }
+                                    }
+                                }
+                                return [...new Set(responsible_names)].join(', ');
                             }
-                            return [...new Set(responsible_names)].join(', ');
                         },
                         cellRenderer: function (params) {
                             let tag_type = 'b';
