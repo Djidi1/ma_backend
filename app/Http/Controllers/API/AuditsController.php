@@ -76,7 +76,7 @@ class AuditsController extends Controller
                         $requirement_id = $requirement['id'];
                         $status = $requirement['status'];
                         $comments = $requirement['comments'];
-                        $responsible_id = $requirement['responsible_id'];
+                        $responsible_id = $requirement['responsible'];
                         $comment_text = isset($comments[0]['text']) ? $comments[0]['text'] : '';
                         $audit_result_id = DB::table('audit_results')->insertGetId(
                             [
