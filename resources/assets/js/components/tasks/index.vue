@@ -521,7 +521,7 @@
                         headerName: this.$t('responsible'), field: 'result.requirement_id',
                         valueGetter: function (params) {
                             if (params.data.responsible_id > 0) {
-                                return self.users.find(x => x.id === params.data.resposible_id).name;
+                                return self.users.find(x => x.id === params.data.responsible_id).name;
                             }else {
                                 let responsible_names = [];
                                 // Ищем ответственных за требование
