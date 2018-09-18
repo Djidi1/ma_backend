@@ -256,7 +256,8 @@
                     let item_index = this.editedIndex;
                     let editedItem = this.editedItem;
                     let item = this.editedItem;
-                    item.title = item['orig_title'];
+                    item['title'] = item['orig_title'];
+                    item['comment'] = item['orig_title'];
                     delete item['audit_object'];
                     delete item['audit_result'];
                     delete item['checklist'];
@@ -279,9 +280,16 @@
                 } else {
                     let new_item = this.editedItem;
                     new_item.date_add = this.editedItem.date;
+                    new_item['title'] = this.editedItem.orig_title;
+                    new_item['comment'] = this.editedItem.orig_title;
                     axios.post(`/audits_save`, new_item)
                         .then(response => {
                             let addedItem = response.data;
+
+                            addedItem.title = '<span class="cut-text">' + addedItem.audit_object.audit_object_group.title +
+                                '</span><br/><b>' + addedItem.audit_object.title + '</b>';
+                            addedItem.orig_title = addedItem.comment;
+
                             Object.defineProperty(addedItem, 'startDate', Object.getOwnPropertyDescriptor(addedItem, 'date'));
                             this.events.push(addedItem)
                         })

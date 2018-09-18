@@ -48,7 +48,7 @@ class AuditListsController extends Controller
     {
         $requestData = $request->all();
         $result = Audit::create($requestData);
-        $audit = Audit::with('checklist', 'audit_object', 'audit_result', 'user')->where('id', $result->id)->first();
+        $audit = Audit::with('audit_result', 'audit_object.audit_object_group', 'user')->where('id', $result->id)->first();
         return $audit;
     }
 
