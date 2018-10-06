@@ -522,7 +522,7 @@
                         valueGetter: function (params) {
                             if (params.data.responsible_id > 0) {
                                 return self.users.find(x => x.id === params.data.responsible_id).name;
-                            }else {
+                            } else {
                                 let responsible_names = [];
                                 // Ищем ответственных за требование
                                 for (let index in self.responsible) {
@@ -633,9 +633,14 @@
                 this.dialog_photo = true;
             },
             editItem(item) {
+                let self = this;
                 this.editedIndex = this.items.indexOf(item);
                 window.location.href = '/#/tasks_list/' + item.id;
-                item['responsible_user'] = this.responsible_user(item.result.audit.object_id, item.result.requirement_id);
+                if (item.responsible_id > 0) {
+                    item['responsible_user'] =  self.users.find(x => x.id === item.responsible_id);
+                } else {
+                    item['responsible_user'] = this.responsible_user(item.result.audit.object_id, item.result.requirement_id);
+                }
                 this.editedItem = Object.assign({}, item);
                 this.getComments(item.id);
                 this.comment_message = '';
