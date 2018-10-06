@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Audit;
 use App\AuditObject;
+use App\Requirement;
 use App\User;
 use App\Settings;
 use Illuminate\Http\Request;
@@ -43,6 +44,7 @@ class AuditsController extends Controller
     public function putAudits(Request $request)
     {
         $user = Auth::user();
+        $settings = Settings::find(1);
         $data = $request->json()->all();
         if (isset($data['audit'])) {
             $object_id = $data['audit']['object_id'];
@@ -51,6 +53,12 @@ class AuditsController extends Controller
             $audit_comment = $data['audit']['comment'];
             $audit_comment = isset($audit_comment[0]['text']) ? $audit_comment[0]['text'] : '';
             $audit_id = 0;
+            // Ищем объект
+            $object = AuditObject::find($object_id);
+
+            // for SendMail Debugging
+            //Mail::to($user)->send(new TaskMail($user, $settings->mail_subject, $settings->mail_body, 1, 'common', '00', $object, ['title'=>'test']));
+
             foreach ($data['audit']['check_list'] as $check_list){
                 $check_list_id = $check_list['id'];
                 $audit_id = $check_list['audit_id'];
@@ -73,10 +81,11 @@ class AuditsController extends Controller
                 // Если аудит создан, то проставляем по нему результаты проверок
                 if ( $audit_id > 0 ) {
                     foreach ($check_list['requirement'] as $requirement) {
+                        $resp_ids = [];
                         $requirement_id = $requirement['id'];
                         $status = $requirement['status'];
                         $comments = $requirement['comments'];
-                        $responsible_id = $requirement['responsible'];
+                        $resp_ids[] = $requirement['responsible'];
                         $comment_text = isset($comments[0]['text']) ? $comments[0]['text'] : '';
                         $audit_result_id = DB::table('audit_results')->insertGetId(
                             [
@@ -117,25 +126,23 @@ class AuditsController extends Controller
                         }
                         // Если результат неудовлетворительный:
                         if ($status < 0) {
-                            // 0. Указываем ответственного
-                            // Если не указан берем с портала
-                            if ($responsible_id == 0) {
-                                // Ищем группу объектов
-                                $object = AuditObject::where('id','=',$object_id)->find(1);
-                                // Ищем ответственных по требованию
-                                $responsible = DB::table('responsible')
-                                    ->join('users', 'responsible.user_id', '=', 'users.id')
-                                    ->whereRaw("REPLACE(REPLACE(users.object_group_id, '[', ','), ']', ',') LIKE '%,{$object['audit_object_group_id']},%'")
-                                    ->whereRaw("REPLACE(REPLACE(responsible.requirement_id, '[', ','), ']', ',') LIKE '%,$requirement_id,%'")->first();
-                                // Если не нашли, то ищем по объекту
-                                if ($responsible == null) {
-                                    $responsible = DB::table('responsible')
-                                        ->whereRaw("REPLACE(REPLACE(object_id, '[', ','), ']', ',') LIKE '%,$object_id,%'")->first();
-                                }
-                                //Если нашли на портале, то устанавливаем его ID
-                                if ($responsible !== null) {
-                                    $responsible_id = $responsible->user_id;
-                                }
+                            // 0. Указываем ответственных с портала
+                            // Ищем требование
+                            $requirement = Requirement::find($requirement_id);
+                            // Ищем ответственных по требованию
+                            $resp_req = DB::table('responsible')
+                                ->join('users', 'responsible.user_id', '=', 'users.id')
+                                ->whereRaw("REPLACE(REPLACE(users.object_group_id, '[', ','), ']', ',') LIKE '%,{$object['audit_object_group_id']},%'")
+                                ->whereRaw("REPLACE(REPLACE(responsible.requirement_id, '[', ','), ']', ',') LIKE '%,$requirement_id,%'")->get();
+                            // ищем по объекту
+                            $resp_obj = DB::table('responsible')
+                                ->whereRaw("REPLACE(REPLACE(object_id, '[', ','), ']', ',') LIKE '%,$object_id,%'")->get();
+                            //Если нашли на портале, то устанавливаем их ID
+                            foreach ($resp_req as $resp) {
+                                $resp_ids[] = $resp->user_id;
+                            }
+                            foreach ($resp_obj as $resp) {
+                                $resp_ids[] = $resp->user_id;
                             }
 
                             // 1. Создаем задание на устранение
@@ -143,7 +150,7 @@ class AuditsController extends Controller
                             $task_id = DB::table('tasks')->insertGetId(
                                 [
                                     'result_id' => $audit_result_id,
-                                    'responsible_id' => $responsible_id,
+                                    'responsible_id' => isset($resp_ids[0]) ? $resp_ids[0] : $user->id, // Если не нашли ответственных, то указываем аудитора
                                     'task_status_id' => 1,
                                     'done_percent' => 0,
                                     'comment' => $comment_text,
@@ -155,17 +162,14 @@ class AuditsController extends Controller
                             );
                             // 2. Отправляем ответственному лицу сообщение на почту
                             if ($task_id > 0) {
-                                $settings = Settings::find(1);
                                 // Отправляем письмо, если указан ответственный
-                                if ($responsible_id > 0) {
-                                    $user = User::find($responsible_id);
-                                    Mail::to($user)->send(new TaskMail($user, $settings->subject, $settings->body, $task_id, $comment_text, $end_date));
-                                } else {
-                                    $user = Auth::user();
+                                foreach ($resp_ids as $resp_id) {
+                                    $resp_user = User::find($resp_id);
+                                    Mail::to($user)->send(new TaskMail($resp_user, $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
                                 }
                                 // Система гарантий качества
                                 Mail::to('djidi@mail.ru')
-                                    ->send(new TaskMail($user, $settings->subject, $settings->body, $task_id, $comment_text, $end_date));
+                                    ->send(new TaskMail($user, "!>" . $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
                             } 
                         }
                     }

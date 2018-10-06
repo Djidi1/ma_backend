@@ -16,6 +16,8 @@ class TaskMail extends Mailable
     public $body;
     public $task_id;
     public $comment;
+    public $object;
+    public $requirement;
     public $end_date;
 
     /**
@@ -26,15 +28,19 @@ class TaskMail extends Mailable
      * @param $body
      * @param $task_id
      * @param $comment
+     * @param $object
+     * @param $requirement
      * @param $end_date
      */
-    public function __construct($user, $subject, $body, $task_id, $comment, $end_date)
+    public function __construct($user, $subject, $body, $task_id, $comment, $end_date, $object, $requirement)
     {
         $this->user = $user;
         $this->subject = $subject;
         $this->body = $body;
         $this->task_id = $task_id;
         $this->comment = $comment;
+        $this->object = $object;
+        $this->requirement = $requirement;
         $this->end_date = $end_date;
     }
 
