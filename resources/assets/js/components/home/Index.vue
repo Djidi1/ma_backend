@@ -112,7 +112,7 @@
     export default {
         data() {
             return {
-                version: '1.0.1.0',
+                version: '1.0.2.0',
                 drawer: false,
                 mini: false,
                 languages: languages,
