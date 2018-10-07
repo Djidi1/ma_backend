@@ -7,6 +7,8 @@ import Dashboard from './components/Dashboard.vue';
 import Users from './components/admin/users.vue';
 // import Responsible from './components/admin/responsible.vue';
 import Settings from './components/admin/settings.vue';
+import Position from './components/admin/position.vue';
+import Department from './components/admin/department.vue';
 
 import Audit from './components/audit/index.vue';
 import AuditResults from './components/audit/index_results.vue';
@@ -39,6 +41,9 @@ export default [
     {title: 'tasks_list', name:'tasks_list', icon: 'work', path: '/tasks_list/:id', component: TasksList, meta: { auth: true, role_id: [1,2] /*, badge: 1 */}},
     {divider: true, path: '/', meta: { auth: true, role_id: [1,2] }},
     {title: 'users', name:'users', icon: 'supervisor_account', path: '/users', component: Users, meta: { auth: true, role_id: [1] } },
+    {title: 'departments', name:'departments', icon: 'meeting_room', path: '/departments', component: Department, meta: { auth: true, role_id: [1] } },
+    {title: 'positions', name:'positions', icon: '\n' +
+        'perm_contact_calendar', path: '/positions', component: Position, meta: { auth: true, role_id: [1] } },
     {title: 'settings', name:'settings', icon: 'settings', path: '/settings', component: Settings, meta: { auth: true, role_id: [1] } },
 
     // Путь не для меню

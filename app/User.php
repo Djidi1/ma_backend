@@ -24,6 +24,8 @@ class User extends Authenticatable
 
     protected $casts = [
         'role_id' => 'integer',
+        'department_id' => 'integer',
+        'position_id' => 'integer',
         'object_group_id' => 'array',
     ];
 
@@ -51,6 +53,12 @@ class User extends Authenticatable
 
     public function role(){
         return $this->belongsTo(Role::class, 'role_id');
+    }
+    public function position(){
+        return $this->belongsTo(Position::class, 'position_id');
+    }
+    public function department(){
+        return $this->belongsTo(Department::class, 'department_id');
     }
 
     public function audit_object(){

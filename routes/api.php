@@ -51,6 +51,18 @@ Route::group(['middleware' => 'jwt.auth'], function(){
     Route::put('users_update/{id}', 'Admin\UsersController@update');
     Route::delete('users_delete/{id}', 'Admin\UsersController@destroy');
 
+// Должности
+    Route::get('position_all', 'Admin\PositionController@index');
+    Route::post('position_save', 'Admin\PositionController@store');
+    Route::put('position_update/{id}', 'Admin\PositionController@update');
+    Route::delete('position_delete/{id}', 'Admin\PositionController@destroy');
+
+// Подразделения
+    Route::get('department_all', 'Admin\DepartmentController@index');
+    Route::post('department_save', 'Admin\DepartmentController@store');
+    Route::put('department_update/{id}', 'Admin\DepartmentController@update');
+    Route::delete('department_delete/{id}', 'Admin\DepartmentController@destroy');
+
 // Ответственные
     Route::get('responsible_tasks', 'ResponsibleController@getTasks');
     Route::get('responsible_all', 'ResponsibleController@index');

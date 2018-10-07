@@ -13,10 +13,6 @@
                                               required></v-text-field>
                             </v-flex>
                             <v-flex xs12 sm6>
-                                <v-text-field label="Email" v-model="editedItem.email" :rules="emailRules"
-                                              required></v-text-field>
-                            </v-flex>
-                            <v-flex xs12 sm6>
                                 <v-select
                                         :items="roles_items"
                                         item-text="title"
@@ -25,6 +21,30 @@
                                         :label="$t('role')"
                                         required
                                 ></v-select>
+                            </v-flex>
+                            <v-flex xs12 sm6>
+                                <v-select
+                                        :items="departments"
+                                        item-text="title"
+                                        item-value="id"
+                                        v-model="editedItem.department_id"
+                                        :label="$t('department')"
+                                        required
+                                ></v-select>
+                            </v-flex>
+                            <v-flex xs12 sm6>
+                                <v-select
+                                        :items="positions"
+                                        item-text="title"
+                                        item-value="id"
+                                        v-model="editedItem.position_id"
+                                        :label="$t('position')"
+                                        required
+                                ></v-select>
+                            </v-flex>
+                            <v-flex xs12 sm6>
+                                <v-text-field label="Email" v-model="editedItem.email" :rules="emailRules"
+                                              required></v-text-field>
                             </v-flex>
                             <v-flex xs12 sm6>
                                 <v-text-field
@@ -214,6 +234,8 @@
                 search: '',
                 items: [],
                 roles_items: [],
+                departments: [],
+                positions: [],
                 editedIndex: -1,
                 editedItem: {
                     title: '',
@@ -342,6 +364,8 @@
                     .then(response => {
                         this.items = response.data.users;
                         this.roles_items = response.data.roles;
+                        this.departments = response.data.departments;
+                        this.positions = response.data.positions;
                         this.objects_items = response.data.objects;
                         this.requirements_items = response.data.requirements;
                         this.checklists = response.data.checklists;
@@ -476,6 +500,8 @@
                     let item_index = this.editedIndex;
                     let item = this.editedItem;
                     delete item['role'];
+                    delete item['position'];
+                    delete item['department'];
                     // Object.assign(this.items[this.editedIndex], this.editedItem)
                     axios.put('/users_update/' + item.id, this.editedItem)
                         .then(response => {

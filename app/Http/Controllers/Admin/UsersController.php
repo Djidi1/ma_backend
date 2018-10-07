@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Department;
+use App\Position;
 use App\Role;
 use App\User;
 use App\Requirement;
@@ -27,9 +29,11 @@ class UsersController extends Controller
         $object_groups = AuditObjectGroup::all();
         $requirements = Requirement::all();
         $checklists = Checklist::all();
-        $users = User::with('role','responsible')->get();
+        $departments = Department::all();
+        $positions = Position::all();
+        $users = User::with('role','responsible','department','position')->get();
 
-        return compact('users', 'roles', 'objects', 'object_groups', 'requirements', 'checklists');
+        return compact('users', 'roles', 'objects', 'object_groups', 'requirements', 'checklists', 'departments', 'positions');
     }
 
     /**
@@ -44,6 +48,8 @@ class UsersController extends Controller
         $responsible = $requestData['responsible'];
         // Удаляем лишнюю для таблицы пользователей информацию
         unset ($requestData['responsible']);
+        unset ($requestData['department']);
+        unset ($requestData['position']);
 
         // Если указан пароль
         if (trim($request->password) != '') {

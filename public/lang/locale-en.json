@@ -70,5 +70,9 @@
   "task_finish_days": "Days to finish tasks",
   "settings": "Settings",
   "filter": "Filter",
+  "department": "Department",
+  "position": "Position",
+  "departments": "Departments",
+  "positions": "Positions",
   "work_in": "Work in"
 }
