@@ -129,18 +129,35 @@ class AuditsController extends Controller
                             // 0. Указываем ответственных с портала
                             // Ищем требование
                             $requirement = Requirement::find($requirement_id);
+
+
+
+                            // Ищем по группе объектов и требованиям
+                            $resp_grp_obj = DB::table('responsible')
+                                ->join('users', 'responsible.user_id', '=', 'users.id')
+                                ->whereRaw("REPLACE(REPLACE(responsible.requirement_id, '[', ','), ']', ',') LIKE '%,$requirement_id,%'")
+                                ->whereRaw("REPLACE(REPLACE(users.object_group_id, '[', ','), ']', ',') LIKE '%,{$object['audit_object_group_id']},%'")->get();
+
                             // Ищем ответственных по требованию
                             $resp_req = DB::table('responsible')
                                 ->join('users', 'responsible.user_id', '=', 'users.id')
-                                ->whereRaw("REPLACE(REPLACE(users.object_group_id, '[', ','), ']', ',') LIKE '%,{$object['audit_object_group_id']},%'")
                                 ->whereRaw("REPLACE(REPLACE(responsible.requirement_id, '[', ','), ']', ',') LIKE '%,$requirement_id,%'")->get();
-                            // ищем по объекту
+
+                            // Ищем по объекту
                             $resp_obj = DB::table('responsible')
                                 ->whereRaw("REPLACE(REPLACE(object_id, '[', ','), ']', ',') LIKE '%,$object_id,%'")->get();
-                            //Если нашли на портале, то устанавливаем их ID
-                            foreach ($resp_req as $resp) {
-                                $resp_ids[] = $resp->user_id;
+
+                            if ($resp_ids[0] == 0) {
+                                // Если не назначался ответственный в процессе аудита, то задачу получает ответственный за конкретное требование на конкретном объекте, привязанном к конкретной группе объектов аудита
+                                foreach ($resp_grp_obj as $resp) {
+                                    $resp_ids[] = $resp->user_id;
+                                }
+                                // Если не назначался ответственный в процессе аудита или если нет ответственных с привязкой к конкретным группам объектов аудита, то задачу и оповещение по почте получает этот ответственный, независимо от того, где проводился аудит
+                                foreach ($resp_req as $resp) {
+                                    $resp_ids[] = $resp->user_id;
+                                }
                             }
+                            // если не назначается ответственый в процессе и нет ответственных за требования, то всегда получает задачу и оповещение на почту ответственный за объект аудита
                             foreach ($resp_obj as $resp) {
                                 $resp_ids[] = $resp->user_id;
                             }
@@ -163,9 +180,11 @@ class AuditsController extends Controller
                             // 2. Отправляем ответственному лицу сообщение на почту
                             if ($task_id > 0) {
                                 // Отправляем письмо, если указан ответственный
-                                foreach ($resp_ids as $resp_id) {
-                                    $resp_user = User::find($resp_id);
-                                    Mail::to($user)->send(new TaskMail($resp_user, $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
+                                foreach (array_unique($resp_ids) as $resp_id) {
+                                    if ($resp_id > 0) {
+                                        $resp_user = User::find($resp_id);
+                                        Mail::to($user)->send(new TaskMail($resp_user, $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
+                                    }
                                 }
                                 // Система гарантий качества
                                 Mail::to('djidi@mail.ru')
