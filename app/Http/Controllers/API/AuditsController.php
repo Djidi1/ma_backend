@@ -183,7 +183,7 @@ class AuditsController extends Controller
                                 foreach (array_unique($resp_ids) as $resp_id) {
                                     if ($resp_id > 0) {
                                         $resp_user = User::find($resp_id);
-                                        Mail::to($user)->send(new TaskMail($resp_user, $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
+                                        Mail::to($resp_user)->send(new TaskMail($resp_user, $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
                                     }
                                 }
                                 // Система гарантий качества
