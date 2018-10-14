@@ -153,13 +153,23 @@ class AuditsController extends Controller
                                     $resp_ids[] = $resp->user_id;
                                 }
                                 // Если не назначался ответственный в процессе аудита или если нет ответственных с привязкой к конкретным группам объектов аудита, то задачу и оповещение по почте получает этот ответственный, независимо от того, где проводился аудит
-                                foreach ($resp_req as $resp) {
-                                    $resp_ids[] = $resp->user_id;
+                                if (!isset($resp_ids[1])) {
+                                    foreach ($resp_req as $resp) {
+                                        $resp_ids[] = $resp->user_id;
+                                    }
                                 }
                             }
                             // если не назначается ответственый в процессе и нет ответственных за требования, то всегда получает задачу и оповещение на почту ответственный за объект аудита
+                            if ($resp_ids[0] == 0 and !isset($resp_ids[1])) {
+                                foreach ($resp_obj as $resp) {
+                                    $resp_ids[] = $resp->user_id;
+                                }
+                            }
+
+                            // Ответственные за объект всегда получают уведомления, но в них указываается кто назначен
+                            $resp_obj_ids = [];
                             foreach ($resp_obj as $resp) {
-                                $resp_ids[] = $resp->user_id;
+                                $resp_obj_ids[] = $resp->user_id;
                             }
 
                             // 1. Создаем задание на устранение
@@ -184,6 +194,17 @@ class AuditsController extends Controller
                                     if ($resp_id > 0) {
                                         $resp_user = User::find($resp_id);
                                         Mail::to($resp_user)->send(new TaskMail($resp_user, $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
+                                    }
+                                }
+                                foreach (array_unique($resp_obj_ids) as $resp_obj_id) {
+                                    if ($resp_id > 0) {
+                                        $resp_obj_user = User::find($resp_obj_id);
+                                        foreach (array_unique($resp_ids) as $resp_id) {
+                                            if ($resp_id > 0) {
+                                                $resp_user = User::find($resp_id);
+                                                Mail::to($resp_obj_user)->send(new TaskMail($resp_user, $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
+                                            }
+                                        }
                                     }
                                 }
                                 // Система гарантий качества
