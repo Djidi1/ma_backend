@@ -173,11 +173,34 @@
                         });
                     this.columnDefs = [
                         // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
-                        {headerName: this.$t('requirement'), align: 'left', field: 'requirement.title', tooltipField: 'requirement.title'},
-                        {headerName: this.$t('comment'), align: 'left', field: 'comment'},
-                        {headerName: this.$t('date'), align: 'left', field: 'created_at'},
                         {
-                            headerName: this.$t('result'), cellStyle: {textAlign: "center"}, field: 'result',
+                            headerName: this.$t('requirement'),
+                            cellStyle: {'white-space': 'normal', 'line-height': 'normal'},
+                            minWidth: 120,
+                            align: 'left',
+                            field: 'requirement.title',
+                            tooltipField: 'requirement.title'
+                        },
+                        {
+                            headerName: this.$t('comment'),
+                            cellStyle: {'white-space': 'normal', 'line-height': 'normal'},
+                            minWidth: 120,
+                            align: 'left',
+                            field: 'comment'
+                        },
+                        {
+                            headerName: this.$t('date'),
+                            align: 'left',
+                            minWidth: 90,
+                            valueGetter: function (params) {
+                                return moment(params.data.created_at).format('DD.MM.YYYY');
+                            }
+                        },
+                        {
+                            headerName: this.$t('result'),
+                            cellStyle: {textAlign: "center"},
+                            field: 'result',
+                            minWidth: 90,
                             suppressFilter: true,
                             suppressSorting: true,
                             cellRenderer: function (params) {
@@ -187,6 +210,7 @@
                         {
                             headerName: this.$t('photo'), field: 'id',
                             cellStyle: {textAlign: "center"},
+                            minWidth: 90,
                             cellRendererFramework: Attaches,
                             suppressFilter: true,
                             suppressSorting: true,
@@ -229,7 +253,9 @@
                 enableFilter: true,
                 enableSorting: true,
                 domLayout: 'autoHeight',
-                rowGroupPanelShow: 'always',
+                getRowHeight: function(params) {
+                    return 32 * (Math.floor(params.data.requirement.title.length / 45) + 1);
+                },
             };
         },
         mounted() {

@@ -232,7 +232,7 @@
                     <v-btn flat class="mx-0" :value="0">ALL</v-btn>
                 </v-btn-toggle>
             </v-card-actions>
-            <ag-grid-vue style="width: 100%; min-width: 500px"
+            <ag-grid-vue style="width: 100%;"
                          class="ag-theme-balham"
                          :gridOptions="gridOptions"
                          :columnDefs="columnDefs"
@@ -497,28 +497,29 @@
                         self.loading = false;
                     });
                 this.columnDefs = [
-                    // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
                     {
-                        headerName: this.$t('object'), width: 120, suppressSizeToFit: true, align: 'left', field: 'result.audit.audit_object.title',
-                        cellRenderer: function (params) {
-                            return '<span title="' + params.value + '">' + params.value + '</span>';
-                        }
-                    },
-                    // {headerName: this.$t('audit'), align: 'left', field: 'audit_title'},
-                    {
-                        headerName: this.$t('requirement'), align: 'left', field: 'result.requirement.title',
+                        headerName: this.$t('object'), minWidth: 120, align: 'left', field: 'result.audit.audit_object.title',
+                        cellStyle: {'white-space': 'normal','line-height': 'normal'},
                         cellRenderer: function (params) {
                             return '<span title="' + params.value + '">' + params.value + '</span>';
                         }
                     },
                     {
-                        headerName: this.$t('date'), align: 'left', field: 'result.created_at',
+                        headerName: this.$t('requirement'), minWidth: 150, align: 'left', field: 'result.requirement.title',
+                        cellStyle: {'white-space': 'normal','line-height': 'normal'},
+                        cellRenderer: function (params) {
+                            return '<span title="' + params.value + '">' + params.value + '</span>';
+                        }
+                    },
+                    {
+                        headerName: this.$t('date'), minWidth: 90, align: 'left', field: 'result.created_at',
                         valueGetter: function (params) {
                             return moment(params.data.result.created_at, 'YYYY-MM-DD').format('DD.MM.YYYY');
                         }
                     },
                     {
-                        headerName: this.$t('responsible'), field: 'result.requirement_id',
+                        headerName: this.$t('responsible'), minWidth: 100, field: 'result.requirement_id',
+                        cellStyle: {'white-space': 'normal','line-height': 'normal'},
                         valueGetter: function (params) {
                             if (params.data.responsible_id > 0) {
                                 return self.users.find(x => x.id === params.data.responsible_id).name;
@@ -564,25 +565,26 @@
                         }
                     },
                     {
-                        headerName: this.$t('date_start'), align: 'left', field: 'start',
+                        headerName: this.$t('date_start'), minWidth: 90, align: 'left', field: 'start',
                         valueGetter: function (params) {
                             return moment(params.data.start).format('DD.MM.YYYY');
                         }
                     },
                     {
-                        headerName: this.$t('date_end'), align: 'left', field: 'end',
+                        headerName: this.$t('date_end'), minWidth: 90, align: 'left', field: 'end',
                         valueGetter: function (params) {
                             return moment(params.data.end).format('DD.MM.YYYY');
                         }
                     },
                     {
-                        headerName: this.$t('comment'), align: 'left', field: 'comment',
+                        headerName: this.$t('comment'), minWidth: 120, align: 'left', field: 'comment',
+                        cellStyle: {'white-space': 'normal','line-height': 'normal'},
                         cellRenderer: function (params) {
                             return '<span title="' + params.value + '">' + params.value + '</span>';
                         }
                     },
                     {
-                        headerName: this.$t('photo'), field: 'id', width: 120,
+                        headerName: this.$t('photo'), minWidth: 40, field: 'id',
                         cellStyle: {textAlign: "center"},
                         suppressFilter: true,
                         suppressSorting: true,
@@ -591,7 +593,7 @@
                         suppressCellSelection: false
                     },
                     {
-                        headerName: this.$t('result'), cellStyle: {textAlign: "center"}, field: 'result', width: 120,
+                        headerName: this.$t('result'), minWidth: 40, cellStyle: {textAlign: "center"}, field: 'result',
                         suppressFilter: true,
                         suppressSorting: true,
                         cellRenderer: function (params) {
@@ -599,7 +601,7 @@
                         }
                     },
                     {
-                        headerName: this.$t('actions'), field: 'id', width: 90,
+                        headerName: this.$t('actions'), minWidth: 40, field: 'id',
                         suppressFilter: true,
                         suppressSorting: true,
                         cellStyle: {textAlign: "center"},
@@ -734,6 +736,9 @@
                 domLayout: 'autoHeight',
                 enableColResize: true,
                 suppressPropertyNamesCheck: true,
+                getRowHeight: function(params) {
+                    return 32 * (Math.floor(params.data.result.requirement.title.length / 45) + 1);
+                },
                 onGridReady: function(params) {
                     params.api.sizeColumnsToFit();
                 },

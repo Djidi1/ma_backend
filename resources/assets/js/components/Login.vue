@@ -12,6 +12,7 @@
                             label="E-mail"
                             :counter="50"
                             :rules="emailRules"
+                            :class="{ 'input-group--dirty': dirtyEmail }"
                             v-model="email"
                             required
                     ></v-text-field>
@@ -26,6 +27,7 @@
                             :append-icon="e1 ? 'visibility' : 'visibility_off'"
                             :append-icon-cb="() => (e1 = !e1)"
                             :type="e1 ? 'password' : 'text'"
+                            :class="{ 'input-group--dirty': dirtyPwd }"
                             required
                             counter
                     ></v-text-field>
@@ -40,8 +42,11 @@
     export default {
         data(){
             return {
-                email: null,
-                password: null,
+
+                dirtyEmail: null,
+                dirtyPwd: null,
+                email: '',
+                password: '',
                 error: false,
                 emailRules: [
                     v => !!v || 'E-mail is required',
@@ -84,10 +89,35 @@
                 }
                 // console.log(this.$router.options.routes[name='tasks_list'].meta.badge);
             }
+        },
+        mounted () {
+            let times = 0;
+            const interval = setInterval(() => {
+                times += 1;
+                if ((this.dirtyEmail && this.dirtyPwd) || times === 20) {
+                    clearInterval(interval);
+                }
+                this.dirtyEmail = document.querySelector('input[type="email"]:-webkit-autofill');
+                this.dirtyPwd = document.querySelector('input[type="password"]:-webkit-autofill');
+            }, 100);
         }
     }
 </script>
 
-<style scoped>
-
+<style>
+    /* Change autocomplete styles in WebKit */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus,
+    select:-webkit-autofill,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus {
+        border: none;
+        -webkit-text-fill-color: black;
+        -webkit-box-shadow: 0 0 0 1000px #E3F2FD inset;
+        transition: background-color 5000s ease-in-out 0s;
+    }
 </style>

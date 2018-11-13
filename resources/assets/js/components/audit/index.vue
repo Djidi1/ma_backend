@@ -328,42 +328,62 @@
                         this.gridOptions.api.hideOverlay();
                     });
                 this.columnDefs = [
-                    {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
+                    {headerName: 'id', minWidth: 60, field: 'id', cellStyle: {textAlign: "right"}},
                     {
                         headerName: this.$t('title'),
-                        width: 90,
+                        cellStyle: {'white-space': 'normal', 'line-height': 'normal'},
+                        minWidth: 120,
                         suppressSizeToFit: true,
                         align: 'left',
                         field: 'audit_object.title'
                     },
                     {
                         headerName: this.$t('checklist'), align: 'left', field: 'checklist.title',
-                        tooltipField: 'checklist.title', enableRowGroup: true
+                        cellStyle: {'white-space': 'normal', 'line-height': 'normal'},
+                        minWidth: 120,
+                        tooltipField: 'checklist.title'
                     },
                     {
-                        headerName: this.$t('auditor'), align: 'left', valueGetter: function (params) {
+                        headerName: this.$t('auditor'), align: 'left',
+                        cellStyle: {'white-space': 'normal', 'line-height': 'normal'},
+                        minWidth: 120,
+                        valueGetter: function (params) {
                             return params.data.user.name
-                        },
-                        enableRowGroup: true
+                        }
                     },
-                     {
-                         headerName: this.$t('nonconformity'), cellStyle: {textAlign: "center"}, field: 'audit_result',
-                         cellRenderer: function(params) {
-                             let good_results = 0;
-                             let results = params.value;
-                             for (let result in results) {
-                                 if (results.hasOwnProperty(result) && parseInt(results[result].result) > 0) {
-                                     good_results++;
-                                 }
-                             }
-                             let color = params.value.length === 0 ? 'blue' : (good_results === params.value.length ? 'green' : 'orange');
-                             return '<b class="' + color + '--text">' + (params.value.length - good_results) +'</b>';
-                         }
-                     },
-                    {headerName: this.$t('comment'), align: 'left', field: 'comment'},
-                    {headerName: this.$t('date'), align: 'left', field: 'date', enableRowGroup: true},
                     {
-                        headerName: this.$t('actions'), field: 'id',
+                        headerName: this.$t('nonconformity'), cellStyle: {textAlign: "center"}, field: 'audit_result',
+                        minWidth: 80,
+                        cellRenderer: function (params) {
+                            let good_results = 0;
+                            let results = params.value;
+                            for (let result in results) {
+                                if (results.hasOwnProperty(result) && parseInt(results[result].result) > 0) {
+                                    good_results++;
+                                }
+                            }
+                            let color = params.value.length === 0 ? 'blue' : (good_results === params.value.length ? 'green' : 'orange');
+                            return '<b class="' + color + '--text">' + (params.value.length - good_results) + '</b>';
+                        }
+                    },
+                    {
+                        headerName: this.$t('comment'),
+                        align: 'left',
+                        minWidth: 120,
+                        field: 'comment'
+                    },
+                    {
+                        headerName: this.$t('date'),
+                        minWidth: 90,
+                        align: 'left',
+                        valueGetter: function (params) {
+                            return moment(params.data.date).format('DD.MM.YYYY');
+                        }
+                    },
+                    {
+                        headerName: this.$t('actions'),
+                        field: 'id',
+                        minWidth: 80,
                         cellStyle: {textAlign: "center"},
                         cellRendererFramework: ActionButtons,
                         suppressFilter: true,
@@ -437,6 +457,9 @@
                 pagination: true,
                 enableSorting: true,
                 domLayout: 'autoHeight',
+                getRowHeight: function(params) {
+                    return 32 * (Math.floor(params.data.checklist.title.length / 45) + 1);
+                },
             };
         },
         mounted() {
