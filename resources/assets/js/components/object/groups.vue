@@ -177,6 +177,7 @@
                 } else {
                     axios.post(`/object_groups_save`, this.editedItem)
                         .then(response => {
+                            response.data.audit_objects = [];
                             this.items.push(response.data);
                             this.gridOptions.api.refreshCells();
                         })

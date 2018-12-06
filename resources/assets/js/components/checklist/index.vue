@@ -192,6 +192,8 @@
                 } else {
                     axios.post(`/checklists_save`, this.editedItem)
                         .then(response => {
+                            response.data.requirement = [];
+                            response.data.cl_category = this.groups.find(x => x.id === response.data.cl_category_id);
                             this.items.push(response.data);
                             this.gridOptions.api.refreshCells();
                         })
