@@ -129,27 +129,7 @@ class AuditsController extends Controller
                             // 0. Указываем ответственных с портала
                             // Ищем требование
                             $requirement = Requirement::find($requirement_id);
-
-                            // Если ответственный назначался в процессе аудита, проверяем его параметры
-                            if($resp_ids[0] > 0){
-                                $resp_params = DB::table('responsible')
-                                ->where('user_id', $resp_ids[0])->first();
-                                
-                                // Отвечает ли ответственный за данный объект
-                                $resp_obj_condition = in_array($object_id, json_decode($resp_params->object_id));
-                                // Отвечает ли ответственный за данное требование
-                                $resp_req_condition = in_array($requirement_id, json_decode($resp_params->requirement_id));
-
-                                // Если выбранный ответственный ранее не отвечал ни за требование, ни за объект - добавим требование в параметры
-                                if(!$resp_obj_condition && !$resp_req_condition){
-                                    $current_req = json_decode($resp_params->requirement_id);
-                                    $current_req[] = $requirement_id;
-                                    DB::table('responsible')
-                                    ->where('id', $resp_params->id)
-                                    ->update(['requirement_id' => json_encode($current_req)]);
-                                }
-                            }
-
+                            
                             // Ищем по группе объектов и требованиям
                             $resp_grp_obj = DB::table('responsible')
                                 ->join('users', 'responsible.user_id', '=', 'users.id')

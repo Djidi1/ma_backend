@@ -362,7 +362,7 @@
                     // фильтр по ответственному
                     let filter_responsible = false;
                     // Ограничение списка для ответственных
-                    if (self.$store.state.user.role_id === 1) {
+                    if (self.$store.state.user.role_id === 1 || item.responsible_id === self.$auth.user().id) {
                         filter_responsible = true;
                     }else{
                         // Ищем ответственных за требование
