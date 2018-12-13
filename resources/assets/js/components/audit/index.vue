@@ -160,8 +160,8 @@
 
     const ActionButtons = Vue.extend({
         template: `<span>
-                <v-btn small icon class="mx-0 my-0" @click="editItem" v-if="params.data.audit_result.length === 0"><v-icon color="teal">edit</v-icon></v-btn>
-                <v-btn small icon class="mx-0 my-0" @click="deleteItem" v-if="params.data.audit_result.length === 0"><v-icon color="pink">delete</v-icon></v-btn>
+                <v-btn small icon class="mx-0 my-0" @click="editItem" v-if="params.data.audit_result.length === 0 && editRights()"><v-icon color="teal">edit</v-icon></v-btn>
+                <v-btn small icon class="mx-0 my-0" @click="deleteItem" v-if="params.data.audit_result.length === 0 && editRights()"><v-icon color="pink">delete</v-icon></v-btn>
                 <v-btn small icon class="mx-0 my-0" @click="openResult" v-if="params.data.audit_result.length > 0"><v-icon color="blue">open_in_browser</v-icon></v-btn>
         </span>`,
         methods: {
@@ -173,6 +173,13 @@
             },
             openResult() {
                 this.params.context.componentParent.openResult(this.params.value);
+            },
+            editRights() {
+                if (this.$auth.user().role_id === 1){
+                    return true;
+                } else {
+                    return (this.$auth.user().id === this.params.data.user_id);
+                }
             }
         }
     });
@@ -229,6 +236,7 @@
                 })
             },
             filteredItems() {
+                let self = this;
                 return this.items.filter(item => {
                     let good_results = 0;
                     for (let result in item.audit_result) {
@@ -249,8 +257,29 @@
                             filter_status = false;
                         }
                     }
+
+                    // фильтр по ответственному
+                    let filter_responsible = false;
+                    // Ограничение списка для ответственных
+                    if (self.$store.state.user.role_id === 1 || item.user_id === self.$auth.user().id) {
+                        filter_responsible = true;
+                    }else{
+                        // Отвечает ли менеджер за данный объект
+                        filter_responsible = (self.$auth.user().responsible.object_id.indexOf(item.audit_object.id) > -1);
+
+                        // Отвечает ли менеджер за требования в этом аудите:
+                        // Проверяем группу объекта
+                        if (!filter_responsible && self.$auth.user().object_group_id.indexOf(item.audit_object.audit_object_group_id) > -1){
+                            //проверяем требования
+                            item.audit_result.forEach ((el, i) => {
+                                if (self.$auth.user().responsible.requirement_id.indexOf(el.requirement_id) > -1){
+                                   filter_responsible = true;
+                                }
+                            })
+                        }
+                    }
                     // фильтр по выбранной группе
-                    return filter_status && (parseInt(item.audit_object.audit_object_group_id) === this.object_selected || this.object_selected === 0)
+                    return filter_status && filter_responsible && (parseInt(item.audit_object.audit_object_group_id) === this.object_selected || this.object_selected === 0)
                 })
             }
         },
