@@ -465,6 +465,7 @@
                 } else {
                     let new_item = this.editedItem;
                     new_item.date_add = new_item.date;
+                    new_item.comment = (new_item.comment != null) ? new_item.comment : new_item.title; 
                     axios.post(`/audits_save`, new_item)
                         .then(response => {
                             this.items.push(response.data);
