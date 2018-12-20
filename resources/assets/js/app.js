@@ -110,7 +110,7 @@ router.beforeEach((to, from, next) => {
     // Если не авторизован, то фиксируем в сторе путь куда шел пользователь
     if ( store.state.user === null && to.name !== 'login'){
         store.commit('set_url', to.path);
-    }
+    }    
     // Если путь неизвестный, то вместо 404 показываем главную страницу
     if (to.name === null){
         next('/');
@@ -123,8 +123,22 @@ router.beforeEach((to, from, next) => {
             next();
         }
     }else{
-        next()
+        next(); 
     }
+});
+
+router.beforeResolve((to, from, next) => {    
+    // Если пользователь авторизован, но не администратор
+    if (store.state.user !== null && store.state.user.role_id !== 1 && to.name !== 'login'){
+        if (to.meta.auth && (to.meta.role_id.indexOf(parseInt(store.state.user.role_id)) > -1)){
+            next();
+        } else {
+            next('/tasks_list/:id');
+        } 
+    } else {
+        next();
+    }
+    
 });
 
 Vue.router = router;
