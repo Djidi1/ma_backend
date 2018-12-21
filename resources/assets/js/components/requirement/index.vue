@@ -45,7 +45,7 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
-                    <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
+                    <v-btn color="blue darken-1" :disabled="(editedItem.title.length === 0)" flat @click.native="save">{{ $t('save') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -115,10 +115,12 @@
                 responsible: [],
                 editedIndex: -1,
                 editedItem: {
-                    title: ''
+                    title: '',
+                    warning_level: 1
                 },
                 defaultItem: {
-                    title: ''
+                    title: '',
+                    warning_level: 1
                 },
                 levels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 valid: false,
