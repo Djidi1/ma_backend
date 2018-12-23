@@ -52,6 +52,33 @@ class AuditListsController extends Controller
         return $audit;
     }
 
+  /**
+     * Add a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return Audits array
+     */
+    public function add(Request $request)
+    {
+        $requestData = $request->all();
+        $results = Array();
+        $audits = Array();
+        // Если создаваемый аудит содержит несколько чеклистов, создадим аудит на каждый
+        if (is_array($requestData['checklist_id'])){
+            $checklists = $requestData['checklist_id'];
+            foreach($checklists as $checklist_id){
+                $requestData['checklist_id'] = $checklist_id;
+                $results[] = Audit::create($requestData);
+            }
+        } else {
+            $results[] = Audit::create($requestData);
+        }
+        // Вернем все созданные аудиты
+        foreach($results as $result){
+            $audits[] = Audit::with('checklist', 'audit_result', 'audit_object.audit_object_group', 'user')->where('id', $result->id)->first();
+        }        
+        return $audits;
+    }
 
     /**
      * Update the specified resource in storage.

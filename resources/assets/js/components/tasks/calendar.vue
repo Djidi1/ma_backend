@@ -21,12 +21,25 @@
                                 </v-flex>
                                 <v-flex xs12>
                                     <v-select
+                                            key="s1"
+                                            v-if="(editedItem.hasOwnProperty('id'))"
                                             :items="checklists"
                                             item-text = "title"
                                             item-value = "id"
                                             v-model="editedItem.checklist_id"
                                             :label="$t('checklist')"
                                             required
+                                    ></v-select>
+                                    <v-select
+                                            key="s2"
+                                            v-if="(!editedItem.hasOwnProperty('id'))"
+                                            :items="checklists"
+                                            item-text = "title"
+                                            item-value = "id"
+                                            v-model="newItemChecklists"
+                                            :label="$t('checklist')"
+                                            required
+                                            multiple
                                     ></v-select>
                                 </v-flex>
                                 <v-flex xs12>
@@ -165,6 +178,7 @@
                     date: '',
                     orig_title: ''
                 },
+                newItemChecklists: [],
                 checklists: [],
                 objects: [],
                 users: [],
@@ -249,6 +263,7 @@
                 setTimeout(() => {
                     this.editedItem = Object.assign({}, this.defaultItem);
                     this.editedIndex = -1;
+                    this.newItemChecklists = [];
                 }, 300)
             },
             save() {
@@ -279,19 +294,20 @@
                         });
                 } else {
                     let new_item = this.editedItem;
+                    new_item.checklist_id = this.newItemChecklists;
                     new_item.date_add = this.editedItem.date;
                     new_item['title'] = this.editedItem.orig_title;
                     new_item['comment'] = this.editedItem.orig_title;
-                    axios.post(`/audits_save`, new_item)
+                    axios.post(`/audits_add`, new_item)
                         .then(response => {
-                            let addedItem = response.data;
-
-                            addedItem.title = '<span class="cut-text">' + addedItem.audit_object.audit_object_group.title +
-                                '</span><br/><b>' + addedItem.audit_object.title + '</b>';
-                            addedItem.orig_title = addedItem.comment;
-
-                            Object.defineProperty(addedItem, 'startDate', Object.getOwnPropertyDescriptor(addedItem, 'date'));
-                            this.events.push(addedItem)
+                            response.data.forEach(element => {
+                                let addedItem = element;
+                                addedItem.title = '<span class="cut-text">' + addedItem.audit_object.audit_object_group.title +
+                                    '</span><br/><b>' + addedItem.audit_object.title + '</b>';
+                                addedItem.orig_title = addedItem.comment;
+                                Object.defineProperty(addedItem, 'startDate', Object.getOwnPropertyDescriptor(addedItem, 'date'));
+                                this.events.push(addedItem);
+                            });      
                         })
                         .catch(e => {
                             this.errors.push(e)

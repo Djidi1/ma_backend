@@ -21,11 +21,24 @@
                             </v-flex>
                             <v-flex xs12>
                                 <v-select
+                                        key="s1"
+                                        v-if="(editedItem.hasOwnProperty('id'))"
                                         :items="checklists"
                                         item-text="title"
                                         item-value="id"
                                         v-model="editedItem.checklist_id"
                                         :label="$t('checklist')"
+                                        required
+                                ></v-select>
+                                <v-select
+                                        key="s2"
+                                        v-if="(!editedItem.hasOwnProperty('id'))"
+                                        :items="checklists"
+                                        item-text="title"
+                                        item-value="id"
+                                        v-model="newItemChecklists"
+                                        :label="$t('checklist')"
+                                        multiple
                                         required
                                 ></v-select>
                             </v-flex>
@@ -210,6 +223,7 @@
                 defaultItem: {
                     title: ''
                 },
+                newItemChecklists: [],
                 valid: false,
                 gridOptions: {},
                 columnDefs: null,
@@ -443,7 +457,8 @@
                 this.dialog = false;
                 setTimeout(() => {
                     this.editedItem = Object.assign({}, this.defaultItem);
-                    this.editedIndex = -1
+                    this.editedIndex = -1;
+                    this.newItemChecklists = [];
                 }, 300)
             },
             save() {
@@ -453,6 +468,7 @@
                     let item = this.editedItem;
                     delete item['audit_object'];
                     delete item['checklist'];
+                    delete item['audit_result'];
                     delete item['user'];
                     axios.put('/audits_update/' + item.id, item)
                         .then(response => {
@@ -464,11 +480,14 @@
                         });
                 } else {
                     let new_item = this.editedItem;
+                    new_item.checklist_id = this.newItemChecklists;
                     new_item.date_add = new_item.date;
                     new_item.comment = (new_item.comment != null) ? new_item.comment : new_item.title; 
-                    axios.post(`/audits_save`, new_item)
+                    axios.post(`/audits_add`, new_item)
                         .then(response => {
-                            this.items.push(response.data);
+                            response.data.forEach(element => {
+                               this.items.unshift(element);
+                            });                            
                             this.gridOptions.api.refreshCells();
                         })
                         .catch(e => {
