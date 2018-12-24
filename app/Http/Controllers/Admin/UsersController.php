@@ -14,6 +14,7 @@ use App\Responsible;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class UsersController extends Controller
 {
@@ -44,6 +45,13 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
+        // Метод доступен только администраторам
+        if (Auth::user()->role_id !== 1){
+            return response([
+                'status' => 'error',
+                'msg' => 'Permission denied'
+            ], 403);
+        }
         $requestData = $request->all();
         $responsible = $requestData['responsible'];
         // Удаляем лишнюю для таблицы пользователей информацию
@@ -84,6 +92,13 @@ class UsersController extends Controller
      */
     public function update(Request $request)
     {
+        // Метод доступен только администраторам
+        if (Auth::user()->role_id !== 1){
+            return response([
+                'status' => 'error',
+                'msg' => 'Permission denied'
+            ], 403);
+        }
         $requestData = $request->all();
         $responsible = $requestData['responsible'];
         // Обновляем пароль
