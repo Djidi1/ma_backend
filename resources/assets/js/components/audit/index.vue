@@ -466,6 +466,7 @@
                     let item_index = this.editedIndex;
                     let editedItem = this.editedItem;
                     let item = this.editedItem;
+                    item.comment = item.title; 
                     delete item['audit_object'];
                     delete item['checklist'];
                     delete item['audit_result'];
