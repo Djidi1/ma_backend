@@ -18,6 +18,7 @@
   "send": "Отправить",
   "warning": "Предупреждение",
   "sure_delete_item": "Вы уверены, что хотите удалить это?",
+  "field_required": "Обязательное поле",
   "name_required": "Необходимо ввести имя",
   "email_required": "Необходимо ввести email",
   "email_not_valid": "Введите корректный адрес email",

@@ -9,7 +9,7 @@
                     <v-container grid-list-md>
                         <v-layout wrap>
                             <v-flex xs12>
-                                <v-text-field label="Title" v-model="editedItem.title" required></v-text-field>
+                                <v-text-field :rules="[rules.required]" :label="this.$t('title')" v-model="editedItem.title" required></v-text-field>
                             </v-flex>
                         </v-layout>
                     </v-container>
@@ -17,7 +17,7 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
-                    <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
+                    <v-btn color="blue darken-1" :disabled="!validForm" flat @click.native="save">{{ $t('save') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -85,7 +85,15 @@
                 gridOptions: {},
                 columnDefs: null,
                 rowData: null,
-                params: null
+                params: null,
+                rules: {
+                    required: (value) => {
+                        let res = !!value 
+                        this.validForm = res
+                        return res || this.$t('field_required')
+                    },
+                },
+                validForm: false
             }
         },
         components: {
