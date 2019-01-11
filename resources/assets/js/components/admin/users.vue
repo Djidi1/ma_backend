@@ -9,7 +9,7 @@
                     <v-container grid-list-md>
                         <v-layout wrap>
                             <v-flex xs12 sm6>
-                                <v-text-field label="Name" v-model="editedItem.name" :rules="nameRules"
+                                <v-text-field :label="$t('name')" v-model="editedItem.name" :rules="[rules.required('name', editedItem.name)]"
                                               required></v-text-field>
                             </v-flex>
                             <v-flex xs12 sm6>
@@ -30,6 +30,7 @@
                                         v-model="editedItem.department_id"
                                         :label="$t('department')"
                                         required
+                                        :rules="[rules.required('departments', editedItem.department_id)]"
                                 ></v-select>
                             </v-flex>
                             <v-flex xs12 sm6>
@@ -40,10 +41,11 @@
                                         v-model="editedItem.position_id"
                                         :label="$t('position')"
                                         required
+                                        :rules="[rules.required('positions', editedItem.position_id)]"
                                 ></v-select>
                             </v-flex>
                             <v-flex xs12 sm6>
-                                <v-text-field label="Email" v-model="editedItem.email" :rules="emailRules"
+                                <v-text-field label="Email" v-model="editedItem.email" :rules="[rules.required('email', editedItem.email), rules.email('invalidEmail', editedItem.email)]"
                                               required></v-text-field>
                             </v-flex>
                             <v-flex xs12 sm6>
@@ -57,6 +59,7 @@
                                         :type="e1 ? 'password' : 'text'"
                                         required
                                         counter
+                                        :rules="(editedItem.id > 0) ? [] :[rules.required('password', editedItem.password, true)]"
                                 ></v-text-field>
                             </v-flex>
                             <!-- Ответственные -->
@@ -70,7 +73,6 @@
                                         v-model="editedItem.responsible.object_id"
                                         :label="$t('objects')"
                                         multiple
-                                        required
                                         chips
                                         autocomplete
                                 >
@@ -109,7 +111,6 @@
                                         v-model="editedItem.object_group_id"
                                         :label="$t('object_groups')"
                                         multiple
-                                        required
                                         chips
                                         autocomplete
                                 >
@@ -146,7 +147,6 @@
                                         v-model="editedItem.responsible.requirement_id"
                                         :label="$t('requirements')"
                                         multiple
-                                        required
                                         chips
                                         autocomplete
                                 >
@@ -181,7 +181,7 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
-                    <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
+                    <v-btn color="blue darken-1" :disabled="!validForm" flat @click.native="save">{{ $t('save') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -262,29 +262,38 @@
                 checklists_select: 0,
                 checklists_selected: 0,
                 valid: false,
-                name: '',
-                nameRules: [
-                    v => !!v || this.$t('name_required')
-                ],
-                email: '',
-                emailRules: [
-                    v => !!v || 'E-mail is required',
-                    v => /.+@.+/.test(v) || 'E-mail must be valid'
-                ],
+                name: '',               
+                email: '',                
+                rules: {                    
+                    required: (key, v, ignore) => {
+                        ignore = ignore || false
+                        this.setFormErr(!(!!v), key, ignore)
+                        return (!!v) ? true : this.$t('field_required')
+                    },
+                    email: (key, v) => {
+                        let res = /.+@.+\..+/.test(v)
+                        this.setFormErr(!res, key)
+                        return (res) ? true : this.$t('email_not_valid')
+                    },
+                    
+                },
                 password: '',
                 e1: true,
-
                 gridOptions: {},
                 columnDefs: null,
                 rowData: null,
                 params: null,
-                errors: []
+                errors: [],
+                validFormErrors: []
             }
         },
         components: {
             'ag-grid-vue': AgGridVue
         },
         computed: {
+            validForm() {
+                return (this.validFormErrors.length === 0)
+            },
             formTitle() {
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
             },
@@ -526,6 +535,16 @@
                         .catch(e => {
                             self.errors.push(e)
                         });
+                }
+            },
+            setFormErr(isError, key, ignore) {
+                ignore = ignore || false
+                if (isError){
+                    let index = this.validFormErrors.indexOf(key)
+                    if (index === -1 && !ignore) this.validFormErrors.push(key)
+                } else {
+                    let index = this.validFormErrors.indexOf(key)
+                    if (index > -1) this.validFormErrors.splice(index, 1)                    
                 }
             }
         },
