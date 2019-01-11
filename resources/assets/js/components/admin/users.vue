@@ -210,6 +210,7 @@
 
 <script>
     import {AgGridVue} from "ag-grid-vue";
+    import formValidationMixin from "../../mixins/formValidation"
     import Vue from "vue";
 
     const ActionButtons = Vue.extend({
@@ -263,37 +264,23 @@
                 checklists_selected: 0,
                 valid: false,
                 name: '',               
-                email: '',                
-                rules: {                    
-                    required: (key, v, ignore) => {
-                        ignore = ignore || false
-                        this.setFormErr(!(!!v), key, ignore)
-                        return (!!v) ? true : this.$t('field_required')
-                    },
-                    email: (key, v) => {
-                        let res = /.+@.+\..+/.test(v)
-                        this.setFormErr(!res, key)
-                        return (res) ? true : this.$t('email_not_valid')
-                    },
-                    
-                },
+                email: '',
                 password: '',
                 e1: true,
                 gridOptions: {},
                 columnDefs: null,
                 rowData: null,
                 params: null,
-                errors: [],
-                validFormErrors: []
+                errors: []
             }
-        },
+        },        
+        mixins: [
+            formValidationMixin
+        ],
         components: {
             'ag-grid-vue': AgGridVue
         },
         computed: {
-            validForm() {
-                return (this.validFormErrors.length === 0)
-            },
             formTitle() {
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
             },
@@ -535,16 +522,6 @@
                         .catch(e => {
                             self.errors.push(e)
                         });
-                }
-            },
-            setFormErr(isError, key, ignore) {
-                ignore = ignore || false
-                if (isError){
-                    let index = this.validFormErrors.indexOf(key)
-                    if (index === -1 && !ignore) this.validFormErrors.push(key)
-                } else {
-                    let index = this.validFormErrors.indexOf(key)
-                    if (index > -1) this.validFormErrors.splice(index, 1)                    
                 }
             }
         },

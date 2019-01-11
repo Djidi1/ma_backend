@@ -9,7 +9,7 @@
                     <v-container grid-list-md>
                         <v-layout wrap>
                             <v-flex xs12>
-                                <v-text-field :rules="[rules.required]" :label="this.$t('title')" v-model="editedItem.title" required></v-text-field>
+                                <v-text-field :rules="[rules.required('title', editedItem.title)]" :label="this.$t('title')" v-model="editedItem.title" required></v-text-field>
                             </v-flex>
                         </v-layout>
                     </v-container>
@@ -45,6 +45,7 @@
 
 <script>
     import {AgGridVue} from "ag-grid-vue";
+    import formValidationMixin from "../../mixins/formValidation";
     import Vue from "vue";
 
     const ActionButtons = Vue.extend({
@@ -85,17 +86,12 @@
                 gridOptions: {},
                 columnDefs: null,
                 rowData: null,
-                params: null,
-                rules: {
-                    required: (value) => {
-                        let res = !!value 
-                        this.validForm = res
-                        return res || this.$t('field_required')
-                    },
-                },
-                validForm: false
+                params: null                
             }
-        },
+        },        
+        mixins: [
+            formValidationMixin
+        ],
         components: {
             'ag-grid-vue': AgGridVue
         },
