@@ -17,6 +17,7 @@
                                         :label="$t('object')"
                                         required
                                         autocomplete
+                                        :rules="[rules.required('object', editedItem.object_id)]"
                                 ></v-select>
                             </v-flex>
                             <v-flex xs12>
@@ -29,6 +30,7 @@
                                         v-model="editedItem.checklist_id"
                                         :label="$t('checklist')"
                                         required
+                                        :rules="[rules.required('checklist', editedItem.checklist_id)]"
                                 ></v-select>
                                 <v-select
                                         key="s2"
@@ -40,6 +42,7 @@
                                         :label="$t('checklist')"
                                         multiple
                                         required
+                                        :rules="[rules.required('checklist', newItemChecklists)]"
                                 ></v-select>
                             </v-flex>
                             <v-flex xs12>
@@ -50,6 +53,7 @@
                                         v-model="editedItem.user_id"
                                         :label="$t('auditor')"
                                         required
+                                        :rules="[rules.required('auditor', editedItem.user_id)]"
                                 ></v-select>
                             </v-flex>
                             <v-flex xs12>
@@ -90,7 +94,7 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
-                    <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
+                    <v-btn color="blue darken-1" :disabled="!validForm" flat @click.native="save">{{ $t('save') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -168,6 +172,7 @@
 
 <script>
     import {AgGridVue} from "ag-grid-vue";
+    import formValidationMixin from "../../mixins/formValidation"
     import Vue from "vue";
     import Results from './index_results.vue';
 
@@ -233,6 +238,9 @@
                 errors: []
             }
         },
+        mixins: [
+            formValidationMixin
+        ],
         components: {
             'ag-grid-vue': AgGridVue,
             'results': Results

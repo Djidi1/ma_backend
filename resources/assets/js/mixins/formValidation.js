@@ -4,8 +4,14 @@ export default {
             rules: {                    
                 required: (key, v, ignore) => {
                     ignore = ignore || false
-                    this.setFormErr(!(!!v), key, ignore)
-                    return (!!v) ? true : this.$t('field_required')
+                    let res = false
+                    if (Array.isArray(v)) {
+                        res = (v.length > 0)
+                    } else {
+                        res = !!v
+                    }
+                    this.setFormErr(!res, key, ignore)
+                    return (res) ? true : this.$t('field_required')
                 },
                 email: (key, v) => {
                     let res = /.+@.+\..+/.test(v)
