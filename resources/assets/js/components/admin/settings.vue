@@ -9,16 +9,39 @@
                 <v-container grid-list-md>
                     <v-layout wrap>
                         <v-flex xs12>
-                            <v-text-field label="PowerBI URL" v-model="settings.power_bi_url" :counter="500" required></v-text-field>
+                            <v-text-field
+                                label="PowerBI URL"
+                                v-model="settings.power_bi_url"
+                                :counter="500"
+                                required
+                                :rules="[rules.required('power_bi_url', settings.power_bi_url)]"
+                            ></v-text-field>
                         </v-flex>
                         <v-flex xs12>
-                            <v-text-field :label="$t('mail_subject')" v-model="settings.mail_subject" :counter="500" required></v-text-field>
+                            <v-text-field
+                                :label="$t('mail_subject')"
+                                v-model="settings.mail_subject"
+                                :counter="500"
+                                required
+                                :rules="[rules.required('mail_subject', settings.mail_subject)]"
+                            ></v-text-field>
                         </v-flex>
                         <v-flex xs12>
-                            <v-text-field :label="$t('mail_body')" v-model="settings.mail_body" :counter="4000" required></v-text-field>
+                            <v-text-field
+                                :label="$t('mail_body')"
+                                v-model="settings.mail_body"
+                                :counter="4000"
+                                required
+                                :rules="[rules.required('mail_body', settings.mail_body)]"
+                            ></v-text-field>
                         </v-flex>
                         <v-flex xs12>
-                            <v-text-field :label="$t('task_finish_days')" v-model="settings.task_finish_days" required></v-text-field>
+                            <v-text-field
+                                :label="$t('task_finish_days')"
+                                v-model="settings.task_finish_days"
+                                required
+                                :rules="[rules.required('task_finish_days', settings.task_finish_days)]"
+                            ></v-text-field>
                         </v-flex>
                     </v-layout>
                 </v-container>
@@ -27,7 +50,7 @@
                 <v-container grid-list-md>
                     <v-layout wrap>
                         <v-flex xs12>
-                            <v-btn color="success" @click.native="save">{{ $t('save') }}</v-btn>
+                            <v-btn color="success" :disabled="!validForm" @click.native="save">{{ $t('save') }}</v-btn>
                         </v-flex>
                     </v-layout>
                 </v-container>
@@ -51,6 +74,8 @@
 </template>
 
 <script>
+    import formValidationMixin from "../../mixins/formValidation"
+
     export default {
         data() {
             return {
@@ -61,6 +86,9 @@
                 snackbar_text: 'Настройки успешно сохранены'
             }
         },
+        mixins: [
+            formValidationMixin
+        ],
         methods: {
             getSettings() {
                 axios.get('/get-settings')
