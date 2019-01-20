@@ -124,28 +124,29 @@
                                     </v-card-title>
                                     <v-divider></v-divider>
                                     <v-progress-linear class="ma-0" v-if="comments_loading" :indeterminate="true"></v-progress-linear>
-                                    <v-list two-line>
-                                        <template v-for="(item, index) in commentsItem">
-                                            <v-list-tile avatar>
-                                                <v-list-tile-content>
-                                                    <v-list-tile-sub-title>{{ item.user.name }}</v-list-tile-sub-title>
-                                                    <v-list-tile-title>{{ item.message }}</v-list-tile-title>
-                                                </v-list-tile-content>
-                                                <v-list-tile-action>
-                                                    <v-icon
-                                                            color="orange"
-                                                            @click="result_attaches(item.task_comment_attache)"
-                                                            v-if="item.task_comment_attache.length > 0"
-                                                            class="pointer"
-                                                    >photo
-                                                    </v-icon>
-                                                    <!--<v-icon color="blue lighten-1" class="pointer">create</v-icon>-->
-                                                    <v-list-tile-action-text>{{ item.created_at }}</v-list-tile-action-text>
-                                                </v-list-tile-action>
-                                            </v-list-tile>
-                                            <v-divider v-if="index + 1 < commentsItem.length" :key="index"></v-divider>
-                                        </template>
-                                    </v-list>
+                                    <v-card class="elevation-0" v-for="(item, index) in commentsItem" :key="'comment_'+index">
+                                        <v-card-title>
+                                            <div class="grey--text">{{ item.user.name }}</div>
+                                            <v-spacer></v-spacer>
+                                            <div class="grey--text">{{ item.created_at }}</div>
+                                        </v-card-title>
+                                        <v-card-text class="py-0">
+                                            {{ item.message }}
+                                        </v-card-text>
+                                        <v-card-actions>
+                                            <v-spacer></v-spacer>
+                                            <v-btn flat icon
+                                                color="orange"
+                                                @click="result_attaches(item.task_comment_attache)"
+                                                v-if="item.task_comment_attache.length > 0"
+                                                class="pointer"
+                                            > 
+                                                <v-icon>photo</v-icon>                                               
+                                            </v-btn>                                            
+                                        </v-card-actions>
+                                        <v-divider v-if="index + 1 < commentsItem.length" :key="'div_'+index"></v-divider>
+                                    </v-card>
+
                                     <v-divider></v-divider>
                                     <v-flex xs12>
                                         <v-text-field
