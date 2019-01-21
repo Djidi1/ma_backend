@@ -177,7 +177,12 @@
                     });
                 this.columnDefs = [
                     // {headerName: 'id', width: 90, field: 'id', cellStyle: {textAlign: "right"}},
-                    {headerName: this.$t('title'), align: 'left', field: 'title'},
+                    {
+                        headerName: this.$t('title'),
+                        align: 'left',
+                        field: 'title',
+                        filterParams: {newRowsAction: 'keep'}
+                    },
                     {
                         headerName: this.$t('level'), width: 90, cellStyle: {textAlign: "center"}, field: 'warning_level',
                         cellRenderer: function(params) {

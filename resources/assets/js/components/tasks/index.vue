@@ -611,6 +611,9 @@
                         suppressCellSelection: true
                     }
                 ];
+                this.columnDefs.forEach(element => {
+                    element.filterParams = {newRowsAction: 'keep'};
+                });
             },
             result_icon(result, task_status_id) {
                 let icon;
