@@ -198,7 +198,7 @@
                                     }
                                 }
                             }
-                            return responsible_names.join(', ');
+                            return (responsible_names.length > 0) ? responsible_names.join(', ') : '-';
                         }
                     },
                     (this.$auth.user().role_id !== 2) ? {
