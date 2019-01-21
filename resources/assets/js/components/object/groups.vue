@@ -126,7 +126,7 @@
                         headerName: this.$t('objects'), field: 'audit_objects',
                         width: 90,
                         valueGetter: function(params) {
-                            return params.data.audit_objects.length;
+                            return params.data.audit_objects.length.toString();
                         }
                     },
                     {
