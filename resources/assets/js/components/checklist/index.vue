@@ -139,7 +139,7 @@
                         headerName: this.$t('requirements'), field: 'requirement',
                         width: 90,
                         valueGetter: function(params) {
-                            return params.data.requirement.length;
+                            return params.data.requirement.length.toString();
                         }
                     },
                     (this.$auth.user().role_id !== 2) ? {
