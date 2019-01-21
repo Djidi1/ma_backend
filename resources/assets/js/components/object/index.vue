@@ -178,13 +178,13 @@
                                     }
                                 }
                             }
-                            return Array.from(new Set(responsible_names)).join(', ');
+                            return (responsible_names.length > 0) ? Array.from(new Set(responsible_names)).join(', ') : '-';
                         }
                     },
                     {
                         headerName: this.$t('audits'), width: 90, cellStyle: {textAlign: "center"}, field: 'audit',
                         valueGetter: function(params) {
-                            return params.data.audit.length;
+                            return params.data.audit.length.toString();
                         }
                     },
                     {
