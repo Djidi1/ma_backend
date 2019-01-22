@@ -186,6 +186,7 @@
                 periods: [{id: "month", title: "Месяц"},{id: "week", title: "Неделя"},{id: "year", title: "Год"}],
                 showDate: new Date(),
                 events: [],
+                errors: [],
                 snackbar_text: "Нельзя создавать аудиты в прошлом."
             }
         },
@@ -270,7 +271,7 @@
                 if (this.editedIndex > -1) {
                     let item_index = this.editedIndex;
                     let editedItem = this.editedItem;
-                    let item = this.editedItem;
+                    let item = Object.assign({}, this.editedItem);
                     item['title'] = item['orig_title'];
                     item['comment'] = item['orig_title'];
                     delete item['audit_object'];
@@ -284,9 +285,10 @@
                     delete item['orig_title'];
                     axios.put('/audits_update/' + item.id, item)
                         .then(response => {
-                            if (response.data === 1) {
+                            if (response.data.id > -1) {
                                 Object.defineProperty(editedItem, 'startDate', Object.getOwnPropertyDescriptor(editedItem, 'date'));
                                 Object.assign(this.events[item_index], editedItem);
+                                Object.assign(this.events[item_index], {title: '<span class="cut-text">' + response.data.audit_object.audit_object_group.title + '</span><br/><b>' + response.data.audit_object.title + '</b>'});
                             }
                         })
                         .catch(e => {
