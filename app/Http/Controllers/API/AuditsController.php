@@ -191,7 +191,12 @@ class AuditsController extends Controller
                                 foreach (array_unique($resp_ids) as $resp_id) {
                                     if ($resp_id > 0) {
                                         $resp_user = User::find($resp_id);
-                                        Mail::to($resp_user)->send(new TaskMail($resp_user, $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
+                                        try{
+                                            Mail::to($resp_user)->send(new TaskMail($resp_user, $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
+                                        } catch(\Exception $e){
+                                            // Get error here
+                                    }
+                                        
                                     }
                                 }
                                 foreach (array_unique($resp_obj_ids) as $resp_obj_id) {
@@ -200,14 +205,23 @@ class AuditsController extends Controller
                                         foreach (array_unique($resp_ids) as $resp_id) {
                                             if ($resp_id > 0) {
                                                 $resp_user = User::find($resp_id);
-                                                Mail::to($resp_obj_user)->send(new TaskMail($resp_user, $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
+                                                try{
+                                                    Mail::to($resp_obj_user)->send(new TaskMail($resp_user, $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
+                                                } catch(\Exception $e){
+                                                    // Get error here
+                                                }                                                
                                             }
                                         }
                                     }
                                 }
                                 // Система гарантий качества
-                                Mail::to('djidi@mail.ru')
+                                try{
+                                    Mail::to('djidi@mail.ru')
                                     ->send(new TaskMail($user, "!>" . $settings->mail_subject, $settings->mail_body, $task_id, $comment_text, $end_date, $object, $requirement));
+                                } catch(\Exception $e){
+                                    // Get error here
+                                }  
+                               
                             } 
                         }
                     }

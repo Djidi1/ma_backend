@@ -1,5 +1,5 @@
 let mix = require('laravel-mix');
-mix.browserSync('http://ma-backend.loc');
+mix.browserSync('http://mobit');
 
 /*
  |--------------------------------------------------------------------------
