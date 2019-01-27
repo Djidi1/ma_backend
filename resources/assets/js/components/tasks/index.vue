@@ -548,7 +548,7 @@
                                         }
                                     }
                                 }
-                                return [...new Set(responsible_names)].join(', ');
+                                return [...new Set(responsible_names)].join(', ') || '-';
                             }
                         },
                         cellRenderer: function (params) {
