@@ -126,8 +126,9 @@
                         headerName: this.$t('objects'), field: 'audit_objects',
                         width: 90,
                         valueGetter: function(params) {
-                            return params.data.audit_objects.length.toString();
-                        }
+                            return params.data.audit_objects.length || '0';
+                        },
+                        type: "numberColumn"
                     },
                     {
                         headerName: this.$t('actions'), field: 'id',

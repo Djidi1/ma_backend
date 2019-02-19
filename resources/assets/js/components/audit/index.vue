@@ -405,16 +405,24 @@
                     {
                         headerName: this.$t('nonconformity'), cellStyle: {textAlign: "center"}, field: 'audit_result',
                         minWidth: 80,
-                        cellRenderer: function (params) {
+                        valueGetter: function(params){
                             let good_results = 0;
-                            let results = params.value;
+                            let results = params.data.audit_result;
                             for (let result in results) {
                                 if (results.hasOwnProperty(result) && parseInt(results[result].result) > 0) {
                                     good_results++;
                                 }
                             }
-                            let color = params.value.length === 0 ? 'blue' : (good_results === params.value.length ? 'green' : 'orange');
-                            return '<b class="' + color + '--text">' + (params.value.length - good_results) + '</b>';
+                            return params.data.audit_result.length - good_results;
+                        },
+                        cellStyle: function(params) {
+                            const colors = {
+                                'blue': '#2196f3',
+                                'green': '#4caf50',
+                                'orange': '#ff9800',
+                            };
+                            let color = params.data.audit_result.length === 0 ? colors.blue : (params.value === 0 ? colors.green : colors.orange);
+                            return { color: color, fontWeight: 700, textAlign: 'center' };
                         }
                     },
                     {
@@ -427,6 +435,7 @@
                         headerName: this.$t('date'),
                         minWidth: 90,
                         align: 'left',
+                        comparator: (d1, d2) => moment(d1).isAfter(d2, 'day') ? -1 : 1,
                         valueGetter: function (params) {
                             return moment(params.data.date).format('DD.MM.YYYY');
                         }

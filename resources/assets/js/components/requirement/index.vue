@@ -280,6 +280,7 @@
                 suppressDragLeaveHidesColumns: true,
                 suppressMakeColumnVisibleAfterUnGroup: true,
                 floatingFilter:true,
+                enableSorting: true,
                 domLayout: 'autoHeight',
                 rowGroupPanelShow: 'always',
             };

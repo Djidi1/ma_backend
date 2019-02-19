@@ -128,7 +128,7 @@
                         headerName: this.$t('checklists'), field: 'checklists',
                         width: 90,
                         valueGetter: function(params) {
-                            return params.data.checklists.length.toString();
+                            return params.data.checklists.length || '0';
                         }
                     },
                     (this.$auth.user().role_id !== 2) ? {

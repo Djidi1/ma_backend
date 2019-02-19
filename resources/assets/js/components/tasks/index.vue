@@ -499,6 +499,10 @@
                     });
                 this.columnDefs = [
                     {
+                        headerName: 'ID', align: 'left', minWidth: 30, field: 'result.audit.audit_object.id',
+                        cellStyle: {'white-space': 'normal','line-height': 'normal'},
+                    },
+                    {
                         headerName: this.$t('object'), minWidth: 120, align: 'left', field: 'result.audit.audit_object.title',
                         cellStyle: {'white-space': 'normal','line-height': 'normal'},
                         cellRenderer: function (params) {
@@ -514,6 +518,7 @@
                     },
                     {
                         headerName: this.$t('date'), minWidth: 90, align: 'left', field: 'result.created_at',
+                        comparator: (d1, d2) => moment(d1).isAfter(d2, 'day') ? -1 : 1,
                         valueGetter: function (params) {
                             return moment(params.data.result.created_at, 'YYYY-MM-DD').format('DD.MM.YYYY');
                         }
@@ -567,12 +572,14 @@
                     },
                     {
                         headerName: this.$t('date_start'), minWidth: 90, align: 'left', field: 'start',
+                        comparator: (d1, d2) => moment(d1).isAfter(d2, 'day') ? -1 : 1,
                         valueGetter: function (params) {
                             return moment(params.data.start).format('DD.MM.YYYY');
                         }
                     },
                     {
                         headerName: this.$t('date_end'), minWidth: 90, align: 'left', field: 'end',
+                        comparator: (d1, d2) => moment(d1).isAfter(d2, 'day') ? -1 : 1,
                         valueGetter: function (params) {
                             return moment(params.data.end).format('DD.MM.YYYY');
                         }
@@ -741,7 +748,8 @@
                 enableColResize: true,
                 suppressPropertyNamesCheck: true,
                 getRowHeight: function(params) {
-                    return 32 * (Math.floor(params.data.result.requirement.title.length / 45) + 1);
+                    let l = params.data.result.requirement.title.length || 10;
+                    return 32 * (Math.floor(l / 45) + 1);
                 },
                 onGridReady: function(params) {
                     params.api.sizeColumnsToFit();

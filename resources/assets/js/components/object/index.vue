@@ -184,7 +184,7 @@
                     {
                         headerName: this.$t('audits'), width: 90, cellStyle: {textAlign: "center"}, field: 'audit',
                         valueGetter: function(params) {
-                            return params.data.audit.length.toString();
+                            return params.data.audit.length || '0';
                         }
                     },
                     {

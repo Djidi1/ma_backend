@@ -139,7 +139,7 @@
                         headerName: this.$t('requirements'), field: 'requirement',
                         width: 90,
                         valueGetter: function(params) {
-                            return params.data.requirement.length.toString();
+                            return params.data.requirement.length || '0';
                         }
                     },
                     (this.$auth.user().role_id !== 2) ? {
@@ -215,6 +215,7 @@
                 suppressDragLeaveHidesColumns: true,
                 suppressMakeColumnVisibleAfterUnGroup: true,
                 floatingFilter:true,
+                enableSorting: true,
                 domLayout: 'autoHeight',
                 rowGroupPanelShow: 'always',
             };

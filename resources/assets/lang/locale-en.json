@@ -75,5 +75,8 @@
   "position": "Position",
   "departments": "Departments",
   "positions": "Positions",
-  "work_in": "Work in"
+  "work_in": "Work in",
+  "sign_in": "Sign in",  
+  "enter_email": "Enter your E-mail",
+  "enter_password": "Enter your password"
 }

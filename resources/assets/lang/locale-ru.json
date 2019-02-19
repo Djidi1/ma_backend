@@ -75,5 +75,8 @@
   "position": "Должность",
   "departments": "Подразделения",
   "positions": "Должности",
-  "work_in": "Работает в"
+  "work_in": "Работает в",
+  "sign_in": "Войти",
+  "enter_email": "Введите Ваш E-mail",
+  "enter_password": "Введите Ваш пароль"
 }

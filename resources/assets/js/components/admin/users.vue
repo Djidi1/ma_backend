@@ -450,6 +450,7 @@
                         cellStyle: {textAlign: "center"},
                         cellRendererFramework: ActionButtons,
                         colId: "params",
+                        sortable: false,
                         suppressCellSelection: true
                     }
                 ];
@@ -531,6 +532,7 @@
                 suppressDragLeaveHidesColumns: true,
                 suppressMakeColumnVisibleAfterUnGroup: true,
                 floatingFilter: true,
+                enableSorting: true,
                 suppressMenu: true,
                 domLayout: 'autoHeight',
                 rowGroupPanelShow: 'always',

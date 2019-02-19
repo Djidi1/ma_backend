@@ -9,7 +9,7 @@
                     <v-text-field
                             name="email"
                             type="email"
-                            label="E-mail"
+                            :label="$t('enter_email')"
                             :counter="50"
                             :rules="emailRules"
                             :class="{ 'input-group--dirty': dirtyEmail }"
@@ -20,7 +20,7 @@
                 <v-flex xs12>
                     <v-text-field
                             name="passwors"
-                            label="Enter your password"
+                            :label="$t('enter_password')"
                             hint="At least 8 characters"
                             v-model="password"
                             min="8"
@@ -32,7 +32,7 @@
                             counter
                     ></v-text-field>
                 </v-flex>
-                <v-btn type="submit" color="success">Sign in</v-btn>
+                <v-btn type="submit" color="success">{{$t('sign_in')}}</v-btn>
             </form>
         </v-card>
     </div>
