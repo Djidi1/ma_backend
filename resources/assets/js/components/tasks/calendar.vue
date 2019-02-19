@@ -17,6 +17,7 @@
                                             v-model="editedItem.object_id"
                                             :label="$t('object')"
                                             required
+                                            :rules="[rules.required('object', editedItem.object_id)]"
                                     ></v-select>
                                 </v-flex>
                                 <v-flex xs12>
@@ -28,6 +29,7 @@
                                             item-value = "id"
                                             v-model="editedItem.checklist_id"
                                             :label="$t('checklist')"
+                                            :rules="[rules.required('checklist', editedItem.checklist_id)]"
                                             required
                                     ></v-select>
                                     <v-select
@@ -39,6 +41,7 @@
                                             v-model="newItemChecklists"
                                             :label="$t('checklist')"
                                             required
+                                            :rules="[rules.required('checklist', newItemChecklists)]"
                                             multiple
                                     ></v-select>
                                 </v-flex>
@@ -49,6 +52,7 @@
                                             item-value = "id"
                                             v-model="editedItem.user_id"
                                             :label="$t('auditor')"
+                                            :rules="[rules.required('auditor', editedItem.user_id)]"
                                             required
                                     ></v-select>
                                 </v-flex>
@@ -82,7 +86,7 @@
                                     </v-dialog>
                                 </v-flex>
                                 <v-flex xs12>
-                                    <v-text-field :label="$t('comment')" v-model="editedItem.orig_title" required></v-text-field>
+                                    <v-text-field :label="$t('comment')" v-model="editedItem.orig_title"></v-text-field>
                                 </v-flex>
                             </v-layout>
                         </v-container>
@@ -90,7 +94,7 @@
                     <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn color="pink darken-1" flat @click.native="close">{{ $t('cancel') }}</v-btn>
-                        <v-btn color="blue darken-1" flat @click.native="save">{{ $t('save') }}</v-btn>
+                        <v-btn color="blue darken-1" :disabled="!validForm" flat @click.native="save">{{ $t('save') }}</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -157,6 +161,7 @@
 <script>
     import CalendarView from "vue-simple-calendar"
     import CalendarMathMixin from "vue-simple-calendar/dist/calendar-math-mixin.js"
+    import formValidationMixin from "../../mixins/formValidation"
     
 	require("vue-simple-calendar/dist/static/css/default.css");
 
@@ -193,7 +198,7 @@
 		components: {
 			CalendarView
 		},
-	    mixins: [CalendarMathMixin],
+	    mixins: [CalendarMathMixin, formValidationMixin],
         computed: {
             formTitle() {
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
