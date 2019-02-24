@@ -335,7 +335,13 @@
             onClickEvent(event) {
                 this.editedIndex = this.events.indexOf(event.originalEvent);
                 this.editedItem = Object.assign({}, event.originalEvent);
-                this.dialog = true
+                // Можно редактировать только предстоящие
+                if (moment().diff(this.editedItem.date, 'days') <= 0) {
+                    this.dialog = true;
+                } else {
+                    this.$router.push('/audit_results/' + this.editedItem.id);
+                }
+                
             },
             chg_btns(class_name, color, icon) {
                 let d = document.getElementsByClassName(class_name);
