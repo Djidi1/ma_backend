@@ -518,7 +518,7 @@
                     },
                     {
                         headerName: this.$t('date'), minWidth: 90, align: 'left', field: 'result.created_at',
-                        comparator: (d1, d2) => moment(d1).isAfter(d2, 'day') ? -1 : 1,
+                        comparator: (d1, d2) => moment(d1, 'DD.MM.YYYY').isAfter(moment(d2, 'DD.MM.YYYY'), 'day') ? -1 : 1,
                         valueGetter: function (params) {
                             return moment(params.data.result.created_at, 'YYYY-MM-DD').format('DD.MM.YYYY');
                         }
@@ -572,14 +572,14 @@
                     },
                     {
                         headerName: this.$t('date_start'), minWidth: 90, align: 'left', field: 'start',
-                        comparator: (d1, d2) => moment(d1).isAfter(d2, 'day') ? -1 : 1,
+                        comparator: (d1, d2) => moment(d1, 'DD.MM.YYYY').isAfter(moment(d2, 'DD.MM.YYYY'), 'day') ? -1 : 1,
                         valueGetter: function (params) {
                             return moment(params.data.start).format('DD.MM.YYYY');
                         }
                     },
                     {
                         headerName: this.$t('date_end'), minWidth: 90, align: 'left', field: 'end',
-                        comparator: (d1, d2) => moment(d1).isAfter(d2, 'day') ? -1 : 1,
+                        comparator: (d1, d2) => moment(d1, 'DD.MM.YYYY').isAfter(moment(d2, 'DD.MM.YYYY'), 'day') ? -1 : 1,
                         valueGetter: function (params) {
                             return moment(params.data.end).format('DD.MM.YYYY');
                         }

@@ -435,7 +435,7 @@
                         headerName: this.$t('date'),
                         minWidth: 90,
                         align: 'left',
-                        comparator: (d1, d2) => moment(d1).isAfter(d2, 'day') ? -1 : 1,
+                        comparator: (d1, d2) => moment(d1, 'DD.MM.YYYY').isAfter(moment(d2, 'DD.MM.YYYY'), 'day') ? -1 : 1,
                         valueGetter: function (params) {
                             return moment(params.data.date).format('DD.MM.YYYY');
                         }
