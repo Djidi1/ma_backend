@@ -335,11 +335,11 @@
             onClickEvent(event) {
                 this.editedIndex = this.events.indexOf(event.originalEvent);
                 this.editedItem = Object.assign({}, event.originalEvent);
-                // Можно редактировать только предстоящие
-                if (moment().diff(this.editedItem.date, 'days') <= 0) {
-                    this.dialog = true;
+                // Для проведенных открываем результаты
+                if (this.editedItem.audit_result.length > 0) {
+                    this.$router.push('/audit_results/' + this.editedItem.id);                    
                 } else {
-                    this.$router.push('/audit_results/' + this.editedItem.id);
+                    this.dialog = true;
                 }
                 
             },
