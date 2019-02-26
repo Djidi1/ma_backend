@@ -11,7 +11,7 @@ class ChecklistController extends Controller
     // For API
     public function getChecklists(Request $request)
     {
-        $checklists = Checklist::with('cl_category', ['requirement' => function($query){
+        $checklists = Checklist::with(['cl_category', 'requirement' => function($query){
             $query->where('disable', '0');
         }])->get();
 
