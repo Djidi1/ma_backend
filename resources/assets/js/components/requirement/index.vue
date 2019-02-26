@@ -39,6 +39,17 @@
                                         required
                                 ></v-select>
                             </v-flex>
+                            <v-flex xs12>
+                                <v-text-field :label="$t('title')" v-model="editedItem.title" required></v-text-field>
+                                  <v-checkbox
+                                    v-model="editedItem.disable"
+                                    :label="$t('disabled')"
+                                    color="red"
+                                    true-value="1"
+                                    false-value="0"
+                                    hide-details
+                                    ></v-checkbox>
+                            </v-flex>
                         </v-layout>
                     </v-container>
                 </v-card-text>
@@ -181,7 +192,11 @@
                         headerName: this.$t('title'),
                         align: 'left',
                         field: 'title',
-                        filterParams: {newRowsAction: 'keep'}
+                        filterParams: {newRowsAction: 'keep'},
+                        cellStyle: function(params) {                            
+                            let color = (params.data.disable === "1") ? 'darkred ' : 'inherit';
+                            return { color: color};
+                        }
                     },
                     {
                         headerName: this.$t('level'), width: 90, cellStyle: {textAlign: "center"}, field: 'warning_level',

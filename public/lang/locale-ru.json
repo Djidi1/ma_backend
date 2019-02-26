@@ -78,5 +78,6 @@
   "work_in": "Работает в",
   "sign_in": "Войти",
   "enter_email": "Введите Ваш E-mail",
-  "enter_password": "Введите Ваш пароль"
+  "enter_password": "Введите Ваш пароль",
+  "disabled": "Заблокирован"
 }
