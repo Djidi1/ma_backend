@@ -33,22 +33,21 @@
                             </v-flex>
                             <v-flex xs12>
                                 <v-select
-                                        :items="levels"
-                                        v-model="editedItem.warning_level"
-                                        :label="$t('level')"
-                                        required
+                                    :items="levels"
+                                    v-model="editedItem.warning_level"
+                                    :label="$t('level')"
+                                    required
                                 ></v-select>
                             </v-flex>
-                            <v-flex xs12>
-                                <v-text-field :label="$t('title')" v-model="editedItem.title" required></v-text-field>
-                                  <v-checkbox
+                            <v-flex xs12>                                
+                                <v-checkbox
                                     v-model="editedItem.disable"
                                     :label="$t('disabled')"
                                     color="red"
                                     true-value="1"
                                     false-value="0"
                                     hide-details
-                                    ></v-checkbox>
+                                ></v-checkbox>
                             </v-flex>
                         </v-layout>
                     </v-container>
