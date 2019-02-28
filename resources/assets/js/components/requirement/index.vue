@@ -98,7 +98,7 @@
     const ActionButtons = Vue.extend({
         template: `<span>
                 <v-btn small icon class="mx-0 my-0" @click="editItem"><v-icon color="teal">edit</v-icon></v-btn>
-                <v-btn small icon class="mx-0 my-0" @click="deleteItem"><v-icon color="pink">delete</v-icon></v-btn>
+                <v-btn :disabled="parseInt(params.data.audit_results_count) > 0" small icon class="mx-0 my-0" @click="deleteItem"><v-icon color="pink">delete</v-icon></v-btn>
 
         </span>`,
         methods: {
@@ -219,6 +219,12 @@
                             }
                             return (responsible_names.length > 0) ? responsible_names.join(', ') : '-';
                         }
+                    },
+                    {
+                        headerName: this.$t('audit_results_count'),
+                        width: 90,
+                        align: 'left',
+                        field: 'audit_results_count',                
                     },
                     (this.$auth.user().role_id !== 2) ? {
                         headerName: this.$t('actions'), field: 'id',

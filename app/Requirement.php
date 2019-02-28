@@ -33,4 +33,7 @@ class Requirement extends Model
     public function responsible(){
         return $this->belongsTo('App\Responsible');
     }
+    public function audit_results(){
+        return $this->hasMany('App\AuditResult');
+    }
 }

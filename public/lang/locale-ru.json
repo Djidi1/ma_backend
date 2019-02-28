@@ -79,5 +79,7 @@
   "sign_in": "Войти",
   "enter_email": "Введите Ваш E-mail",
   "enter_password": "Введите Ваш пароль",
-  "disabled": "Заблокирован"
+  "disabled": "Заблокирован",
+  "audit_results_count": "Результаты аудитов",
+  "archive_date": "Дата вывода в архив"
 }

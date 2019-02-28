@@ -79,5 +79,7 @@
   "sign_in": "Sign in",  
   "enter_email": "Enter your E-mail",
   "enter_password": "Enter your password",
-  "disabled": "Disabled"
+  "disabled": "Disabled",
+  "audit_results_count": "Audit results",
+  "archive_date": "Archive date"
 }

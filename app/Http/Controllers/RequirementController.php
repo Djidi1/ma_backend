@@ -18,8 +18,10 @@ class RequirementController extends Controller
     public function index(Request $request)
     {
         $checklist_groups = Checklist::all();
-        $requirement_groups = RequirementGroups::all();
-        $requirements = Requirement::all();
+        $requirement_groups = RequirementGroups::all();      
+        $requirements = Requirement::withCount(['audit_results' => function($q) {
+            $q->groupBy('requirement_id');
+        }])->get();        
         $responsible = Responsible::with('user')->get();
         return compact('requirements', 'responsible', 'requirement_groups', 'checklist_groups');
 

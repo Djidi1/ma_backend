@@ -254,7 +254,7 @@
             },
             filteredObjects() {
                 return this.objects.filter(object => {
-                    return parseInt(object.audit_object_group_id) === this.object_selected || this.object_selected === 0
+                    return (parseInt(object.audit_object_group_id) === this.object_selected || this.object_selected === 0) && (moment(object.archive, 'YYYY-MM-DD').isAfter(moment(), 'day') || object.archive === null || this.editedItem.object_id === object.id)
                 })
             },
             filteredItems() {

@@ -11,7 +11,7 @@
                             <v-layout wrap>
                                 <v-flex xs12>
                                     <v-select
-                                            :items="objects"
+                                            :items="filteredObjects"
                                             item-text = "title"
                                             item-value = "id"
                                             v-model="editedItem.object_id"
@@ -202,7 +202,12 @@
         computed: {
             formTitle() {
                 return this.editedIndex === -1 ? this.$t('new_item') : this.$t('edit_item')
-            }
+            },
+            filteredObjects() {
+                return this.objects.filter(object => {
+                    return moment(object.archive, 'YYYY-MM-DD').isAfter(moment(), 'day') || object.archive === null || object.id === this.editedItem.object_id
+                })
+            },
         },
         updated() {
             if (this.events.length > 0) {

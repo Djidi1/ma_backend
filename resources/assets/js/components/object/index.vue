@@ -13,13 +13,42 @@
                             </v-flex>
                             <v-flex xs12>
                                 <v-select
-                                        :items="groups"
-                                        item-text = "title"
-                                        item-value = "id"
-                                        v-model="editedItem.audit_object_group_id"
-                                        :label="$t('group')"
-                                        required
+                                    :items="groups"
+                                    item-text = "title"
+                                    item-value = "id"
+                                    v-model="editedItem.audit_object_group_id"
+                                    :label="$t('group')"
+                                    required
                                 ></v-select>
+                            </v-flex>
+                            <v-flex xs12>                                
+                                <v-menu
+                                    ref="picker"
+                                    v-model="picker"
+                                    :nudge-right="40"
+                                    lazy
+                                    transition="scale-transition"
+                                    offset-y
+                                    width="290px"
+                                    :return-value.sync="editedItem.archive"
+                                >
+                                    <v-text-field
+                                        slot="activator"
+                                        :label="$t('archive_date')"
+                                        v-model="editedItem.archive"
+                                        prepend-icon="event"
+                                        clearable
+                                        readonly
+                                    ></v-text-field>
+                                    <v-date-picker
+                                        v-model="editedItem.archive"
+                                        first-day-of-week="1"
+                                        no-title
+                                        scrollable
+                                        @input="$refs.picker.save(editedItem.archive)"
+                                    >
+                                    </v-date-picker>
+                                </v-menu>
                             </v-flex>
                         </v-layout>
                     </v-container>
@@ -106,8 +135,8 @@
                 gridOptions: {},
                 columnDefs: null,
                 rowData: null,
-                params: null
-
+                params: null,
+                picker: false,
             }
         },        
         mixins: [
@@ -165,7 +194,9 @@
                     //         return params.value.title;
                     //     }
                     // },
-                    {headerName: this.$t('title'), align: 'left', field: 'title'},
+                    {
+                        headerName: this.$t('title'), align: 'left', field: 'title'
+                    },
                     {
                         headerName: this.$t('responsible'), field: 'id',
                         valueGetter: function(params) {
@@ -185,6 +216,13 @@
                         headerName: this.$t('audits'), width: 90, cellStyle: {textAlign: "center"}, field: 'audit',
                         valueGetter: function(params) {
                             return params.data.audit.length || '0';
+                        }
+                    },
+                    {
+                        headerName: this.$t('archive_date'), align: 'left', field: 'archive',
+                        cellStyle: function(params) {                            
+                            let color = (moment().add(1, 'd').isAfter(moment(params.data.archive, 'YYYY-MM-DD'), 'day')) ? 'darkred ' : 'inherit';
+                            return { color: color};
                         }
                     },
                     {
