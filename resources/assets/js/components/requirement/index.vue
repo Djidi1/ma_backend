@@ -269,6 +269,7 @@
                     item['requirement_groups_id'] = '0';
                     delete item['cl_category'];
                     delete item['requirement'];
+                    delete item['audit_results_count'];
                     axios.put('/requirements_update/' + item.id, item)
                         .then(response => {
                             if (response.data === 1) {
