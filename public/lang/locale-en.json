@@ -81,5 +81,12 @@
   "enter_password": "Enter your password",
   "disabled": "Disabled",
   "audit_results_count": "Audit results",
-  "archive_date": "Archive date"
+  "archive_date": "Archive date",
+  "legend_planned": "Planned",
+  "legend_done": "Done",
+  "legend_inprogress": "In progress",
+  "legend_overdue": "Overdue",
+  "year": "Year",
+  "month": "Month",
+  "week": "Week"
 }

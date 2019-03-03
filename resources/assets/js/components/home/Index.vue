@@ -145,6 +145,10 @@
             set_local(code) {
                 Vue.i18n.set(code);
                 Vue.ls.set('lang', code);
+                let event = new CustomEvent("langChanged", {
+                    detail: { lang: code }
+                });
+                document.dispatchEvent(event);
             },
             draw_navigation() {
                 this.detect_scroll();

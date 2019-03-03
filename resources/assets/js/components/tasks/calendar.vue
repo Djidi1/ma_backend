@@ -117,6 +117,7 @@
                 :show-date="showDate"
 				:starting-day-of-week="1"
 				:display-period-uom="displayPeriodUom"
+                :locale="calendar_locale"
                 eventContentHeight="2.4em"
                 @show-date-change="setShowDate"
                 class="theme-default wrap-event-title-on-hover"
@@ -128,6 +129,7 @@
             <calendar-view v-if="$auth.user().role_id === 2"
 				:events="events"
                 :show-date="showDate"
+                :locale="calendar_locale"
 				:starting-day-of-week="1"
 				:display-period-uom="displayPeriodUom"
                 eventContentHeight="2.4em"
@@ -136,9 +138,9 @@
             >
             </calendar-view>
             <v-alert :value="true" outline color="info" icon="info">
-                <b class="blue--text"><v-icon>today</v-icon></b> - запланирован <br/>
-                <b class="green--text"><v-icon>done_all</v-icon></b> - проведен  <br/>
-                <b class="orange--text"><v-icon>clear</v-icon></b> - просрочен  <br/>
+                <b class="blue--text"><v-icon>today</v-icon></b> - {{this.$t('legend_planned')}} <br/>
+                <b class="green--text"><v-icon>done_all</v-icon></b> - {{this.$t('legend_done')}}  <br/>
+                <b class="orange--text"><v-icon>clear</v-icon></b> - {{this.$t('legend_overdue')}}  <br/>
             </v-alert>
             <v-snackbar
                 v-model = "snackbar"
@@ -187,12 +189,13 @@
                 checklists: [],
                 objects: [],
                 users: [],
-			    displayPeriodUom: "month",
-                periods: [{id: "month", title: "Месяц"},{id: "week", title: "Неделя"},{id: "year", title: "Год"}],
+			    displayPeriodUom: "month",               
                 showDate: new Date(),
                 events: [],
                 errors: [],
-                snackbar_text: "Нельзя создавать аудиты в прошлом."
+                snackbar_text: "Нельзя создавать аудиты в прошлом.",
+                calendar_locale: "ru",
+                langListener: ''
             }
         },
 		components: {
@@ -208,6 +211,9 @@
                     return moment(object.archive, 'YYYY-MM-DD').isAfter(moment(), 'day') || object.archive === null || object.id === this.editedItem.object_id
                 })
             },
+            periods(){
+                return [{id: "month", title: this.$t('month')},{id: "week", title: this.$t('week')},{id: "year", title: this.$t('year')}]
+            }
         },
         updated() {
             if (this.events.length > 0) {
@@ -364,6 +370,14 @@
             let s = document.getElementById('selectPeriodUom');
             d[0].appendChild(s);
             this.getItems();
+            this.calendar_locale = this.$i18n.locale();
+            this.langListener = (e) => {
+                this.calendar_locale = e.detail.lang
+            }
+            document.addEventListener('langChanged', this.langListener);
+        },
+        beforeDestroy() {
+            document.removeEventListener('langChanged', this.langListener);
         }
     }
 </script>

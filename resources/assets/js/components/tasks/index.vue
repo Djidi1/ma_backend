@@ -230,7 +230,7 @@
                     <v-btn flat class="mx-0" :value="1">
                         <v-icon color="red">clear</v-icon>
                     </v-btn>
-                    <v-btn flat class="mx-0" :value="0">ALL</v-btn>
+                    <v-btn flat class="mx-0" :value="0">{{$t('all')}}</v-btn>
                 </v-btn-toggle>
             </v-card-actions>
             <ag-grid-vue style="width: 100%;"
@@ -243,11 +243,11 @@
             </ag-grid-vue>
             <v-alert :value="true" color="info" icon="info">
                 <v-icon color="teal">done</v-icon>
-                - выполнены<br/>
+                - {{$t('legend_done')}}<br/>
                 <v-icon color="blue">schedule</v-icon>
-                - в процессе выполнения<br/>
+                - {{$t('legend_inprogress')}}<br/>
                 <v-icon color="red">clear</v-icon>
-                - просрочены<br/>
+                - {{$t('legend_overdue')}}<br/>
             </v-alert>
             <resize-observer @notify="handleResize" />
         </v-card>
@@ -324,7 +324,8 @@
                 rowData: null,
                 params: null,
                 toggle_multiple: [0],
-                files: []
+                files: [],
+                langListener: ''
             }
         },
         components: {
@@ -766,6 +767,15 @@
                 this.fullscreen_loader = true;
             }
             this.getItems(task_id);
+            this.langListener = (e) => {
+                if (this.object_groups.length > 0) {
+                    this.object_groups[0].title = this.$t('all');
+                }
+            }
+            document.addEventListener('langChanged', this.langListener);
+        },
+        beforeDestroy() {
+            document.removeEventListener('langChanged', this.langListener);
         }
     }
 </script>

@@ -81,5 +81,12 @@
   "enter_password": "Введите Ваш пароль",
   "disabled": "Заблокирован",
   "audit_results_count": "Результаты аудитов",
-  "archive_date": "Дата вывода в архив"
+  "archive_date": "Дата вывода в архив",
+  "legend_planned": "Запланировано",
+  "legend_done": "Выполнено",
+  "legend_inprogress": "В процессе выполнения",
+  "legend_overdue": "Просрочено",  
+  "year": "Год",
+  "month": "Месяц",
+  "week": "Неделя"
 }

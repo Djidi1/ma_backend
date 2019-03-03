@@ -137,6 +137,7 @@
                 rowData: null,
                 params: null,
                 picker: false,
+                langListener: ''
             }
         },        
         mixins: [
@@ -305,7 +306,16 @@
             };
         },
         mounted() {
+            this.langListener = (e) => {
+                if (this.groups.length > 0) {
+                    this.groups[0].title = this.$t('all');
+                }
+            }            
             this.getItems();
+            document.addEventListener('langChanged', this.langListener);
+        },
+        beforeDestroy() {
+            document.removeEventListener('langChanged', this.langListener);
         }
     }
 </script>

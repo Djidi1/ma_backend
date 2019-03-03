@@ -235,7 +235,8 @@
                 rowData: null,
                 params: null,
                 toggle_multiple: [0],
-                errors: []
+                errors: [],
+                langListener: ''
             }
         },
         mixins: [
@@ -531,6 +532,15 @@
         },
         mounted() {
             this.getItems();
+            this.langListener = (e) => {
+                if (this.object_groups.length > 0) {
+                    this.object_groups[0].title = this.$t('all');
+                }
+            }
+            document.addEventListener('langChanged', this.langListener);
+        },
+        beforeDestroy() {
+            document.removeEventListener('langChanged', this.langListener);
         }
     }
 </script>
