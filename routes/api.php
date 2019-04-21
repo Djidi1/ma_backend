@@ -78,6 +78,7 @@ Route::group(['middleware' => 'jwt.auth'], function(){
 
     Route::get('checklists_all', 'ChecklistController@index');
     Route::post('checklists_save', 'ChecklistController@store');
+    Route::post('checklists_copy', 'ChecklistController@copy');
     Route::put('checklists_update/{id}', 'ChecklistController@update');
     Route::delete('checklists_delete/{id}', 'ChecklistController@destroy');
 

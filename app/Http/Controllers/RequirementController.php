@@ -19,7 +19,7 @@ class RequirementController extends Controller
     {
         $checklist_groups = Checklist::all();
         $requirement_groups = RequirementGroups::all();      
-        $requirements = Requirement::withCount(['audit_results' => function($q) {
+        $requirements = Requirement::with('checklists:checklists.id')->withCount(['audit_results' => function($q) {
             $q->groupBy('requirement_id');
         }])->get();        
         $responsible = Responsible::with('user')->get();
@@ -35,9 +35,15 @@ class RequirementController extends Controller
      */
     public function store(Request $request)
     {
-        $requestData = $request->all();
+        $requestData = $request->all(); 
+        unset ($requestData['checklist_id']);
         $result = Requirement::create($requestData);
-        return $result;
+        $req = Requirement::find($result->id);
+        $sync = $req->checklists()->sync([$request->checklist_id]);
+        $req = Requirement::with('checklists:checklists.id')->withCount(['audit_results' => function($q) {
+            $q->groupBy('requirement_id');
+        }])->find($result->id);
+        return $req;
     }
 
 
@@ -51,8 +57,13 @@ class RequirementController extends Controller
     {
         $requestData = $request->all();
         unset ($requestData['id']);
+        unset ($requestData['checklists']);
         $result = Requirement::where('id', $request->id)->update($requestData);
-        return $result;
+        $req = Requirement::with('checklists:checklists.id')->withCount(['audit_results' => function($q) {
+            $q->groupBy('requirement_id');
+        }])->find($request->id);
+        $sync = $req->checklists()->sync($request->checklists);
+        return $req;
     }
 
     /**

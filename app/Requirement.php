@@ -24,8 +24,13 @@ class Requirement extends Model
         'warning_level' => 'integer',
     ];
 
-    public function checklist(){
-        return $this->belongsTo('App\Checklist');
+    protected $hidden = [
+        'checklist_id'
+    ];
+
+    public function checklists(){
+        //return $this->belongsTo('App\Checklist');
+        return $this->belongsToMany('App\Checklist', 'checklist_requirements');
     }
     public function requirements_type(){
         return $this->belongsTo('App\Requirements_type');
