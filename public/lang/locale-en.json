@@ -90,5 +90,7 @@
   "legend_overdue": "Overdue",
   "year": "Year",
   "month": "Month",
-  "week": "Week"
+  "week": "Week",
+  "export": "export",
+  "import": "import"
 }

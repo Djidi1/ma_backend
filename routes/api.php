@@ -88,6 +88,9 @@ Route::group(['middleware' => 'jwt.auth'], function(){
     Route::put('requirements_update/{id}', 'RequirementController@update');
     Route::delete('requirements_delete/{id}', 'RequirementController@destroy');
 
+    Route::post('requirements_import', 'RequirementController@import');
+    Route::get('requirements_export', 'RequirementController@export');
+
     Route::get('requirement_groups_all', 'RequirementGroupsController@index');
     Route::post('requirement_groups_save', 'RequirementGroupsController@store');
     Route::put('requirement_groups_update/{id}', 'RequirementGroupsController@update');

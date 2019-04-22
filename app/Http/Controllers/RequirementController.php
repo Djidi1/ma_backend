@@ -7,6 +7,9 @@ use App\Requirement;
 use App\RequirementGroups;
 use App\Responsible;
 use Illuminate\Http\Request;
+use App\Exports\RequirementsExport;
+use App\Imports\RequirementsImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RequirementController extends Controller
 {
@@ -76,5 +79,23 @@ class RequirementController extends Controller
     {
         $result = Requirement::where('id', $request->id)->delete();
         return $result;
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function export() 
+    {
+        return Excel::download(new RequirementsExport, 'Requirements_' . date('d.m.Y') .'.xlsx');
+    }
+   
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function import() 
+    {
+        Excel::import(new RequirementsImport,request()->file('file'));
+           
+        return back();
     }
 }

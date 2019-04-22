@@ -82,6 +82,22 @@
           color="primary"
           dark
           slot="activator"
+          @click="importForm.visible = true"
+          class="mb-2"
+        >{{$t('import')}}</v-btn>
+        <v-btn
+          v-if="$auth.user().role_id !== 2"
+          color="primary"
+          dark
+          slot="activator"
+          @click="itemsExport()"
+          class="mb-2"
+        >{{$t('export')}}</v-btn>
+        <v-btn
+          v-if="$auth.user().role_id !== 2"
+          color="primary"
+          dark
+          slot="activator"
           @click="dialog = true"
           class="mb-2"
         >{{$t('new_item')}}</v-btn>
@@ -104,6 +120,24 @@
       </v-alert>
       <resize-observer @notify="handleResize"/>
     </v-card>
+    <input type="file" style="display: none" ref="file" accept="xlsx" @change="onFilePicked">
+    <v-dialog v-model="importForm.visible" width="500">
+      <v-card>
+        <v-card-title class="headline">{{this.$t('import')}}</v-card-title>
+        <v-card-text>
+          <v-text-field
+            label="Select file"
+            @click="pickFile"
+            v-model="importForm.file.name"
+            prepend-icon="attach_file"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" flat="flat" @click.native="importForm.visible = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -129,6 +163,14 @@ const ActionButtons = Vue.extend({
 export default {
   data() {
     return {
+      importForm: {
+        visible: false,
+        file: {
+          name: "",
+          url: "",
+          file: ""
+        }
+      },
       dialog: false,
       loading: true,
       search: "",
@@ -183,6 +225,28 @@ export default {
     }
   },
   methods: {
+    pickFile() {
+      this.$refs.file.click();
+    },
+    onFilePicked(e) {
+      const files = e.target.files;
+      if (files[0] !== undefined) {
+        this.importForm.file.name = files[0].name;
+        if (this.importForm.file.name.lastIndexOf(".") <= 0) {
+          return false;
+        }
+        const fr = new FileReader();
+        fr.readAsDataURL(files[0]);
+        fr.addEventListener("load", () => {
+          this.importForm.file.url = fr.result;
+          this.importForm.file.file = files[0]; // this is an image file that can be sent to server...
+        });
+      } else {
+        this.importForm.file.name = "";
+        this.importForm.file.url = "";
+        this.importForm.file.file = "";
+      }
+    },
     handleResize() {
       setTimeout(() => {
         this.gridOptions.api.sizeColumnsToFit();
@@ -327,6 +391,43 @@ export default {
           });
       }
       this.close();
+    },
+    async itemsExport() {
+      let self = this;
+      await axios
+        .get("/requirements_export", {
+          responseType: "arraybuffer"
+        })
+        .then(response => {
+          let filename = "";
+          let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+          let matches = filenameRegex.exec(
+            response.headers["content-disposition"]
+          );
+          if (matches != null && matches[1]) {
+            filename = matches[1].replace(/['"]/g, "");
+          }
+          const url = window.URL.createObjectURL(
+            new Blob([response.data], {
+              type: response.headers["content-type"]
+            })
+          );
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+        });
+    },
+    async itemsImport() {
+      let self = this;
+      await axios
+        .post("/requirements_import", {
+          responseType: "arraybuffer"
+        })
+        .then(response => {
+          //
+        });
     }
   },
   beforeMount() {
