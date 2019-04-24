@@ -131,10 +131,12 @@
             v-model="importForm.file.name"
             prepend-icon="attach_file"
           ></v-text-field>
+          <p class="text--red">{{importForm.error}}</p>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="green darken-1" flat="flat" @click.native="importForm.visible = false">Close</v-btn>
+          <v-btn color="red darken-1" flat="flat" @click.native="importForm.visible = false">{{this.$t('cancel')}}</v-btn>
+          <v-btn color="blue darken-1" flat="flat" @click="importFile" :disabled="!!!importForm.file.name.length">{{this.$t('send')}}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -165,10 +167,11 @@ export default {
     return {
       importForm: {
         visible: false,
+        error: '',
         file: {
-          name: "",
-          url: "",
-          file: ""
+          name: '',
+          url: '',
+          file: ''
         }
       },
       dialog: false,
@@ -246,6 +249,20 @@ export default {
         this.importForm.file.url = "";
         this.importForm.file.file = "";
       }
+    },    
+    async importFile () {      
+      let fd = new FormData;
+      fd.append('file', this.$refs.file.files[0]);
+      await axios.post("/requirements_import", fd).then( async response => {
+        if (response.status === 200) {
+          this.importForm.error = '';
+          this.importForm.visible = false;
+          await this.getItems();
+          this.checklist_select = this.checklist_groups[0]["id"] || 0;
+        } else {
+          this.importForm.error = response.data.message;
+        }
+      });
     },
     handleResize() {
       setTimeout(() => {
