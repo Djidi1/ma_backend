@@ -95,6 +95,6 @@ class RequirementController extends Controller
     public function import() 
     {
         $result = Excel::import(new RequirementsImport,request()->file('file'));
-        dd($result);
+        return 1;
     }
 }

@@ -8,6 +8,9 @@ use App\AuditObject;
 use App\AuditObjectGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Exports\ObjectsExport;
+use App\Imports\ObjectsImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class ObjectsController extends Controller
@@ -74,5 +77,22 @@ class ObjectsController extends Controller
     {
         $result = AuditObject::where('id', $request->id)->delete();
         return $result;
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function export() 
+    {
+        return Excel::download(new ObjectsExport, 'Objects_' . date('d.m.Y') .'.xlsx');
+    }
+   
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function import() 
+    {
+        Excel::import(new ObjectsImport,request()->file('file'));        
+        return 1;
     }
 }

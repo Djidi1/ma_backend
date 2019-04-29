@@ -15,6 +15,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Exports\UsersExport;
+use App\Imports\UsersImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UsersController extends Controller
 {
@@ -137,5 +140,23 @@ class UsersController extends Controller
         $result = User::where('id', $request->id)->delete();
         return $result;
     }
+
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function export() 
+    {
+        return Excel::download(new UsersExport, 'Users_' . date('d.m.Y') .'.xlsx');
+    }
+   
+    /**
+     * @return \Illuminate\Support\Collection
+     */
+    public function import() 
+    {
+        Excel::import(new UsersImport,request()->file('file'));        
+        return 1;
+    }
+
 
 }

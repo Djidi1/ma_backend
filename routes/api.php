@@ -51,6 +51,9 @@ Route::group(['middleware' => 'jwt.auth'], function(){
     Route::put('users_update/{id}', 'Admin\UsersController@update');
     Route::delete('users_delete/{id}', 'Admin\UsersController@destroy');
 
+    Route::post('users_import', 'Admin\UsersController@import');
+    Route::get('users_export', 'Admin\UsersController@export');
+
 // Должности
     Route::get('position_all', 'Admin\PositionController@index');
     Route::post('position_save', 'Admin\PositionController@store');
@@ -106,6 +109,9 @@ Route::group(['middleware' => 'jwt.auth'], function(){
     Route::post('object_groups_save', 'ObjectGroupsController@store');
     Route::put('object_groups_update/{id}', 'ObjectGroupsController@update');
     Route::delete('object_groups_delete/{id}', 'ObjectGroupsController@destroy');
+
+    Route::post('objects_import', 'ObjectsController@import');
+    Route::get('objects_export', 'ObjectsController@export');
 
 // Аудиты
     Route::get('audits_all', 'AuditListsController@index');

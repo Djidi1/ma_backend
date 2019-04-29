@@ -191,6 +191,24 @@
                 <!-- fix autocomplete bug -->
                 <input title="" name="hidden" type="text" style="width: 0; height: 0; margin: 0; padding: 0"/>
                 <v-spacer></v-spacer>
+                <v-btn
+                  color="primary"
+                  dark
+                  slot="activator"
+                  @click="importForm.visible = true"
+                  class="mb-2"
+                >
+                  {{$t('import')}}
+                </v-btn>
+                <v-btn
+                  color="primary"
+                  dark
+                  slot="activator"
+                  @click="itemsExport()"
+                  class="mb-2"
+                >
+                  {{$t('export')}}
+                </v-btn>
                 <v-btn color="primary" dark slot="activator" @click="dialog = true" class="mb-2">{{$t('new_item')}}
                 </v-btn>
             </v-card-title>
@@ -205,6 +223,26 @@
             </ag-grid-vue>
             <resize-observer @notify="handleResize" />
         </v-card>
+        <input type="file" style="display: none" ref="file" accept="xlsx" @change="onFilePicked">
+    <v-dialog v-model="importForm.visible" width="500">
+      <v-card>
+        <v-card-title class="headline">{{this.$t('import')}}</v-card-title>
+        <v-card-text>
+          <v-text-field
+            label="Select file"
+            @click="pickFile"
+            v-model="importForm.file.name"
+            prepend-icon="attach_file"
+          ></v-text-field>
+          <p class="text--red">{{importForm.error}}</p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="red darken-1" flat="flat" @click.native="importForm.visible = false">{{this.$t('cancel')}}</v-btn>
+          <v-btn color="blue darken-1" flat="flat" @click="importFile" :disabled="!!!importForm.file.name.length">{{this.$t('send')}}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     </div>
 </template>
 
@@ -230,6 +268,15 @@
     export default {
         data() {
             return {
+                importForm: {
+                    visible: false,
+                    error: '',
+                    file: {
+                        name: '',
+                        url: '',
+                        file: ''
+                    }
+                },
                 dialog: false,
                 loading: true,
                 search: '',
@@ -349,6 +396,69 @@
             }
         },
         methods: {
+            pickFile() {
+              this.$refs.file.click();
+            },
+            onFilePicked(e) {
+              const files = e.target.files;
+              if (files[0] !== undefined) {
+                this.importForm.file.name = files[0].name;
+                if (this.importForm.file.name.lastIndexOf(".") <= 0) {
+                  return false;
+                }
+                const fr = new FileReader();
+                fr.readAsDataURL(files[0]);
+                fr.addEventListener("load", () => {
+                  this.importForm.file.url = fr.result;
+                  this.importForm.file.file = files[0]; // this is an image file that can be sent to server...
+                });
+              } else {
+                this.importForm.file.name = "";
+                this.importForm.file.url = "";
+                this.importForm.file.file = "";
+              }
+            },    
+            async importFile () {      
+              let fd = new FormData;
+              fd.append('file', this.$refs.file.files[0]);
+              await axios.post("/users_import", fd).then( async response => {
+                if (response.status === 200) {
+                  this.importForm.error = '';
+                  this.importForm.visible = false;
+                  await this.getItems();
+                  this.checklist_select = this.checklist_groups[0]["id"] || 0;
+                } else {
+                  this.importForm.error = response.data.message;
+                }
+              });
+            },
+            async itemsExport() {
+              let self = this;
+              await axios
+                .get("/users_export", {
+                  responseType: "arraybuffer"
+                })
+                .then(response => {
+                  let filename = "";
+                  let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                  let matches = filenameRegex.exec(
+                    response.headers["content-disposition"]
+                  );
+                  if (matches != null && matches[1]) {
+                    filename = matches[1].replace(/['"]/g, "");
+                  }
+                  const url = window.URL.createObjectURL(
+                    new Blob([response.data], {
+                      type: response.headers["content-type"]
+                    })
+                  );
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.download = filename;
+                  document.body.appendChild(link);
+                  link.click();
+                });
+            },
             handleResize () {
                 setTimeout(() => {
                     this.gridOptions.api.sizeColumnsToFit();
