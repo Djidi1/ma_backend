@@ -31,8 +31,8 @@ class UsersController extends Controller
         $roles = Role::all();
         $objects = AuditObject::all();
         $object_groups = AuditObjectGroup::all();
-        $requirements = Requirement::all();
-        $checklists = Checklist::all();
+        $requirements = Requirement::with('checklists')->get();
+        $checklists = Checklist::with('requirements')->get();
         $departments = Department::all();
         $positions = Position::all();
         $users = User::with('role','responsible','department','position')->get();
