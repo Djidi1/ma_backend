@@ -365,23 +365,23 @@
                 return grouped_items;
             },
             grouped_requirements() {
-                let grouped_items = [];
-                for (let index in this.checklists) {
-                    let item_group = this.checklists[index];
-                    // Если в группе есть элементы
-                    if (this.requirements_items.findIndex(x => x.checklist_id === item_group.id) > -1) {
-                        grouped_items.push({header: item_group.title});
-                    }
-                    for (let index in this.requirements_items) {
-                        // Добавляем элементы в массив
-                        if (this.requirements_items[index].checklist_id === item_group.id) {
-                            this.requirements_items[index]['group'] = item_group.title;
-                            grouped_items.push(this.requirements_items[index]);
-                        }
-                    }
-                    grouped_items.push({divider: true});
-                }
-                return grouped_items;
+                let grouped_items = {};
+                // for (let index in this.checklists) {
+                //     let item_group = this.checklists[index];
+                //     // Если в группе есть элементы
+                //     if (this.requirements_items.findIndex(x => x.checklist_id === item_group.id) > -1) {
+                //         grouped_items.push({header: item_group.title});
+                //     }
+                //     for (let index in this.requirements_items) {
+                //         // Добавляем элементы в массив
+                //         if (this.requirements_items[index].checklist_id === item_group.id) {
+                //             this.requirements_items[index]['group'] = item_group.title;
+                //             grouped_items.push(this.requirements_items[index]);
+                //         }
+                //     }
+                //     grouped_items.push({divider: true});
+                // }                
+                return this.requirements_items;
             }
         },
         watch: {
